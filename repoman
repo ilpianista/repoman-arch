@@ -18,70 +18,154 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-# Usage:
-# repoman add|remove pkg
 
-mode=$1
+action=$1
 pkg=$2
 
-source repoman.conf
+function environment()
+{
+  source repoman.conf
+  check_dir
+  color
+}
 
-echo "scarico i file aggiornati"
-cd $workspace
-rm -f ChangeLog $repo.db.tar.gz
-wget $url/ChangeLog &> /dev/null || return 1
-wget $url/$repo.db.tar.gz &> /dev/null || return 1
+function color()
+{
+  if [ "$NOCOLOR" != "TRUE" ]; then
+    DEFA="\033[1;0m"
+    BOLD="\033[1;1m"
+    LRED="\033[1;31m"
+    LGRE="\033[1;32m"
+    YELL="\033[1;33m"
+  else
+    NOCOLOR_FLAG="--nocolor"
+  fi
+}
 
-if [ $mode = "remove" ]; then
-  repo-remove $workspace/$repo.db.tar.gz $pkg &> /dev/null || return 1
-  echo "pacchetto rimosso!"
-  flag=R
-else
+function get_file()
+{
+  printf "${LGRE} $1 ${DEFA}"
+  rm -f $workspace/$1
+  wget -P $workspace $url/$1 &> /dev/null
+  if [ ! -e $workspace/$1 ]; then
+    printf "\n${LRED}Impossibile scaricare $1. Termino. ${DEFA}\n"
+    exit 0
+  fi
+}
+
+function get_pkg()
+{
+  printf "${LGRE} $1.tar.gz ${DEFA}"
+  wget -P $workspace/pkg http://aur.archlinux.org/packages/$1/$1.tar.gz &> /dev/null
+  if [ ! -e $workspace/pkg/$1.tar.gz ]; then
+    printf "\n${LRED}$1 non trovato. Termino. ${DEFA}\n"
+    exit 0
+  fi
+}
+
+function extract()
+{
+  printf "${LGRE} $1 ${DEFA}"
+  rm -rf $workspace/pkg/$1
+  tar -xf $workspace/pkg/$1.tar.gz -C $workspace/pkg || return 1
+
+}
+
+function check_dir()
+{
+  if [ ! -d $workspace ]; then
+    mkdir $workspace
+  fi
+  
   if [ ! -d $workspace/pkg ]; then
     mkdir $workspace/pkg
   fi
+}
 
-  cd $workspace/pkg
-  rm -rf $pkg/
-
-  if [ -e $pkg.tar.gz ]; then
-    echo "estraggo l'archivio"
-    tar -xf $pkg.tar.gz || return 1
-  else
-    echo "scarico ed estraggo l'archivio"
-    wget http://aur.archlinux.org/packages/$pkg/$pkg.tar.gz &> /dev/null
-    tar -xf $pkg.tar.gz || return 1
-  fi
-
-  cd $pkg
- 
-  # get package version
+function build_pkg()
+{
+  printf "${LGRE} $1"
+  cd $workspace/pkg/$1
   pkgver=`cat PKGBUILD | grep pkgver= | awk -F'=' '{print $2}'`
   pkgrel=`cat PKGBUILD | grep pkgrel= | awk -F'=' '{print $2}'`
   pkgver=`echo $pkgver-$pkgrel`
+  makepkg -f --noconfirm &> /dev/null || return 1
+  printf " ($pkgver)${DEFA} \n"
+}
 
-  echo "compilo $pkg-$pkgver"
-  makepkg -f &> /dev/null || return 1
+function copy_pkg()
+{
+  cp $workspace/pkg/$1/$1-$pkgver-i686.pkg.tar.gz $workspace/
+}
 
-  cp $workspace/pkg/$pkg/$pkg-$pkgver-i686.pkg.tar.gz $workspace
-
-  echo "aggiorno il database"
-  flag=`pacman -Sql $repo | grep $pkg`
-  repo-add $workspace/$repo.db.tar.gz $workspace/$pkg-$pkgver-i686.pkg.tar.gz &> /dev/null || return 1
-  if [[ $flag = $pkg ]]; then
-    echo "pacchetto aggiornato!"
-    flag=U
-  elif [[ $flag = "" ]]; then
-    echo "pacchetto aggiunto!"
-    flag=A
+function update_db()
+{
+  printf "${YELL}Aggiorno: ${LGRE}$repo.db.tar.gz${DEFA}\n"
+  if [ "$action" = "add" ] || [ "$action" = "update" ]; then
+    repo-add $workspace/$repo.db.tar.gz $workspace/$1-$pkgver-i686.pkg.tar.gz &> /dev/null || return 1
+  elif [ "$action" = "remove" ]; then
+    printf "${LGRE}$1 ${YELL}rimosso! ${DEFA}\n"
+    repo-remove $workspace/$repo.db.tar.gz $1 &> /dev/null || return 1
   fi
+}
+
+function update_changelog()
+{
+  printf "${YELL}Aggiorno ${LGRE}$1${DEFA}\n"
+  echo `date +"%d-%m-%Y %R"` `whoami` > /tmp/temp
+  if [ "$action" = "add" ]; then
+    flag=A
+  elif [ "$action" = "update" ]; then
+    flag=U
+  elif [ "$action" = "remove" ]; then
+    flag=R
+  fi
+  echo "* $flag $pkg $pkgver" >> /tmp/temp
+  echo "" >> /tmp/temp
+  cat /tmp/temp $workspace/$changelog > /tmp/$changelog
+  mv /tmp/$changelog $workspace/$changelog
+}
+
+function print_help()
+{
+  printf "RepoMan: A tool for manage your ArchLinux repository\n"
+  printf "\n"
+  printf "Usage: repoman add|update|remove package\n"
+}
+
+environment
+
+if [ "$pkg" = "" ]; then
+  print_help
+  exit 0
 fi
 
-echo `date +"%d-%m-%Y %R"` `whoami` > /tmp/temp
-echo "* $flag $pkg $pkgver" >> /tmp/temp
-echo "" >> /tmp/temp
-cat /tmp/temp $workspace/ChangeLog > /tmp/ChangeLog
-mv /tmp/ChangeLog $workspace/ChangeLog
+printf "${YELL}Scarico i file: "
+get_file $changelog
+get_file $repo.db.tar.gz
+if [ "$action" = "add" ] || [ "$action" = "update" ]; then
+  if [ ! -e $workspace/pkg/$pkg.tar.gz ]; then
+    get_pkg $pkg
+  fi
+fi
+printf "\n"
+
+if [ "$action" = "remove" ]; then
+  update_db $pkg
+else
+  printf "${YELL}Estraggo: "
+  extract $pkg
+  printf "\n"
+  
+  printf "${YELL}Compilo: "
+  build_pkg $pkg
+  printf "\n"
+
+  copy_pkg $pkg
+  
+  update_db $pkg
+fi
+
+update_changelog $changelog
 
 exit 0
