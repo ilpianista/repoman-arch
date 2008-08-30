@@ -1,0 +1,70 @@
+#!/bin/bash
+#
+# RepoMan
+# A tool for manage your ArchLinux repository
+#
+# Copyright (C) 2008 Andrea Scarpino <bash.lnx@gmail.com>
+#                    Dario Vilardi <dax@deelab.org>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Usage:
+# repoman add|remove pkg
+
+mode=$1
+pkg=$2
+
+source repoman.conf
+
+cd $workspace/pkg
+tar -xf $pkg.tar.gz || return 1
+cd $pkg
+ 
+# get package version
+pkgver=`cat PKGBUILD | grep pkgver= | awk -F'=' '{print $2}'`
+pkgrel=`cat PKGBUILD | grep pkgrel= | awk -F'=' '{print $2}'`
+pkgver=`echo $pkgver-$pkgrel`
+
+echo "compilo $pkg-$pkgver"
+makepkg -f &> /dev/null || return 1
+
+cp $pkg-$pkgver-i686.pkg.tar.gz $workspace
+
+echo "scarico i file aggiornati"
+cd $workspace
+rm -f ChangeLog $repo.db.tar.gz
+wget $url/ChangeLog &> /dev/null || return 1
+wget $url/$repo.db.tar.gz &> /dev/null || return 1
+
+echo "aggiorno il database"
+flag=`pacman -Sl $repo | grep $pkg`
+if [ $mode = "remove" ]; then
+  repo-remove $repo.db.tar.gz $pkg || return 1
+  flag=R
+else
+  if [ ${#flag} = "" ]; then
+    repo-add $repo.db.tar.gz $pkg-$pkgver-i686.pkg.tar.gz || return 1
+    flag=A
+  else
+    flag=U
+  fi
+fi
+
+echo `date +"%d-%m-%Y %R"` `whoami` > /tmp/temp
+echo "* $flag $pkg $pkgver" >> /tmp/temp
+echo " " >> /tmp/temp
+cat /tmp/temp ChangeLog > ChangeLog.tmp
+mv ChangeLog.tmp ChangeLog
+
+exit 0
