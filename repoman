@@ -27,58 +27,61 @@ pkg=$2
 
 source repoman.conf
 
-if [ ! -d $workspace/pkg ]; then
-  mkdir $workspace/pkg
-fi
-
-cd $workspace/pkg
-rm -rf $pkg/
-
-if [ -e $pkg.tar.gz ]; then
-  echo "estraggo l'archivio"
-  tar -xf $pkg.tar.gz || return 1
-else
-  echo "scarico ed estraggo l'archivio"
-  wget http://aur.archlinux.org/packages/$pkg/$pkg.tar.gz &> /dev/null
-  tar -xf $pkg.tar.gz || return 1
-fi
-
-cd $pkg
- 
-# get package version
-pkgver=`cat PKGBUILD | grep pkgver= | awk -F'=' '{print $2}'`
-pkgrel=`cat PKGBUILD | grep pkgrel= | awk -F'=' '{print $2}'`
-pkgver=`echo $pkgver-$pkgrel`
-
-echo "compilo $pkg-$pkgver"
-makepkg -f &> /dev/null || return 1
-
-cp $pkg-$pkgver-i686.pkg.tar.gz $workspace
-
 echo "scarico i file aggiornati"
 cd $workspace
 rm -f ChangeLog $repo.db.tar.gz
 wget $url/ChangeLog &> /dev/null || return 1
 wget $url/$repo.db.tar.gz &> /dev/null || return 1
 
-echo "aggiorno il database"
-flag=`pacman -Sl $repo | grep $pkg`
 if [ $mode = "remove" ]; then
-  repo-remove $repo.db.tar.gz $pkg || return 1
+  repo-remove $workspace/$repo.db.tar.gz $pkg &> /dev/null || return 1
+  echo "pacchetto rimosso!"
   flag=R
 else
-  if [ ${#flag} = "" ]; then
-    repo-add $repo.db.tar.gz $pkg-$pkgver-i686.pkg.tar.gz || return 1
-    flag=A
+  if [ ! -d $workspace/pkg ]; then
+    mkdir $workspace/pkg
+  fi
+
+  cd $workspace/pkg
+  rm -rf $pkg/
+
+  if [ -e $pkg.tar.gz ]; then
+    echo "estraggo l'archivio"
+    tar -xf $pkg.tar.gz || return 1
   else
+    echo "scarico ed estraggo l'archivio"
+    wget http://aur.archlinux.org/packages/$pkg/$pkg.tar.gz &> /dev/null
+    tar -xf $pkg.tar.gz || return 1
+  fi
+
+  cd $pkg
+ 
+  # get package version
+  pkgver=`cat PKGBUILD | grep pkgver= | awk -F'=' '{print $2}'`
+  pkgrel=`cat PKGBUILD | grep pkgrel= | awk -F'=' '{print $2}'`
+  pkgver=`echo $pkgver-$pkgrel`
+
+  echo "compilo $pkg-$pkgver"
+  makepkg -f &> /dev/null || return 1
+
+  cp $workspace/pkg/$pkg/$pkg-$pkgver-i686.pkg.tar.gz $workspace
+
+  echo "aggiorno il database"
+  flag=`pacman -Sql $repo | grep $pkg`
+  repo-add $workspace/$repo.db.tar.gz $workspace/$pkg-$pkgver-i686.pkg.tar.gz &> /dev/null || return 1
+  if [[ $flag = $pkg ]]; then
+    echo "pacchetto aggiornato!"
     flag=U
+  elif [[ $flag = "" ]]; then
+    echo "pacchetto aggiunto!"
+    flag=A
   fi
 fi
 
 echo `date +"%d-%m-%Y %R"` `whoami` > /tmp/temp
 echo "* $flag $pkg $pkgver" >> /tmp/temp
 echo "" >> /tmp/temp
-cat /tmp/temp ChangeLog > ChangeLog.tmp
-mv ChangeLog.tmp ChangeLog
+cat /tmp/temp $workspace/ChangeLog > /tmp/ChangeLog
+mv /tmp/ChangeLog $workspace/ChangeLog
 
 exit 0
