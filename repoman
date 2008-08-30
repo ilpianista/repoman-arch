@@ -27,8 +27,22 @@ pkg=$2
 
 source repoman.conf
 
+if [ ! -d $workspace/pkg ]; then
+  mkdir $workspace/pkg
+fi
+
 cd $workspace/pkg
-tar -xf $pkg.tar.gz || return 1
+rm -rf $pkg/
+
+if [ -e $pkg.tar.gz ]; then
+  echo "estraggo l'archivio"
+  tar -xf $pkg.tar.gz || return 1
+else
+  echo "scarico ed estraggo l'archivio"
+  wget http://aur.archlinux.org/packages/$pkg/$pkg.tar.gz &> /dev/null
+  tar -xf $pkg.tar.gz || return 1
+fi
+
 cd $pkg
  
 # get package version
@@ -63,7 +77,7 @@ fi
 
 echo `date +"%d-%m-%Y %R"` `whoami` > /tmp/temp
 echo "* $flag $pkg $pkgver" >> /tmp/temp
-echo " " >> /tmp/temp
+echo "" >> /tmp/temp
 cat /tmp/temp ChangeLog > ChangeLog.tmp
 mv ChangeLog.tmp ChangeLog
 
