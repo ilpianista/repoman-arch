@@ -46,7 +46,11 @@ function get_file()
 {
   printf "${LGRE} $1 ${DEFA}"
   rm -f $workspace/$1
-  wget -P $workspace $url/$1 &> /dev/null
+  if [ "$VERBOSE" = "TRUE" ]; then
+    wget -P $workspace $url/$1
+  else
+    wget -P $workspace $url/$1 &> /dev/null
+  fi
   if [ ! -e $workspace/$1 ]; then
     printf "\n${LRED}Impossibile scaricare $1. Termino. ${DEFA}\n"
     exit 0
@@ -56,7 +60,11 @@ function get_file()
 function get_pkg()
 {
   printf "${LGRE} $1.tar.gz ${DEFA}"
-  wget -P $workspace/pkg http://aur.archlinux.org/packages/$1/$1.tar.gz &> /dev/null
+  if [ "$VERBOSE" = "TRUE" ]; then
+    wget -P $workspace/pkg http://aur.archlinux.org/packages/$1/$1.tar.gz
+  else
+    wget -P $workspace/pkg http://aur.archlinux.org/packages/$1/$1.tar.gz &> /dev/null
+  fi
   if [ ! -e $workspace/pkg/$1.tar.gz ]; then
     printf "\n${LRED}$1 non trovato. Termino. ${DEFA}\n"
     exit 0
@@ -89,7 +97,11 @@ function build_pkg()
   pkgver=`cat PKGBUILD | grep pkgver= | awk -F'=' '{print $2}'`
   pkgrel=`cat PKGBUILD | grep pkgrel= | awk -F'=' '{print $2}'`
   pkgver=`echo $pkgver-$pkgrel`
-  makepkg -f --noconfirm &> /dev/null || return 1
+  if [ "$VERBOSE" = "TRUE" ]; then
+    makepkg -f --noconfirm || return 1
+  else
+    makepkg -f --noconfirm &> /dev/null || return 1
+  fi
   printf " ($pkgver)${DEFA}\n"
 }
 
@@ -102,10 +114,18 @@ function update_db()
 {
   printf "${YELL}Aggiorno: ${LGRE}$repo.db.tar.gz${DEFA}\n"
   if [ "$action" = "add" ] || [ "$action" = "update" ]; then
-    repo-add $workspace/$repo.db.tar.gz $workspace/$1-$pkgver-$arch.pkg.tar.gz &> /dev/null || return 1
+    if [ "$VERBOSE" = "TRUE" ]; then
+      repo-add $workspace/$repo.db.tar.gz $workspace/$1-$pkgver-$arch.pkg.tar.gz || return 1
+    else
+      repo-add $workspace/$repo.db.tar.gz $workspace/$1-$pkgver-$arch.pkg.tar.gz &> /dev/null || return 1
+    fi
   elif [ "$action" = "remove" ]; then
     printf "${LGRE}$1 ${YELL}rimosso! ${DEFA}\n"
-    repo-remove $workspace/$repo.db.tar.gz $1 &> /dev/null || return 1
+    if [ "$VERBOSE" = "TRUE" ]; then
+      repo-remove $workspace/$repo.db.tar.gz $1 || return 1
+    else
+      repo-remove $workspace/$repo.db.tar.gz $1 &> /dev/null || return 1
+    fi
   fi
 }
 
