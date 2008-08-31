@@ -155,6 +155,18 @@ function print_help()
   printf "Usage: `basename $0` [options] packages\n"
 }
 
+function edit_pkgbuild()
+{
+  if [ -f $workspace/pkg/$1/PKGBUILD ]; then
+    printf "${BOLD}Do you want to edit this PKGBUILD? (y/N):${DEFA} "
+    read EDIT_ANSWER
+    if [ "$EDIT_ANSWER" = "y" ]; then
+      [ -z "$EDITOR" ] && EDITOR=vi
+      $EDITOR $workspace/pkg/$1/PKGBUILD
+    fi
+  fi
+}
+
 environment
 
 if [ $# -eq 0 ]; then
@@ -178,6 +190,7 @@ if [ "$action" = "add" ] || [ "$action" = "update" ]; then
   printf "${YELL}Extracting: "
   extract $pkg
   printf "\n"
+  edit_pkgbuild $pkg
   
   printf "${YELL}Building: "
   build_pkg $pkg
