@@ -173,29 +173,36 @@ function print_help()
 function check_args()
 {
   if [ -z "$1" ]; then
+    NOCOLOR="TRUE"; 
     print_help
     exit 0
   fi
   
-  while [ "$#" -ne "0" ]; do
-    case $1 in
-      --add) ADD="TRUE"; flag="A" ;;
-      --remove) REMOVE="TRUE"; flag="R" ;;
-      --update) UPDATE="TRUE"; flag="U" ;;
-      --help) NOCOLOR="TRUE"; print_help; exit 0 ;;
-      --verbose) VERBOSE="TRUE" ;;
-      --nocolor) NOCOLOR="TRUE" ;;
-      --nochangelog) NOCHANGELOG="TRUE" ;;
-      -*)
-      while getopts ":ARUh:-:" ARGS; do
-        case $ARGS in
-          A) ADD="TRUE"; flag="A" ;;
-          R) REMOVE="TRUE"; flag="R" ;;
-          U) UPDATE="TRUE"; flag="U" ;;
-        esac
-      done ;;
-      *) pkgs[${#pkgs[@]}]=$1 ;;
-    esac
+  while [ $# -gt 0 ]; do
+    for OPTIONS in $@; do
+      case $OPTIONS in
+        -*) break ;;
+         *) pkgs[${#pkgs[@]}]=$OPTIONS; shift;;
+      esac
+    done
+    while getopts ":ARU:-:" ARGS; do
+      case $ARGS in
+        A) ADD="TRUE"; flag="A" ;;
+        R) REMOVE="TRUE"; flag="R" ;;
+        U) UPDATE="TRUE"; flag="U" ;;
+        -) case $OPTARG in
+             add) ADD="TRUE"; flag="A" ;;
+             remove) REMOVE="TRUE"; flag="R" ;;
+             update) UPDATE="TRUE"; flag="U" ;;
+             help) NOCOLOR="TRUE"; print_help; exit 0 ;;
+             verbose) VERBOSE="TRUE" ;;
+             nocolor) NOCOLOR="TRUE" ;;
+             nochangelog) NOCHANGELOG="TRUE" ;;
+             -*) NOCOLOR="TRUE"; print_help; exit 0 ;;
+           esac ;;
+        *) NOCOLOR="TRUE"; print_help; exit 0 ;;
+      esac
+    done
     shift
   done
 }
