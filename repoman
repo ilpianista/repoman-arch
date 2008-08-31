@@ -150,14 +150,14 @@ function update_changelog()
 
 function print_help()
 {
-  printf "RepoMan: A tool for manage your personal ArchLinux repository\n"
+  printf "A tool for manage your personal ArchLinux repository\n"
   printf "\n"
-  printf "Usage: repoman add|update|remove package\n"
+  printf "Usage: `basename $0` [options] packages\n"
 }
 
 environment
 
-if [ "$pkg" = "" ]; then
+if [ $# -eq 0 ]; then
   print_help
   exit 0
 fi
