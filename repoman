@@ -101,9 +101,9 @@ function build_pkg()
   printf "${LGRE} $1"
   cd $workspace/pkgs/$1
   
-  if [ -f $workspace/pkgs/$1/$1-$lpkgver-$lpkgrel-$arch.pkg.tar.gz ]; then
-    exit 1
-  fi
+  #if [ -f $workspace/pkgs/$1/$1-$lpkgver-$lpkgrel-$arch.pkg.tar.gz ]; then
+  #  exit 1
+  #fi
 
   if [ "$VERBOSE" = "TRUE" ]; then
     makepkg -f --noconfirm $NOCOLOR_FLAG || print_makepkg_error $1
@@ -210,6 +210,12 @@ function check_args()
     done
     shift
   done
+  
+  if [ ${#pkgs[@]} -eq 0 ]; then
+    NOCOLOR="TRUE"
+    print_help
+    exit 0
+  fi
 }
 
 function edit_pkgbuild()
