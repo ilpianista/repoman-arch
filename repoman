@@ -19,14 +19,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-action=$1
-pkg=$2
-
 function environment()
 {
   source /etc/repoman.conf
   check_dir
-  color
 }
 
 function color()
@@ -56,14 +52,14 @@ function print_tar_error()
 
 function print_makepkg_error()
 {
-  printf "\n${LRED}Makepkg fail. Exiting. ${DEFA}\n"
+  printf "\n${LRED}$1: Makepkg fail. Exiting. ${DEFA}\n"
   exit 1
 }
 
 function get_file()
 {
   printf "${LGRE} $1 ${DEFA}"
-  mv $workspace/$1 $workspace/$1.old
+  mv $workspace/$1 $workspace/$1.old &> /dev/null
   if [ "$VERBOSE" = "TRUE" ]; then
     wget -P $workspace $url/$1 || print_wget_error $1
   else
@@ -75,17 +71,17 @@ function get_pkg()
 {
   printf "${LGRE} $1.tar.gz ${DEFA}"
   if [ "$VERBOSE" = "TRUE" ]; then
-    wget -P $workspace/pkg http://aur.archlinux.org/packages/$1/$1.tar.gz || print_wget_error $1
+    wget -P $workspace/pkgs http://aur.archlinux.org/packages/$1/$1.tar.gz || print_wget_error $1
   else
-    wget -P $workspace/pkg http://aur.archlinux.org/packages/$1/$1.tar.gz &> /dev/null || print_wget_error $1
+    wget -P $workspace/pkgs http://aur.archlinux.org/packages/$1/$1.tar.gz &> /dev/null || print_wget_error $1
   fi
 }
 
 function extract()
 {
   printf "${LGRE}$1 ${DEFA}"
-  rm -rf $workspace/pkg/$1
-  tar -xf $workspace/pkg/$1.tar.gz -C $workspace/pkg || print_tar_error $1
+  rm -rf $workspace/pkgs/$1
+  tar -xf $workspace/pkgs/$1.tar.gz -C $workspace/pkgs || print_tar_error $1
 
 }
 
@@ -95,65 +91,67 @@ function check_dir()
     mkdir $workspace
   fi
   
-  if [ ! -d $workspace/pkg ]; then
-    mkdir $workspace/pkg
+  if [ ! -d $workspace/pkgs ]; then
+    mkdir $workspace/pkgs
   fi
 }
 
 function build_pkg()
 {
   printf "${LGRE} $1"
-  cd $workspace/pkg/$1
-  pkgver=`cat PKGBUILD | grep pkgver= | awk -F'=' '{print $2}'`
-  pkgrel=`cat PKGBUILD | grep pkgrel= | awk -F'=' '{print $2}'`
-  pkgver=`echo $pkgver-$pkgrel`
+  cd $workspace/pkgs/$1
+  lpkgver=`cat PKGBUILD | grep pkgver= | awk -F'=' '{print $2}'`
+  lpkgrel=`cat PKGBUILD | grep pkgrel= | awk -F'=' '{print $2}'`
+  pkgsver[${#pkgsver[@]}]=$lpkgver-$lpkgrel
   if [ "$VERBOSE" = "TRUE" ]; then
-    makepkg -f --noconfirm $NOCOLOR_FLAG || print_makepkg_error
+    makepkg -f --noconfirm $NOCOLOR_FLAG || print_makepkg_error $1
   else
-    makepkg -f --noconfirm $NOCOLOR_FLAG &> /dev/null || print_makepkg_error
+    makepkg -f --noconfirm $NOCOLOR_FLAG &> /dev/null || print_makepkg_error $1
   fi
-  printf " ($pkgver)${DEFA}\n"
-}
-
-function copy_pkg()
-{
-  cp $workspace/pkg/$1/$1-$pkgver-$arch.pkg.tar.gz $workspace/ || exit 1
+  printf " ($lpkgver-$lpkgrel)${DEFA}\n"
+  cp $workspace/pkgs/$1/$1-$lpkgver-$lpkgrel-$arch.pkg.tar.gz $workspace/ || exit 1
 }
 
 function update_db()
 {
   printf "${YELL}Updating: ${LGRE}$repo.db.tar.gz${DEFA}\n"
-  if [ "$action" = "add" ] || [ "$action" = "update" ]; then
-    if [ "$VERBOSE" = "TRUE" ]; then
-      repo-add $workspace/$repo.db.tar.gz $workspace/$1-$pkgver-$arch.pkg.tar.gz || exit 1
-    else
-      repo-add $workspace/$repo.db.tar.gz $workspace/$1-$pkgver-$arch.pkg.tar.gz &> /dev/null || exit 1
-    fi
-  elif [ "$action" = "remove" ]; then
-    printf "${LGRE}$1 ${YELL}deleted! ${DEFA}\n"
-    if [ "$VERBOSE" = "TRUE" ]; then
-      repo-remove $workspace/$repo.db.tar.gz $1 || exit 1
-    else
-      repo-remove $workspace/$repo.db.tar.gz $1 &> /dev/null || exit 1
-    fi
+  if [ "$ADD" = "TRUE" ] || [ "$UPDATE" = "TRUE" ]; then
+    for pkg in ${pkgs[@]}; do
+      if [ "$VERBOSE" = "TRUE" ]; then
+        repo-add $workspace/$repo.db.tar.gz $workspace/$pkg-${pkgsver}-$arch.pkg.tar.gz || exit 1
+      else
+        repo-add $workspace/$repo.db.tar.gz $workspace/$pkg-${pkgsver}-$arch.pkg.tar.gz &> /dev/null || exit 1
+      fi
+      if [ "$ADD" = "TRUE" ]; then
+        printf "${LGRE}$pkg ${YELL}added! ${DEFA}\n"
+      else
+	printf "${LGRE}$pkg ${YELL}updated! ${DEFA}\n"
+      fi
+    done
+  elif [ "$REMOVE" = "TRUE" ]; then
+    for pkg in ${pkgs[@]}; do
+      if [ "$VERBOSE" = "TRUE" ]; then
+        repo-remove $workspace/$repo.db.tar.gz $pkg || exit 1
+      else
+        repo-remove $workspace/$repo.db.tar.gz $pkg &> /dev/null || exit 1
+      fi
+      printf "${LGRE}$pkg ${YELL}removed! ${DEFA}\n"
+    done
   fi
 }
 
 function update_changelog()
 {
   if [ "$NOCHANGELOG" != "TRUE" ]; then
-    printf "${YELL}Updating: ${LGRE}$1${DEFA}\n"
-    echo `date +"%d-%m-%Y %R"` `whoami` > /tmp/temp
-    if [ "$action" = "add" ]; then
-      flag=A
-    elif [ "$action" = "update" ]; then
-      flag=U
-    elif [ "$action" = "remove" ]; then
-      flag=R
-    fi
-    echo "* $flag $pkg $pkgver" >> /tmp/temp
-    echo "" >> /tmp/temp
-    cat /tmp/temp $workspace/$changelog > /tmp/$changelog
+    printf "${YELL}Updating: ${LGRE}$changelog${DEFA}\n"
+    echo `date +"%d-%m-%Y %R"` `whoami` > /tmp/header
+    i=0
+    for pkg in ${pkgs[@]}; do
+      echo "* $flag $pkg ${pkgsver[$i]}" >> /tmp/header
+      let i=$i+1
+    done
+    echo "" >> /tmp/header
+    cat /tmp/header $workspace/$changelog > /tmp/$changelog
     mv /tmp/$changelog $workspace/$changelog
   fi
 }
@@ -162,54 +160,113 @@ function print_help()
 {
   printf "A tool for manage your personal ArchLinux repository\n"
   printf "\n"
-  printf "Usage: `basename $0` [options] packages\n"
+  printf "Usage: `basename $0` action [OPTIONS] packages\n"
+  printf "Action:\n"
+  printf "  -A, --add      add packages to repo\n"
+  printf "  -R, --remove   remove packages from repo\n"
+  printf "  -U, --update   update packages to repo\n"
+  printf "Options:\n"
+  printf "      --help         display this help and exit\n"
+  printf "      --verbose      print makepkg output\n"
+  printf "      --nocolor      do not use any color\n"
+  printf "      --nochangelog  do not use a changelog file\n"
+}
+
+function check_args()
+{
+  if [ -z "$1" ]; then
+    print_help
+    exit 0
+  fi
+  
+  while [ "$#" -ne "0" ]; do
+    case $1 in
+      --add) ADD="TRUE"; flag="A" ;;
+      --remove) REMOVE="TRUE"; flag="R" ;;
+      --update) UPDATE="TRUE"; flag="U" ;;
+      --help) NOCOLOR="TRUE"; print_help; exit 0 ;;
+      --verbose) VERBOSE="TRUE" ;;
+      --nocolor) NOCOLOR="TRUE" ;;
+      --nochangelog) NOCHANGELOG="TRUE" ;;
+      -*)
+      while getopts ":ARUh:-:" ARGS; do
+        case $ARGS in
+          A) ADD="TRUE"; flag="A" ;;
+          R) REMOVE="TRUE"; flag="R" ;;
+          U) UPDATE="TRUE"; flag="U" ;;
+          h) NOCOLOR="TRUE"; print_help; exit 0 ;;
+        esac
+      done ;;
+      *) pkgs[${#pkgs[@]}]=$1 ;;
+    esac
+    shift
+  done
 }
 
 function edit_pkgbuild()
 {
-  if [ -f $workspace/pkg/$1/PKGBUILD ]; then
+  if [ -f $workspace/pkgs/$1/PKGBUILD ]; then
     printf "${BOLD}Do you want to edit this PKGBUILD? (y/N):${DEFA} "
     read EDIT_ANSWER
     if [ "$EDIT_ANSWER" = "y" ]; then
       [ -z "$EDITOR" ] && EDITOR=vi
-      $EDITOR $workspace/pkg/$1/PKGBUILD
+      $EDITOR $workspace/pkgs/$1/PKGBUILD
     fi
   fi
 }
 
-environment
-
-if [ $# -eq 0 ]; then
-  print_help
-  exit 0
-fi
-
-printf "${YELL}Downloading: "
-if [ "$NOCHANGELOG" != "TRUE" ]; then
-  get_file $changelog
-fi
-get_file $repo.db.tar.gz
-if [ "$action" = "add" ] || [ "$action" = "update" ]; then
-  if [ ! -f $workspace/pkg/$pkg.tar.gz ]; then
-    get_pkg $pkg
+function download_repo_file()
+{
+  printf "${YELL}Downloading: "
+  if [ "$NOCHANGELOG" != "TRUE" ]; then
+    get_file $changelog
   fi
-fi
-printf "\n"
-
-if [ "$action" = "add" ] || [ "$action" = "update" ]; then
-  printf "${YELL}Extracting: "
-  extract $pkg
+  get_file $repo.db.tar.gz
+  if [ "$ADD" = "TRUE" ] || [ "$UPDATE" = "TRUE" ]; then
+    if [ ! -f $workspace/pkgs/$pkg.tar.gz ]; then
+      get_pkg $pkg
+    fi
+  fi
   printf "\n"
-  edit_pkgbuild $pkg
-  
-  printf "${YELL}Building: "
-  build_pkg $pkg
+}
 
-  copy_pkg $pkg
-fi
-  
-update_db $pkg
+function print_pkgs_list()
+{
+  printf "${YELL}Packages: "
+  for pkg in ${pkgs[@]}; do
+    printf "${LGRE}$pkg "
+  done
+  printf "\n"
+}
 
-update_changelog $changelog
+function main()
+{
+  environment
+  check_args $@
+  color
+  
+  print_pkgs_list
+  download_repo_file
+  
+  if [ "$ADD" = "TRUE" ] || [ "$UPDATE" = "TRUE" ]; then
+    printf "${YELL}Extracting: "
+    for pkg in ${pkgs[@]}; do
+      extract $pkg
+      printf "\n"
+      edit_pkgbuild $pkg
+    done
+    
+    printf "${YELL}Building: "
+    for pkg in ${pkgs[@]}; do
+      build_pkg $pkg
+    done
+  fi
+  
+  update_db
+
+  update_changelog
+}
+
+main $@
 
 exit 0
