@@ -144,10 +144,9 @@ function update_changelog()
 {
   if [ "$NOCHANGELOG" != "TRUE" ]; then
     printf "${YELL}Updating: ${LGRE}$changelog${DEFA}\n"
-    echo `date +"%d-%m-%Y %R"` `whoami` > /tmp/header
     i=0
     for pkg in ${pkgs[@]}; do
-      echo "* $flag $pkg ${pkgsver[$i]}" >> /tmp/header
+      echo "* `date +\"%d-%m-%Y %R\"` `whoami` -$flag $pkg ${pkgsver[$i]}" >> /tmp/header
       let i=$i+1
     done
     echo "" >> /tmp/header
