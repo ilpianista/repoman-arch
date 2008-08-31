@@ -168,6 +168,7 @@ function print_help()
   printf "      --verbose      print makepkg output\n"
   printf "      --nocolor      do not use any color\n"
   printf "      --nochangelog  do not use a changelog file\n"
+  printf "      --edit         ask for edit pkgbuild\n"
 }
 
 function check_args()
@@ -198,6 +199,7 @@ function check_args()
              verbose) VERBOSE="TRUE" ;;
              nocolor) NOCOLOR="TRUE" ;;
              nochangelog) NOCHANGELOG="TRUE" ;;
+             edit) EDIT="TRUE" ;;
              -*) NOCOLOR="TRUE"; print_help; exit 0 ;;
            esac ;;
         *) NOCOLOR="TRUE"; print_help; exit 0 ;;
@@ -265,7 +267,9 @@ function main()
     for pkg in ${pkgs[@]}; do
       extract $pkg
       printf "\n"
-      edit_pkgbuild $pkg
+      if [ "$EDIT" = "TRUE" ]; then
+        edit_pkgbuild $pkg
+      fi
     done
     
     printf "${YELL}Building: "
