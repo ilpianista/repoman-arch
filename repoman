@@ -51,8 +51,8 @@ function get_file()
   else
     wget -P $workspace $url/$1 &> /dev/null
   fi
-  if [ ! -e $workspace/$1 ]; then
-    printf "\n${LRED}Impossibile scaricare $1. Termino. ${DEFA}\n"
+  if [ ! -f $workspace/$1 ]; then
+    printf "\n${LRED}I can't get $1. Exiting. ${DEFA}\n"
     exit 0
   fi
 }
@@ -65,8 +65,8 @@ function get_pkg()
   else
     wget -P $workspace/pkg http://aur.archlinux.org/packages/$1/$1.tar.gz &> /dev/null
   fi
-  if [ ! -e $workspace/pkg/$1.tar.gz ]; then
-    printf "\n${LRED}$1 non trovato. Termino. ${DEFA}\n"
+  if [ ! -f $workspace/pkg/$1.tar.gz ]; then
+    printf "\n${LRED}I don't find $1. Exiting. ${DEFA}\n"
     exit 0
   fi
 }
@@ -112,7 +112,7 @@ function copy_pkg()
 
 function update_db()
 {
-  printf "${YELL}Aggiorno: ${LGRE}$repo.db.tar.gz${DEFA}\n"
+  printf "${YELL}Updating: ${LGRE}$repo.db.tar.gz${DEFA}\n"
   if [ "$action" = "add" ] || [ "$action" = "update" ]; then
     if [ "$VERBOSE" = "TRUE" ]; then
       repo-add $workspace/$repo.db.tar.gz $workspace/$1-$pkgver-$arch.pkg.tar.gz || return 1
@@ -120,7 +120,7 @@ function update_db()
       repo-add $workspace/$repo.db.tar.gz $workspace/$1-$pkgver-$arch.pkg.tar.gz &> /dev/null || return 1
     fi
   elif [ "$action" = "remove" ]; then
-    printf "${LGRE}$1 ${YELL}rimosso! ${DEFA}\n"
+    printf "${LGRE}$1 ${YELL}deleted! ${DEFA}\n"
     if [ "$VERBOSE" = "TRUE" ]; then
       repo-remove $workspace/$repo.db.tar.gz $1 || return 1
     else
@@ -132,7 +132,7 @@ function update_db()
 function update_changelog()
 {
   if [ "$NOCHANGELOG" != "TRUE" ]; then
-    printf "${YELL}Aggiorno ${LGRE}$1${DEFA}\n"
+    printf "${YELL}Updating: ${LGRE}$1${DEFA}\n"
     echo `date +"%d-%m-%Y %R"` `whoami` > /tmp/temp
     if [ "$action" = "add" ]; then
       flag=A
@@ -162,24 +162,24 @@ if [ $# -eq 0 ]; then
   exit 0
 fi
 
-printf "${YELL}Scarico i file: "
+printf "${YELL}Downloading: "
 if [ "$NOCHANGELOG" != "TRUE" ]; then
   get_file $changelog
 fi
 get_file $repo.db.tar.gz
 if [ "$action" = "add" ] || [ "$action" = "update" ]; then
-  if [ ! -e $workspace/pkg/$pkg.tar.gz ]; then
+  if [ ! -f $workspace/pkg/$pkg.tar.gz ]; then
     get_pkg $pkg
   fi
 fi
 printf "\n"
 
 if [ "$action" = "add" ] || [ "$action" = "update" ]; then
-  printf "${YELL}Estraggo: "
+  printf "${YELL}Extracting: "
   extract $pkg
   printf "\n"
   
-  printf "${YELL}Compilo: "
+  printf "${YELL}Building: "
   build_pkg $pkg
 
   copy_pkg $pkg
