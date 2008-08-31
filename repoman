@@ -100,14 +100,14 @@ function build_pkg()
 {
   printf "${LGRE} $1"
   cd $workspace/pkgs/$1
-  lpkgver=`cat PKGBUILD | grep pkgver= | awk -F'=' '{print $2}'`
-  lpkgrel=`cat PKGBUILD | grep pkgrel= | awk -F'=' '{print $2}'`
-  pkgsver[${#pkgsver[@]}]=$lpkgver-$lpkgrel
   if [ "$VERBOSE" = "TRUE" ]; then
     makepkg -f --noconfirm $NOCOLOR_FLAG || print_makepkg_error $1
   else
     makepkg -f --noconfirm $NOCOLOR_FLAG &> /dev/null || print_makepkg_error $1
   fi
+  lpkgver=`cat PKGBUILD | grep pkgver= | awk -F'=' '{print $2}'`
+  lpkgrel=`cat PKGBUILD | grep pkgrel= | awk -F'=' '{print $2}'`
+  pkgsver[${#pkgsver[@]}]=$lpkgver-$lpkgrel
   printf " ($lpkgver-$lpkgrel)${DEFA}\n"
   cp $workspace/pkgs/$1/$1-$lpkgver-$lpkgrel-$arch.pkg.tar.gz $workspace/ || exit 1
 }
@@ -160,9 +160,9 @@ function print_help()
   printf "\n"
   printf "Usage: `basename $0` action [OPTIONS] packages\n"
   printf "Action:\n"
-  printf "  -A, --add      add packages to repo\n"
-  printf "  -R, --remove   remove packages from repo\n"
-  printf "  -U, --update   update packages to repo\n"
+  printf "  -A, --add          add packages to repo\n"
+  printf "  -R, --remove       remove packages from repo\n"
+  printf "  -U, --update       update packages to repo\n"
   printf "Options:\n"
   printf "      --help         display this help and exit\n"
   printf "      --verbose      print makepkg output\n"
@@ -192,7 +192,6 @@ function check_args()
           A) ADD="TRUE"; flag="A" ;;
           R) REMOVE="TRUE"; flag="R" ;;
           U) UPDATE="TRUE"; flag="U" ;;
-          h) NOCOLOR="TRUE"; print_help; exit 0 ;;
         esac
       done ;;
       *) pkgs[${#pkgs[@]}]=$1 ;;
