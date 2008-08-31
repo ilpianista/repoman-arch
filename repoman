@@ -63,7 +63,7 @@ function print_makepkg_error()
 function get_file()
 {
   printf "${LGRE} $1 ${DEFA}"
-  rm -f $workspace/$1
+  mv $workspace/$1 $workspace/$1.old
   if [ "$VERBOSE" = "TRUE" ]; then
     wget -P $workspace $url/$1 || print_wget_error $1
   else
