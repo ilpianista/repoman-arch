@@ -149,7 +149,6 @@ function update_changelog()
       echo "* `date +\"%d-%m-%Y %R\"` `whoami` -$flag $pkg ${pkgsver[$i]}" >> /tmp/header
       let i=$i+1
     done
-    echo "" >> /tmp/header
     cat /tmp/header $workspace/$changelog > /tmp/$changelog
     mv /tmp/$changelog $workspace/$changelog
   fi
@@ -222,9 +221,11 @@ function download_repo_file()
   fi
   get_file $repo.db.tar.gz
   if [ "$ADD" = "TRUE" ] || [ "$UPDATE" = "TRUE" ]; then
-    if [ ! -f $workspace/pkgs/$pkg.tar.gz ]; then
-      get_pkg $pkg
-    fi
+    for pkg in ${pkgs[@]}; do
+      if [ ! -f $workspace/pkgs/$pkg.tar.gz ]; then
+        get_pkg $pkg
+      fi
+    done
   fi
   printf "\n"
 }
