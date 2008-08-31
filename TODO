@@ -1,0 +1,5 @@
+TODO List
+
+* Use lftp (or an other command line FTP client) for send file to ftp
+
+* Use getopts to read the flags/options passed to script
