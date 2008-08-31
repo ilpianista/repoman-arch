@@ -169,6 +169,7 @@ function print_help()
   printf "      --nocolor      do not use any color\n"
   printf "      --nochangelog  do not use a changelog file\n"
   printf "      --edit         ask for edit pkgbuild\n"
+  printf "      --clean        remove any files from workspace dir\n"
 }
 
 function check_args()
@@ -200,6 +201,7 @@ function check_args()
              nocolor) NOCOLOR="TRUE" ;;
              nochangelog) NOCHANGELOG="TRUE" ;;
              edit) EDIT="TRUE" ;;
+             clean) CLEAN="TRUE" ;;
              -*) NOCOLOR="TRUE"; print_help; exit 0 ;;
            esac ;;
         *) NOCOLOR="TRUE"; print_help; exit 0 ;;
@@ -208,10 +210,12 @@ function check_args()
     shift
   done
   
-  if [ ${#pkgs[@]} -eq 0 ]; then
-    NOCOLOR="TRUE"
-    print_help
-    exit 0
+  if [ "$CLEAN" != "TRUE" ]; then
+    if [ ${#pkgs[@]} -eq 0 ]; then
+      NOCOLOR="TRUE"
+      print_help
+      exit 0
+    fi
   fi
 }
 
@@ -253,11 +257,32 @@ function print_pkgs_list()
   printf "\n"
 }
 
+function ask_remove()
+{
+  printf "${BOLD}Do you want to remove package build dir? (y/N):${DEFA}"
+  read DIR_REMOVE
+  if [ "$DIR_REMOVE" = "y" ]; then
+    for pkg in ${pkgs[@]}; do
+      rm -rf $workspace/pkgs/$pkg/
+    done
+  fi
+}
+
+function clean()
+{
+  rm -rf $workspace/*
+}
+
 function main()
 {
   environment
   check_args $@
   color
+  
+  if [ "$CLEAN" = "TRUE" ]; then
+    clean
+    exit 0
+  fi
   
   print_pkgs_list
   download_repo_file
@@ -281,6 +306,8 @@ function main()
   update_db
 
   update_changelog
+  
+  ask_remove
 }
 
 main $@
