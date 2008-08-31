@@ -24,7 +24,7 @@ pkg=$2
 
 function environment()
 {
-  source repoman.conf
+  source /etc/repoman.conf
   check_dir
   color
 }
@@ -65,7 +65,7 @@ function get_pkg()
 
 function extract()
 {
-  printf "${LGRE} $1 ${DEFA}"
+  printf "${LGRE}$1 ${DEFA}"
   rm -rf $workspace/pkg/$1
   tar -xf $workspace/pkg/$1.tar.gz -C $workspace/pkg || return 1
 
@@ -90,19 +90,19 @@ function build_pkg()
   pkgrel=`cat PKGBUILD | grep pkgrel= | awk -F'=' '{print $2}'`
   pkgver=`echo $pkgver-$pkgrel`
   makepkg -f --noconfirm &> /dev/null || return 1
-  printf " ($pkgver)${DEFA} \n"
+  printf " ($pkgver)${DEFA}\n"
 }
 
 function copy_pkg()
 {
-  cp $workspace/pkg/$1/$1-$pkgver-i686.pkg.tar.gz $workspace/
+  cp $workspace/pkg/$1/$1-$pkgver-$arch.pkg.tar.gz $workspace/
 }
 
 function update_db()
 {
   printf "${YELL}Aggiorno: ${LGRE}$repo.db.tar.gz${DEFA}\n"
   if [ "$action" = "add" ] || [ "$action" = "update" ]; then
-    repo-add $workspace/$repo.db.tar.gz $workspace/$1-$pkgver-i686.pkg.tar.gz &> /dev/null || return 1
+    repo-add $workspace/$repo.db.tar.gz $workspace/$1-$pkgver-$arch.pkg.tar.gz &> /dev/null || return 1
   elif [ "$action" = "remove" ]; then
     printf "${LGRE}$1 ${YELL}rimosso! ${DEFA}\n"
     repo-remove $workspace/$repo.db.tar.gz $1 &> /dev/null || return 1
@@ -111,24 +111,26 @@ function update_db()
 
 function update_changelog()
 {
-  printf "${YELL}Aggiorno ${LGRE}$1${DEFA}\n"
-  echo `date +"%d-%m-%Y %R"` `whoami` > /tmp/temp
-  if [ "$action" = "add" ]; then
-    flag=A
-  elif [ "$action" = "update" ]; then
-    flag=U
-  elif [ "$action" = "remove" ]; then
-    flag=R
+  if [ "$NOCHANGELOG" != "TRUE" ]; then
+    printf "${YELL}Aggiorno ${LGRE}$1${DEFA}\n"
+    echo `date +"%d-%m-%Y %R"` `whoami` > /tmp/temp
+    if [ "$action" = "add" ]; then
+      flag=A
+    elif [ "$action" = "update" ]; then
+      flag=U
+    elif [ "$action" = "remove" ]; then
+      flag=R
+    fi
+    echo "* $flag $pkg $pkgver" >> /tmp/temp
+    echo "" >> /tmp/temp
+    cat /tmp/temp $workspace/$changelog > /tmp/$changelog
+    mv /tmp/$changelog $workspace/$changelog
   fi
-  echo "* $flag $pkg $pkgver" >> /tmp/temp
-  echo "" >> /tmp/temp
-  cat /tmp/temp $workspace/$changelog > /tmp/$changelog
-  mv /tmp/$changelog $workspace/$changelog
 }
 
 function print_help()
 {
-  printf "RepoMan: A tool for manage your ArchLinux repository\n"
+  printf "RepoMan: A tool for manage your personal ArchLinux repository\n"
   printf "\n"
   printf "Usage: repoman add|update|remove package\n"
 }
@@ -141,7 +143,9 @@ if [ "$pkg" = "" ]; then
 fi
 
 printf "${YELL}Scarico i file: "
-get_file $changelog
+if [ "$NOCHANGELOG" != "TRUE" ]; then
+  get_file $changelog
+fi
 get_file $repo.db.tar.gz
 if [ "$action" = "add" ] || [ "$action" = "update" ]; then
   if [ ! -e $workspace/pkg/$pkg.tar.gz ]; then
@@ -150,21 +154,18 @@ if [ "$action" = "add" ] || [ "$action" = "update" ]; then
 fi
 printf "\n"
 
-if [ "$action" = "remove" ]; then
-  update_db $pkg
-else
+if [ "$action" = "add" ] || [ "$action" = "update" ]; then
   printf "${YELL}Estraggo: "
   extract $pkg
   printf "\n"
   
   printf "${YELL}Compilo: "
   build_pkg $pkg
-  printf "\n"
 
   copy_pkg $pkg
-  
-  update_db $pkg
 fi
+  
+update_db $pkg
 
 update_changelog $changelog
 
