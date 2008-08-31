@@ -98,9 +98,9 @@ function build_pkg()
   pkgrel=`cat PKGBUILD | grep pkgrel= | awk -F'=' '{print $2}'`
   pkgver=`echo $pkgver-$pkgrel`
   if [ "$VERBOSE" = "TRUE" ]; then
-    makepkg -f --noconfirm || return 1
+    makepkg -f --noconfirm $NOCOLOR_FLAG || return 1
   else
-    makepkg -f --noconfirm &> /dev/null || return 1
+    makepkg -f --noconfirm $NOCOLOR_FLAG &> /dev/null || return 1
   fi
   printf " ($pkgver)${DEFA}\n"
 }
