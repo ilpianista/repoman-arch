@@ -101,9 +101,12 @@ function build_pkg()
   printf "${LGRE} $1"
   cd $workspace/pkgs/$1
   
-  #if [ -f $workspace/pkgs/$1/$1-$lpkgver-$lpkgrel-$arch.pkg.tar.gz ]; then
-  #  exit 1
-  #fi
+  makepkg -o $NOCOLOR_FLAG || print_makepkg_error $1
+  lpkgver=`cat PKGBUILD | grep pkgver= | awk -F'=' '{print $2}'`
+  lpkgrel=`cat PKGBUILD | grep pkgrel= | awk -F'=' '{print $2}'`
+  if [ -f $workspace/pkgs/$1/$1-$lpkgver-$lpkgrel-$arch.pkg.tar.gz ]; then
+    return 0
+  fi
 
   if [ "$VERBOSE" = "TRUE" ]; then
     makepkg -f --noconfirm $NOCOLOR_FLAG || print_makepkg_error $1
