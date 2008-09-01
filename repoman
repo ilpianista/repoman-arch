@@ -332,6 +332,20 @@ function upload_file()
   done
 }
 
+function copy_file()
+{
+  if [ "$NOCHANGELOG" != "TRUE" ]; then
+    cp -f $workspace/$changelog $url/
+  fi
+  cp -f $workspace/$repo.db.tar.gz $url/
+  
+  i=0
+  for pkg in ${pkgs[@]}; do
+    cp -f $workspace/$pkg-${pkgsver[$i]}-$arch.pkg.tar.gz $url/
+    let i=$i+1
+  done
+}
+
 function main()
 {
   source /etc/repoman.conf
@@ -372,6 +386,10 @@ function main()
   
   if [ "$NOUPLOAD" != "TRUE" ]; then
     upload_file
+  fi
+  
+  if [ "$LOCAL" = "TRUE" ]; then
+    copy_file
   fi
   
   if [ "$ADD" = "TRUE" ]; then
