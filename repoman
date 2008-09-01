@@ -21,8 +21,7 @@
 
 function environment()
 {
-  source /etc/repoman.conf
-  check_dir
+
 }
 
 function color()
@@ -93,7 +92,7 @@ function extract()
 
 }
 
-function check_dir()
+function check_file()
 {
   if [ ! -d $workspace ]; then
     mkdir $workspace
@@ -101,6 +100,10 @@ function check_dir()
   
   if [ ! -d $workspace/pkgs ]; then
     mkdir $workspace/pkgs
+  fi
+  
+  if [ "$NOCHANGELOG" != "TRUE" ] && [ ! -f "$changelog" ]; then
+    touch $changelog
   fi
 }
 
@@ -320,8 +323,9 @@ function upload_file()
 
 function main()
 {
-  environment
+  source /etc/repoman.conf
   check_args $@
+  check_file
   color
   
   if [ "$CLEAN" = "TRUE" ]; then
