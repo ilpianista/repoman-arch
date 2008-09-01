@@ -52,7 +52,7 @@ msgid "removed!"
 msgstr "rimosso!"
 
 #: repoman:182
-msgid "A tool for manage your personal ArchLinux repository\\n"
+msgid "A tool to manage your personal ArchLinux repository\\n"
 msgstr "Uno strumento per gestire il vostro repository personale di ArchLinux\\n"
 
 #: repoman:183
