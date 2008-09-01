@@ -1,145 +1,144 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Italian translation for Repoman.
+# Copyright (C) 2008 Andrea Scarpino <bash.lnx@gmail.com>
+# This file is distributed under the same license as the repoman package.
+# Giovanni 'voidnull' Scafora <linuxmania@gmail.com>, 2008
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Project-Id-Version: Repoman\n"
+"Report-Msgid-Bugs-To: bash.lnx@gmail.com\n"
 "POT-Creation-Date: 2008-09-01 16:06+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"PO-Revision-Date: 2008-09-01 16:40+0200\n"
+"Last-Translator: Giovanni Scafora <linuxmania@gmail.com>\n"
+"Language-Team: Arch Linux Italian Team <linuxmania@gmail.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #: repoman:40
 msgid "I cannot get %s. Exiting."
-msgstr ""
+msgstr "Impossibile scaricare %s. Sto uscendo."
 
 #: repoman:46
 msgid "I cannot extract %s. Exiting."
-msgstr ""
+msgstr "Impossibile estrarre %s. Sto uscendo."
 
 #: repoman:52
 msgid "%s: Makepkg fail. Exiting."
-msgstr ""
+msgstr "%s: Makepkg terminato con errore. Sto uscendo."
 
 #: repoman:58
 msgid "Upload of %s fail. Exiting."
-msgstr ""
+msgstr "L'invio di %s non è riuscito. Sto uscendo."
 
 #: repoman:130
 msgid "skip, exist"
-msgstr ""
+msgstr "ignoro, esiste"
 
 #: repoman:137 repoman:168
 msgid "Updating:"
-msgstr ""
+msgstr "Sto aggiornando:"
 
 #: repoman:147
 msgid "added!"
-msgstr ""
+msgstr "aggiunto!"
 
 #: repoman:149
 msgid "updated!"
-msgstr ""
+msgstr "aggiornato!"
 
 #: repoman:160
 msgid "removed!"
-msgstr ""
+msgstr "rimosso!"
 
 #: repoman:182
 msgid "A tool for manage your personal ArchLinux repository\\n"
-msgstr ""
+msgstr "Uno strumento per gestire il vostro repository personale di ArchLinux\\n"
 
 #: repoman:185
 msgid "Action:\\n"
-msgstr ""
+msgstr "Azione:\\n"
 
 #: repoman:186
 msgid "  -A, --add          add or update packages to repo\\n"
-msgstr ""
+msgstr "  -A, --add          aggiunge o aggiorna i pacchetti del repo\\n"
 
 #: repoman:187
 msgid "  -R, --remove       remove packages from repo\\n"
-msgstr ""
+msgstr "  -R, --remove       rimuove i pacchetti dal repo\\n"
 
 #: repoman:188
 msgid "      --create       create database repo, then add packages\\n"
-msgstr ""
+msgstr "      --create       crea il database del repo e aggiunge i pacchetti\\n"
 
 #: repoman:189
 msgid "Options:\\n"
-msgstr ""
+msgstr "Opzioni:\\n"
 
 #: repoman:190
 msgid "      --help         display this help and exit\\n"
-msgstr ""
+msgstr "      --help         mostra questo help ed esce\\n"
 
 #: repoman:191
 msgid "      --verbose      print commands output\\n"
-msgstr ""
+msgstr "      --verbose      visualizza l'output dei comandi\\n"
 
 #: repoman:192
 msgid "      --nocolor      do not use any color\\n"
-msgstr ""
+msgstr "      --nocolor      non utilizza nessun colore\\n"
 
 #: repoman:193
 msgid "      --nochangelog  do not use a changelog file\\n"
-msgstr ""
+msgstr "      --nochangelog  non utilizza un file di changelog\\n"
 
 #: repoman:194
 msgid "      --edit         ask for edit pkgbuild\\n"
-msgstr ""
+msgstr "      --edit         chiede di editare il pkgbuild\\n"
 
 #: repoman:195
 msgid "      --clean        remove any files from workspace dir\\n"
-msgstr ""
+msgstr "      --clean        rimuove tutti i file dalla directory di lavoro\\n"
 
 #: repoman:196
 msgid "      --noupload     do not upload any file to ftp\\n"
-msgstr ""
+msgstr "      --noupload     non invia nessun file al ftp\\n"
 
 #: repoman:197
 msgid "      --local        use this for local repository\\n"
-msgstr ""
+msgstr "      --local        usa questo come repository locale\\n"
 
 #: repoman:198
 msgid "      --nobuild      do not build packages if exist\\n"
-msgstr ""
+msgstr "      --nobuild      se esiste, non crea i pacchetti pacchetti\\n"
 
 #: repoman:222
 msgid "REMOVED"
-msgstr ""
+msgstr "RIMOSSO"
 
 #: repoman:253
 msgid "Do you want to edit this PKGBUILD? (y/N):"
-msgstr ""
+msgstr "Vuoi editare questo PKGBUILD? (s/N):"
 
 #: repoman:255
 msgid "y"
-msgstr ""
+msgstr "s"
 
 #: repoman:264
 msgid "Downloading:"
-msgstr ""
+msgstr "Sto scaricando:"
 
 #: repoman:294
 msgid "Do you want to remove package build dir? (y/N):"
-msgstr ""
+msgstr "Vuoi rimuovere la directory di compilazione del pacchetto? (s/N):"
 
 #: repoman:306
 msgid "Any files in workspace directory have been removed!"
-msgstr ""
+msgstr "Sono stati rimossi tutti i file presenti nella direcotry di lavoro!"
 
 #: repoman:371
 msgid "Extracting:"
-msgstr ""
+msgstr "Sto estraendo:"
 
 #: repoman:380
 msgid "Building:"
-msgstr ""
+msgstr "Sto compilando:"
