@@ -97,7 +97,7 @@ function check_files()
     mkdir $workspace/pkgs
   fi
   
-  if [ "$NOCHANGELOG" != "TRUE" ] && [ ! -f "$changelog" ]; then
+  if [ "$NOCHANGELOG" != "TRUE" ] && [ ! -f "$workspace/$changelog" ]; then
     touch $changelog
   fi
 }
