@@ -55,6 +55,10 @@ msgstr "rimosso!"
 msgid "A tool for manage your personal ArchLinux repository\\n"
 msgstr "Uno strumento per gestire il vostro repository personale di ArchLinux\\n"
 
+#: repoman:183
+msgid "Usage: repoman action [OPTIONS] packages\\n"
+msgstr "Uso: repoman azione [OPZIONI] pacchetti\\n"
+
 #: repoman:185
 msgid "Action:\\n"
 msgstr "Azione:\\n"

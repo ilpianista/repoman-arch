@@ -180,8 +180,8 @@ function update_changelog()
 function print_help()
 {
   printf "$(gettext "A tool for manage your personal ArchLinux repository\n")"
+  printf "$(gettext "Usage: repoman action [OPTIONS] packages\n")"
   printf "\n"
-  printf "$(gettext "Usage: `basename $0` action [OPTIONS] packages\n")"
   printf "$(gettext "Action:\n")"
   printf "$(gettext "  -A, --add          add or update packages to repo\n")"
   printf "$(gettext "  -R, --remove       remove packages from repo\n")"
