@@ -19,11 +19,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-function environment()
-{
-
-}
-
 function color()
 {
   if [ "$NOCOLOR" != "TRUE" ]; then
@@ -92,7 +87,7 @@ function extract()
 
 }
 
-function check_file()
+function check_files()
 {
   if [ ! -d $workspace ]; then
     mkdir $workspace
@@ -325,7 +320,7 @@ function main()
 {
   source /etc/repoman.conf
   check_args $@
-  check_file
+  check_files
   color
   
   if [ "$CLEAN" = "TRUE" ]; then
