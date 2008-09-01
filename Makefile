@@ -31,8 +31,9 @@ install:
 	$(INSTALL) -d $(DESTDIR)$(sysconfdir)
 	$(INSTALL) -m755 repoman $(DESTDIR)$(bindir)/repoman
 	$(INSTALL) -m644 repoman.conf $(DESTDIR)$(sysconfdir)/repoman.conf
-	for file in po/*.po; do \
-	  lang=`echo $file | $(SED) -e 's#.*/\([^/]\+\).po#\1#'` ;\
-          $(INSTALL) -d $(DESTDIR)$(localedir)/$$lang/LC_MESSAGES ;\
-          $(MSGFMT) -o $(DESTDIR)$(localedir)/$$lang/LC_MESSAGES/repoman.mo $$file ;\
-        done
+	for file in po/*.po; \
+	do \
+	  lang=$$(echo $$file | $(SED) -e 's#.*/\([^/]\+\).po#\1#'); \
+	  $(INSTALL) -d $(DESTDIR)$(localedir)/$$lang/LC_MESSAGES; \
+	  $(MSGFMT) -o $(DESTDIR)$(localedir)/$$lang/LC_MESSAGES/repoman.mo $$file; \
+	done
