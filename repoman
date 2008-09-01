@@ -67,6 +67,7 @@ function get_file()
   printf "${LGRE} $1 ${DEFA}"
   mv $workspace/$1 $workspace/$1.old &> /dev/null
   if [ "$VERBOSE" = "TRUE" ]; then
+    printf "\n"
     wget -P $workspace $url/$1 || print_wget_error $1
   else
     wget -P $workspace $url/$1 &> /dev/null || print_wget_error $1
@@ -77,6 +78,7 @@ function get_pkg()
 {
   printf "${LGRE} $1.tar.gz ${DEFA}"
   if [ "$VERBOSE" = "TRUE" ]; then
+    printf "\n"
     wget -P $workspace/pkgs http://aur.archlinux.org/packages/$1/$1.tar.gz || print_wget_error $1
   else
     wget -P $workspace/pkgs http://aur.archlinux.org/packages/$1/$1.tar.gz &> /dev/null || print_wget_error $1
@@ -107,6 +109,7 @@ function build_pkg()
   printf "${LGRE} $1"
   cd $workspace/pkgs/$1
   if [ "$VERBOSE" = "TRUE" ]; then
+    printf "\n"
     makepkg -f --noconfirm $NOCOLOR_FLAG || print_makepkg_error $1
   else
     makepkg -f --noconfirm $NOCOLOR_FLAG &> /dev/null || print_makepkg_error $1
@@ -124,6 +127,7 @@ function update_db()
   if [ "$ADD" = "TRUE" ] || [ "$UPDATE" = "TRUE" ]; then
     for pkg in ${pkgs[@]}; do
       if [ "$VERBOSE" = "TRUE" ]; then
+        printf "\n"
         repo-add $workspace/$repo.db.tar.gz $workspace/$pkg-${pkgsver}-$arch.pkg.tar.gz || exit 1
       else
         repo-add $workspace/$repo.db.tar.gz $workspace/$pkg-${pkgsver}-$arch.pkg.tar.gz &> /dev/null || exit 1
@@ -137,6 +141,7 @@ function update_db()
   elif [ "$REMOVE" = "TRUE" ]; then
     for pkg in ${pkgs[@]}; do
       if [ "$VERBOSE" = "TRUE" ]; then
+        printf "\n"
         repo-remove $workspace/$repo.db.tar.gz $pkg || exit 1
       else
         repo-remove $workspace/$repo.db.tar.gz $pkg &> /dev/null || exit 1
@@ -170,6 +175,7 @@ function print_help()
   printf "  -A, --add          add packages to repo\n"
   printf "  -R, --remove       remove packages from repo\n"
   printf "  -U, --update       update packages to repo\n"
+  printf "      --create       create database repo\n"
   printf "Options:\n"
   printf "      --help         display this help and exit\n"
   printf "      --verbose      print makepkg output\n"
@@ -211,6 +217,7 @@ function check_args()
              noupload) NOUPLOAD="TRUE" ;;
              edit) EDIT="TRUE" ;;
              clean) CLEAN="TRUE" ;;
+             create) CREATE="TRUE"; ADD="TRUE"; flag="A" ;;
              -*) NOCOLOR="TRUE"; print_help; exit 0 ;;
            esac ;;
         *) NOCOLOR="TRUE"; print_help; exit 0 ;;
@@ -240,13 +247,15 @@ function edit_pkgbuild()
   fi
 }
 
-function download_repo_file()
+function download_files()
 {
   printf "${YELL}Downloading: "
-  if [ "$NOCHANGELOG" != "TRUE" ]; then
-    get_file $changelog
+  if [ "$CREATE" != "TRUE" ]; then
+    if [ "$NOCHANGELOG" != "TRUE" ]; then
+      get_file $changelog
+    fi
+    get_file $repo.db.tar.gz
   fi
-  get_file $repo.db.tar.gz
   if [ "$ADD" = "TRUE" ] || [ "$UPDATE" = "TRUE" ]; then
     for pkg in ${pkgs[@]}; do
       if [ ! -f $workspace/pkgs/$pkg.tar.gz ]; then
@@ -280,6 +289,7 @@ function ask_remove()
 function clean()
 {
   rm -rf $workspace/*
+  printf "${YELL}Any files in workspace directory have been removed!${DEFA}\n"
 }
 
 function upload_file()
@@ -308,7 +318,7 @@ function main()
   fi
   
   print_pkgs_list
-  download_repo_file
+  download_files
   
   if [ "$ADD" = "TRUE" ] || [ "$UPDATE" = "TRUE" ]; then
     printf "${YELL}Extracting: "
