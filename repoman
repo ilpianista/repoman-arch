@@ -108,9 +108,9 @@ function build_pkg()
   cd $workspace/pkgs/$1
   if [ "$VERBOSE" = "TRUE" ]; then
     printf "\n"
-    makepkg -f --noconfirm $NOCOLOR_FLAG || print_makepkg_error $1
+    makepkg -f --noconfirm $USE_ROOT $NOCOLOR_FLAG || print_makepkg_error $1
   else
-    makepkg -f --noconfirm $NOCOLOR_FLAG &> /dev/null || print_makepkg_error $1
+    makepkg -f --noconfirm $USE_ROOT $NOCOLOR_FLAG &> /dev/null || print_makepkg_error $1
   fi
   lpkgver=`cat PKGBUILD | grep pkgver= | awk -F'=' '{print $2}'`
   lpkgrel=`cat PKGBUILD | grep pkgrel= | awk -F'=' '{print $2}'`
@@ -323,6 +323,9 @@ function upload_file()
 function main()
 {
   source /etc/repoman.conf
+  if [ "$UID" -eq 0 ]; then
+    USE_ROOT="--asroot "
+  fi
   check_args $@
   check_files
   color
