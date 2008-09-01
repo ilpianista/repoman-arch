@@ -252,7 +252,7 @@ function edit_pkgbuild()
   if [ -f $workspace/pkgs/$1/PKGBUILD ]; then
     printf "${BOLD}$(gettext "Do you want to edit this PKGBUILD? (y/N):")${DEFA} "
     read EDIT_ANSWER
-    if [ "$EDIT_ANSWER" = "$(gettext "y)"" ]; then
+    if [ "$EDIT_ANSWER" = "$(gettext "y")" ]; then
       [ -z "$EDITOR" ] && EDITOR=vi
       $EDITOR $workspace/pkgs/$1/PKGBUILD
     fi
