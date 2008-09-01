@@ -172,7 +172,7 @@ function print_help()
   printf "\n"
   printf "Usage: `basename $0` action [OPTIONS] packages\n"
   printf "Action:\n"
-  printf "  -A, --add          add packages to repo\n"
+  printf "  -A, --add          add or update packages to repo\n"
   printf "  -R, --remove       remove packages from repo\n"
   printf "      --create       create database repo, then add packages\n"
   printf "Options:\n"
