@@ -115,7 +115,7 @@ function build_pkg()
   lpkgver=`cat PKGBUILD | grep pkgver= | awk -F'=' '{print $2}'`
   lpkgrel=`cat PKGBUILD | grep pkgrel= | awk -F'=' '{print $2}'`
   pkgsver[${#pkgsver[@]}]=$lpkgver-$lpkgrel
-  if [ ! -f "$workspace/$1-$lpkgver-$lpkgrel-$arch.pkg.tar.gz" ] && [ "$NOBUILD" != "TRUE" ]; then
+  if [ ! -f "$workspace/$1-$lpkgver-$lpkgrel-$arch.pkg.tar.gz" ] || [ "$NOBUILD" != "TRUE" ]; then
     if [ "$VERBOSE" = "TRUE" ]; then
       printf "\n"
       makepkg -f --noconfirm $USE_ROOT $NOCOLOR_FLAG || print_makepkg_error $1
@@ -314,18 +314,18 @@ function upload_file()
     printf "${LGRE}$changelog ${YELL}uploaded!${DEFA}\n"
   fi
   if [ "$VERBOSE" = "TRUE" ]; then
-    lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; put $workspace/$repo.db.tar.gz; exit" || print_upload_error $changelog
+    lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; put $workspace/$repo.db.tar.gz; exit" || print_upload_error $repo.db.tar.gz
   else
-    lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; put $workspace/$repo.db.tar.gz; exit" &> /dev/null || print_upload_error $changelog
+    lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; put $workspace/$repo.db.tar.gz; exit" &> /dev/null || print_upload_error $repo.db.tar.gz
   fi
   printf "${LGRE}$repo.db.tar.gz ${YELL}uploaded!${DEFA}\n"
   
   i=0
   for pkg in ${pkgs[@]}; do
     if [ "$VERBOSE" = "TRUE" ]; then
-      lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; put $workspace/$pkg-${pkgsver[$i]}-$arch.pkg.tar.gz; exit" || print_upload_error $changelog
+      lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; put $workspace/$pkg-${pkgsver[$i]}-$arch.pkg.tar.gz; exit" || print_upload_error $pkg-${pkgsver[$i]}-$arch.pkg.tar.gz
     else
-      lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; put $workspace/$pkg-${pkgsver[$i]}-$arch.pkg.tar.gz; exit" &> /dev/null || print_upload_error $changelog
+      lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; put $workspace/$pkg-${pkgsver[$i]}-$arch.pkg.tar.gz; exit" &> /dev/null || print_upload_error $pkg-${pkgsver[$i]}-$arch.pkg.tar.gz
     fi
     printf "${LGRE}$pkg-${pkgsver[$i]}-$arch.pkg.tar.gz ${YELL}uploaded!${DEFA}\n"
     let i=$i+1
