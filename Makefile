@@ -1,4 +1,4 @@
-# Makefile for RepoMan
+# Makefile for Repoman
 #
 # Copyright (C) 2008 Andrea Scarpino <bash.lnx@gmail.com>
 #
