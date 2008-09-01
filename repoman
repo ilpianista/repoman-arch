@@ -181,6 +181,7 @@ function print_help()
   printf "      --edit         ask for edit pkgbuild\n"
   printf "      --clean        remove any files from workspace dir\n"
   printf "      --noupload     do not upload any file to ftp\n"
+  printf "      --local        use this for local repository\n"
 }
 
 function check_args()
@@ -213,6 +214,7 @@ function check_args()
              edit) EDIT="TRUE" ;;
              clean) CLEAN="TRUE" ;;
              create) CREATE="TRUE"; ADD="TRUE" ;;
+             local) LOCAL="TRUE"; NOUPLOAD="TRUE" ;;
              -*) NOCOLOR="TRUE"; print_help; exit 0 ;;
            esac ;;
         *) NOCOLOR="TRUE"; print_help; exit 0 ;;
@@ -246,10 +248,12 @@ function download_files()
 {
   printf "${YELL}Downloading: "
   if [ "$CREATE" != "TRUE" ]; then
-    if [ "$NOCHANGELOG" != "TRUE" ]; then
-      get_file $changelog
-    fi
+    if [ "$LOCAL" != "TRUE" ]; then
+      if [ "$NOCHANGELOG" != "TRUE" ]; then
+        get_file $changelog
+      fi
     get_file $repo.db.tar.gz
+    fi
   fi
   if [ "$ADD" = "TRUE" ]; then
     for pkg in ${pkgs[@]}; do
