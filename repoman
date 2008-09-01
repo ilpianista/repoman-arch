@@ -108,15 +108,25 @@ function build_pkg()
   cd $workspace/pkgs/$1
   if [ "$VERBOSE" = "TRUE" ]; then
     printf "\n"
-    makepkg -f --noconfirm $USE_ROOT $NOCOLOR_FLAG || print_makepkg_error $1
+    makepkg -o --noconfirm $USE_ROOT $NOCOLOR_FLAG || print_makepkg_error $1
   else
-    makepkg -f --noconfirm $USE_ROOT $NOCOLOR_FLAG &> /dev/null || print_makepkg_error $1
+    makepkg -o --noconfirm $USE_ROOT $NOCOLOR_FLAG &> /dev/null || print_makepkg_error $1
   fi
   lpkgver=`cat PKGBUILD | grep pkgver= | awk -F'=' '{print $2}'`
   lpkgrel=`cat PKGBUILD | grep pkgrel= | awk -F'=' '{print $2}'`
   pkgsver[${#pkgsver[@]}]=$lpkgver-$lpkgrel
-  printf " ($lpkgver-$lpkgrel)${DEFA}\n"
-  cp $workspace/pkgs/$1/$1-$lpkgver-$lpkgrel-$arch.pkg.tar.gz $workspace/ || exit 1
+  if [ ! -f "$workspace/$1-$lpkgver-$lpkgrel-$arch.pkg.tar.gz" ] && [ "$NOBUILD" != "TRUE" ]; then
+    if [ "$VERBOSE" = "TRUE" ]; then
+      printf "\n"
+      makepkg -f --noconfirm $USE_ROOT $NOCOLOR_FLAG || print_makepkg_error $1
+    else
+      makepkg -f --noconfirm $USE_ROOT $NOCOLOR_FLAG &> /dev/null || print_makepkg_error $1
+    fi
+    cp -f $workspace/pkgs/$1/$1-$lpkgver-$lpkgrel-$arch.pkg.tar.gz $workspace/ || exit 1
+  else
+    printf " ${YELL}skip, exist"
+  fi
+  printf " ${LGRE}($lpkgver-$lpkgrel)${DEFA}\n"
 }
 
 function update_db()
@@ -175,13 +185,14 @@ function print_help()
   printf "      --create       create database repo, then add packages\n"
   printf "Options:\n"
   printf "      --help         display this help and exit\n"
-  printf "      --verbose      print makepkg output\n"
+  printf "      --verbose      print commands output\n"
   printf "      --nocolor      do not use any color\n"
   printf "      --nochangelog  do not use a changelog file\n"
   printf "      --edit         ask for edit pkgbuild\n"
   printf "      --clean        remove any files from workspace dir\n"
   printf "      --noupload     do not upload any file to ftp\n"
   printf "      --local        use this for local repository\n"
+  printf "      --nobuild      do not build packages if exist\n"
 }
 
 function check_args()
@@ -215,6 +226,7 @@ function check_args()
              clean) CLEAN="TRUE" ;;
              create) CREATE="TRUE"; ADD="TRUE" ;;
              local) LOCAL="TRUE"; NOUPLOAD="TRUE" ;;
+             nobuild) NOBUILD="TRUE" ;;
              -*) NOCOLOR="TRUE"; print_help; exit 0 ;;
            esac ;;
         *) NOCOLOR="TRUE"; print_help; exit 0 ;;
