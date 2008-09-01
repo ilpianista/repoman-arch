@@ -56,6 +56,12 @@ function print_makepkg_error()
   exit 1
 }
 
+function print_upload_error()
+{
+  printf "\n${LRED}Upload of $1 fail. Exiting. ${DEFA}\n"
+  exit 1
+}
+
 function get_file()
 {
   printf "${LGRE} $1 ${DEFA}"
@@ -144,6 +150,7 @@ function update_changelog()
 {
   if [ "$NOCHANGELOG" != "TRUE" ]; then
     printf "${YELL}Updating: ${LGRE}$changelog${DEFA}\n"
+    rm -rf /tmp/header
     i=0
     for pkg in ${pkgs[@]}; do
       echo "* `date +\"%d-%m-%Y %R\"` `whoami` -$flag $pkg ${pkgsver[$i]}" >> /tmp/header
@@ -170,6 +177,7 @@ function print_help()
   printf "      --nochangelog  do not use a changelog file\n"
   printf "      --edit         ask for edit pkgbuild\n"
   printf "      --clean        remove any files from workspace dir\n"
+  printf "      --noupload     do not upload any file to ftp\n"
 }
 
 function check_args()
@@ -200,6 +208,7 @@ function check_args()
              verbose) VERBOSE="TRUE" ;;
              nocolor) NOCOLOR="TRUE" ;;
              nochangelog) NOCHANGELOG="TRUE" ;;
+             noupload) NOUPLOAD="TRUE" ;;
              edit) EDIT="TRUE" ;;
              clean) CLEAN="TRUE" ;;
              -*) NOCOLOR="TRUE"; print_help; exit 0 ;;
@@ -259,7 +268,7 @@ function print_pkgs_list()
 
 function ask_remove()
 {
-  printf "${BOLD}Do you want to remove package build dir? (y/N):${DEFA}"
+  printf "${BOLD}Do you want to remove package build dir? (y/N): ${DEFA}"
   read DIR_REMOVE
   if [ "$DIR_REMOVE" = "y" ]; then
     for pkg in ${pkgs[@]}; do
@@ -271,6 +280,20 @@ function ask_remove()
 function clean()
 {
   rm -rf $workspace/*
+}
+
+function upload_file()
+{
+  if [ "$NOCHANGELOG" != "TRUE" ]; then
+    lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; put $workspace/$changelog; exit" || print_upload_error $changelog
+  fi
+  lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; put $workspace/$repo.db.tar.gz; exit" || print_upload_error $changelog
+  
+  i=0
+  for pkg in ${pkgs[@]}; do
+    lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; put $workspace/$pkg-${pkgsver[$i]}-$arch.pkg.tar.gz; exit" || print_upload_error $changelog
+    let i=$i+1
+  done
 }
 
 function main()
@@ -306,6 +329,10 @@ function main()
   update_db
 
   update_changelog
+  
+  if [ "$NOUPLOAD" != "TRUE" ]; then
+    upload_file
+  fi
   
   ask_remove
 }
