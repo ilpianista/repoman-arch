@@ -1,0 +1,129 @@
+# Spanish translation for Repoman.
+# Copyright (C) 2008 Andrea Scarpino <bash.lnx@gmail.com>
+# This file is distributed under the same license as the repoman package.
+# Angel 'angvp' Velasquez <angvp@archlinux.com.ve>, 2008
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Repoman\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2008-09-02 14:56+0200\n"
+"PO-Revision-Date: 2008-09-02 17:10+0200\n"
+"Last-Translator: Angel Velasquez <angvp@archlinux.com.ve>\n"
+"Language-Team: Arch Linux Venezuelan Team <angvp@archlinux.com.ve>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "I cannot get %s. Exiting."
+msgstr "Imposible descargar %s. Finalizando."
+
+msgid "I cannot extract %s. Exiting."
+msgstr "Imposible extraer %s. Finalizando."
+
+msgid "%s: Makepkg fail. Exiting."
+msgstr "%s: Makepkg produjo un error. Finalizando."
+
+msgid "Upload of %s fail. Exiting."
+msgstr "El envio de %s fallo. finalizando."
+
+msgid "skip, exist"
+msgstr "ignorar, existe"
+
+msgid "Updating:"
+msgstr "Actualizando:"
+
+msgid "added!"
+msgstr "agregado!"
+
+msgid "updated!"
+msgstr "actualizado!"
+
+msgid "removed!"
+msgstr "removido!"
+
+msgid "A tool to manage your personal ArchLinux repository\\n"
+msgstr "Una herramienta para manejar tu repositorio personal de ArchLinux\\n"
+
+msgid "Usage: repoman action [OPTIONS] packages\\n"
+msgstr "Uso: repoman accion [OPCIONES] paquetes\\n"
+
+msgid "Action:\\n"
+msgstr "Accion:\\n"
+
+msgid "  -A, --add          add or update packages to repo\\n"
+msgstr "  -A, --add          agrega o actualiza los paquetes del repo\\n"
+
+msgid "  -R, --remove       remove packages from repo\\n"
+msgstr "  -R, --remove       remueve paquetes del repo\\n"
+
+msgid "      --create       create database repo, then add packages\\n"
+msgstr ""
+"      --create       crea la base de datos del repositorio, entonces agrega "
+"los paquetes\\n"
+
+msgid "Options:\\n"
+msgstr "Opciones:\\n"
+
+msgid "      --help         display this help and exit\\n"
+msgstr "      --help         muestra este texto y sale\\n"
+
+msgid "      --verbose      print commands output\\n"
+msgstr "      --verbose      visualiza la salida de los comandos\\n"
+
+msgid "      --nocolor      do not use any color\\n"
+msgstr "      --nocolor      no muestra ningun color en la salida\\n"
+
+msgid "      --nochangelog  do not use a changelog file\\n"
+msgstr "      --nochangelog  non utiliza el archivo de changelog\\n"
+
+msgid "      --edit         ask for edit pkgbuild\\n"
+msgstr "      --edit         pide para edicion del pkgbuild\\n"
+
+msgid "      --clean        remove any files from workspace dir\\n"
+msgstr "      --clean        remueve los archivos del directorio de trabajo\\n"
+
+msgid "      --noupload     do not upload any file to ftp\\n"
+msgstr "      --noupload     no sube ningun archivo al ftp\\n"
+
+msgid "      --local        use this for local repository\\n"
+msgstr "      --local        usa este como repositorio local\\n"
+
+msgid "      --nobuild      do not build packages if exist\\n"
+msgstr "      --nobuild      no construye paquetes si existen\\n"
+
+msgid "REMOVED"
+msgstr "REMOVIDO"
+
+msgid "Do you want to edit this PKGBUILD? (y/N):"
+msgstr "Quieres editar este PKGBUILD (s/N):"
+
+msgid "y"
+msgstr "s"
+
+msgid "Downloading:"
+msgstr "Descargando:"
+
+msgid "Packages: "
+msgstr "Paquetes: "
+
+msgid "Do you want to remove package build dir? (y/N):"
+msgstr "Quieres remover el directorio de construccion del paquete? (s/N):"
+
+msgid "Any files in workspace directory have been removed!\\n"
+msgstr "Fueron removidos todos los archivos en el directorio de trabajo!\\n"
+
+msgid "uploaded!\\n"
+msgstr "actualizado!\\n"
+
+msgid "All copy of %s have been removed!\\n"
+msgstr "Fueron removidos todos los archivos en el directorio de trabajo!\\n"
+
+msgid "This will update the whole repository!\\n"
+msgstr "Esto actualizará el repositorio completo!\\n"
+
+msgid "Extracting:"
+msgstr "Extrayendo:"
+
+msgid "Building:"
+msgstr "Compilando:"
