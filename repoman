@@ -334,12 +334,14 @@ function upload_file()
     else
       if [ "$REMOVE" = "TRUE" ]; then
 	lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; glob rm $pkg-*-*-i686.pkg.tar.gz; exit" &> /dev/null || print_upload_error $pkg-${pkgsver[$i]}-$arch.pkg.tar.gz
+    	printf "${LGRE}$pkg ${YELL}removed!${DEFA}\n"
+    	let i=$i+1
       else
       	lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; glob rm $pkg-*-*-i686.pkg.tar.gz; put $workspace/$pkg-${pkgsver[$i]}-$arch.pkg.tar.gz; exit" &> /dev/null || print_upload_error $pkg-${pkgsver[$i]}-$arch.pkg.tar.gz
+	printf "${LGRE}$pkg-${pkgsver[$i]}-$arch.pkg.tar.gz ${YELL}uploaded!${DEFA}\n"
+    	let i=$i+1
       fi
     fi
-    printf "${LGRE}$pkg-${pkgsver[$i]}-$arch.pkg.tar.gz ${YELL}uploaded!${DEFA}\n"
-    let i=$i+1
   done
 }
 
