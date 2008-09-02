@@ -326,9 +326,9 @@ function upload_file()
   i=0
   for pkg in ${pkgs[@]}; do
     if [ "$VERBOSE" = "TRUE" ]; then
-      lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; glob rm -f $workspace/$pkg-*-*-i686.pkg.tar.gz; put $workspace/$pkg-${pkgsver[$i]}-$arch.pkg.tar.gz; exit" || print_upload_error $pkg-${pkgsver[$i]}-$arch.pkg.tar.gz
+      lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; glob rm $pkg-*-*-i686.pkg.tar.gz; put $workspace/$pkg-${pkgsver[$i]}-$arch.pkg.tar.gz; exit" || print_upload_error $pkg-${pkgsver[$i]}-$arch.pkg.tar.gz
     else
-      lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; glob rm -f $workspace/$pkg-*-*-i686.pkg.tar.gz; put $workspace/$pkg-${pkgsver[$i]}-$arch.pkg.tar.gz; exit" &> /dev/null || print_upload_error $pkg-${pkgsver[$i]}-$arch.pkg.tar.gz
+      lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; glob rm $pkg-*-*-i686.pkg.tar.gz; put $workspace/$pkg-${pkgsver[$i]}-$arch.pkg.tar.gz; exit" &> /dev/null || print_upload_error $pkg-${pkgsver[$i]}-$arch.pkg.tar.gz
     fi
     printf "${LGRE}$pkg-${pkgsver[$i]}-$arch.pkg.tar.gz ${YELL}uploaded!${DEFA}\n"
     let i=$i+1
