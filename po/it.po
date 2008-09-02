@@ -6,9 +6,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Repoman\n"
-"Report-Msgid-Bugs-To: bash.lnx@gmail.com\n"
-"POT-Creation-Date: 2008-09-01 16:06+0200\n"
-"PO-Revision-Date: 2008-09-01 16:40+0200\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2008-09-02 13:19+0200\n"
+"PO-Revision-Date: 2008-09-02 14:45+0200\n"
 "Last-Translator: Giovanni Scafora <linuxmania@gmail.com>\n"
 "Language-Team: Arch Linux Italian Team <linuxmania@gmail.com>\n"
 "MIME-Version: 1.0\n"
@@ -53,7 +53,8 @@ msgstr "rimosso!"
 
 #: repoman:182
 msgid "A tool to manage your personal ArchLinux repository\\n"
-msgstr "Uno strumento per gestire il vostro repository personale di ArchLinux\\n"
+msgstr ""
+"Uno strumento per gestire il vostro repository personale di ArchLinux\\n"
 
 #: repoman:183
 msgid "Usage: repoman action [OPTIONS] packages\\n"
@@ -73,7 +74,8 @@ msgstr "  -R, --remove       rimuove i pacchetti dal repo\\n"
 
 #: repoman:188
 msgid "      --create       create database repo, then add packages\\n"
-msgstr "      --create       crea il database del repo e aggiunge i pacchetti\\n"
+msgstr ""
+"      --create       crea il database del repo e aggiunge i pacchetti\\n"
 
 #: repoman:189
 msgid "Options:\\n"
@@ -139,10 +141,10 @@ msgstr "Vuoi rimuovere la directory di compilazione del pacchetto? (s/N):"
 msgid "Any files in workspace directory have been removed!"
 msgstr "Sono stati rimossi tutti i file presenti nella direcotry di lavoro!"
 
-#: repoman:371
+#: repoman:381
 msgid "Extracting:"
 msgstr "Sto estraendo:"
 
-#: repoman:380
+#: repoman:390
 msgid "Building:"
 msgstr "Sto compilando:"
