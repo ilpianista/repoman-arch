@@ -87,7 +87,6 @@ function extract()
   printf "${LGRE}$1 ${DEFA}"
   rm -rf $workspace/pkgs/$1
   tar -xf $workspace/pkgs/$1.tar.gz -C $workspace/pkgs || print_tar_error $1
-
 }
 
 function check_files()
@@ -115,21 +114,21 @@ function build_pkg()
   else
     makepkg -o --noconfirm $USE_ROOT $NOCOLOR_FLAG &> /dev/null || print_makepkg_error $1
   fi
-  lpkgver=`cat PKGBUILD | grep pkgver= | awk -F'=' '{print $2}'`
-  lpkgrel=`cat PKGBUILD | grep pkgrel= | awk -F'=' '{print $2}'`
-  pkgsver[${#pkgsver[@]}]=$lpkgver-$lpkgrel
-  if [ ! -f "$workspace/$1-$lpkgver-$lpkgrel-$arch.pkg.tar.gz" ] || [ "$NOBUILD" != "TRUE" ]; then
+  unset pkgver pkgrel
+  source ./PKGBUILD
+  pkgsver[${#pkgsver[@]}]=$pkgver-$pkgrel
+  if [ ! -f "$workspace/$1-$pkgver-$pkgrel-$arch.pkg.tar.gz" ] || [ "$NOBUILD" != "TRUE" ]; then
     if [ "$VERBOSE" = "TRUE" ]; then
       printf "\n"
       makepkg -f --noconfirm $USE_ROOT $NOCOLOR_FLAG || print_makepkg_error $1
     else
       makepkg -f --noconfirm $USE_ROOT $NOCOLOR_FLAG &> /dev/null || print_makepkg_error $1
     fi
-    cp -f $workspace/pkgs/$1/$1-$lpkgver-$lpkgrel-$arch.pkg.tar.gz $workspace/ || exit 1
+    cp -f $workspace/pkgs/$1/$1-$pkgver-$pkgrel-$arch.pkg.tar.gz $workspace/ || exit 1
   else
     printf " ${YELL}$(gettext "skip, exist")"
   fi
-  printf " ${LGRE}($lpkgver-$lpkgrel)${DEFA}\n"
+  printf " ${LGRE}($pkgver-$pkgrel)${DEFA}\n"
 }
 
 function update_db()
@@ -329,13 +328,13 @@ function upload_file()
   for pkg in ${pkgs[@]}; do
     if [ "$VERBOSE" = "TRUE" ]; then
       if [ "$REMOVE" = "TRUE" ]; then
-	lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; glob rm $pkg-*-*-i686.pkg.tar.gz; exit" || print_upload_error $pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz
+	    lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; glob rm $pkg-*-*-i686.pkg.tar.gz; exit" || print_upload_error $pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz
       else
       	lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; glob rm $pkg-*-*-i686.pkg.tar.gz; put $workspace/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz; exit" || print_upload_error $pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz
       fi
     else
       if [ "$REMOVE" = "TRUE" ]; then
-	lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; glob rm $pkg-*-*-i686.pkg.tar.gz; exit" &> /dev/null || print_upload_error $pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz
+	    lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; glob rm $pkg-*-*-i686.pkg.tar.gz; exit" &> /dev/null || print_upload_error $pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz
     	printf "${YELL}$(gettext "All copy of %s have been removed!\n")${DEFA}" "$pkg"
       else
       	lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; glob rm $pkg-*-*-i686.pkg.tar.gz; put $workspace/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz; exit" &> /dev/null || print_upload_error $pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz
@@ -363,7 +362,9 @@ function copy_file()
 function get_pkgs_list()
 {
   printf "${BOLD}$(gettext "This will update the whole repository!\n")${DEFA}"
-  pkgs[${#pkgs[@]}]=`pacman -Sql $repo`
+  for pkg in `pacman -Sql $repo 2> /dev/null`; do
+    pkgs[${#pkgs[@]}]=$pkg
+  done
 }
 
 function main()
