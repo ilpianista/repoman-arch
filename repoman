@@ -282,7 +282,7 @@ function download_files()
 
 function print_pkgs_list()
 {
-  printf "${YELL}Packages: "
+  printf "${YELL}$(gettext "Packages: ")"
   for pkg in ${pkgs[@]}; do
     printf "${LGRE}$pkg "
   done
