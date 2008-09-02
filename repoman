@@ -186,16 +186,17 @@ function print_help()
   printf "$(gettext "  -A, --add          add or update packages to repo\n")"
   printf "$(gettext "  -R, --remove       remove packages from repo\n")"
   printf "$(gettext "      --create       create database repo, then add packages\n")"
+  printf "$(gettext "      --all          update the whole repository\n")"
   printf "$(gettext "Options:\n")"
-  printf "$(gettext "      --help         display this help and exit\n")"
-  printf "$(gettext "      --verbose      print commands output\n")"
-  printf "$(gettext "      --nocolor      do not use any color\n")"
+  printf "$(gettext "      --local        use this for local repository\n")"  
+  printf "$(gettext "      --noupload     do not upload any file to ftp\n")"
+  printf "$(gettext "      --nobuild      do not build packages if exist\n")"
   printf "$(gettext "      --nochangelog  do not use a changelog file\n")"
   printf "$(gettext "      --edit         ask for edit pkgbuild\n")"
+  printf "$(gettext "      --verbose      print commands output\n")"
   printf "$(gettext "      --clean        remove any files from workspace dir\n")"
-  printf "$(gettext "      --noupload     do not upload any file to ftp\n")"
-  printf "$(gettext "      --local        use this for local repository\n")"
-  printf "$(gettext "      --nobuild      do not build packages if exist\n")"
+  printf "$(gettext "      --nocolor      do not use any color\n")"
+  printf "$(gettext "      --help         display this help and exit\n")"
 }
 
 function check_args()
@@ -220,16 +221,17 @@ function check_args()
         -) case $OPTARG in
              add) ADD="TRUE" ;;
              remove) REMOVE="TRUE"; IF_REMOVE="($(gettext "REMOVED")) " ;;
-             help) NOCOLOR="TRUE"; print_help; exit 0 ;;
-             verbose) VERBOSE="TRUE" ;;
-             nocolor) NOCOLOR="TRUE" ;;
-             nochangelog) NOCHANGELOG="TRUE" ;;
-             noupload) NOUPLOAD="TRUE" ;;
-             edit) EDIT="TRUE" ;;
-             clean) CLEAN="TRUE" ;;
              create) CREATE="TRUE"; ADD="TRUE" ;;
+             all) ALL="TRUE"; ADD="TRUE" ;;
              local) LOCAL="TRUE"; NOUPLOAD="TRUE" ;;
+             noupload) NOUPLOAD="TRUE" ;;
              nobuild) NOBUILD="TRUE" ;;
+             nochangelog) NOCHANGELOG="TRUE" ;;
+             edit) EDIT="TRUE" ;;
+             verbose) VERBOSE="TRUE" ;;
+             clean) CLEAN="TRUE" ;;
+             nocolor) NOCOLOR="TRUE" ;;
+             help) NOCOLOR="TRUE"; print_help; exit 0 ;;
              -*) NOCOLOR="TRUE"; print_help; exit 0 ;;
            esac ;;
         *) NOCOLOR="TRUE"; print_help; exit 0 ;;
@@ -238,7 +240,7 @@ function check_args()
     shift
   done
   
-  if [ "$CLEAN" != "TRUE" ]; then
+  if [ "$CLEAN" != "TRUE" ] && [ "$ALL" != "TRUE" ]; then
     if [ ${#pkgs[@]} -eq 0 ]; then
       NOCOLOR="TRUE"
       print_help
@@ -358,6 +360,12 @@ function copy_file()
   done
 }
 
+function get_pkgs_list()
+{
+  printf "${BOLD}$(gettext "This will update the whole repository!\n")${DEFA}"
+  pkgs[${#pkgs[@]}]=`pacman -Sql $repo`
+}
+
 function main()
 {
   source /etc/repoman.conf
@@ -371,6 +379,10 @@ function main()
   if [ "$CLEAN" = "TRUE" ]; then
     clean
     exit 0
+  fi
+  
+  if [ "$ALL" = "TRUE" ]; then
+    get_pkgs_list
   fi
   
   print_pkgs_list

@@ -119,6 +119,9 @@ msgstr ""
 msgid "All copy of %s have been removed!\\n"
 msgstr ""
 
+msgid "This will update the whole repository!\\n"
+msgstr ""
+
 msgid "Extracting:"
 msgstr "Sto estraendo:"
 
