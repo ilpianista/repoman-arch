@@ -25,7 +25,7 @@ msgid "%s: Makepkg fail. Exiting."
 msgstr "%s: Makepkg produjo un error. Finalizando."
 
 msgid "Upload of %s fail. Exiting."
-msgstr "El envio de %s fallo. finalizando."
+msgstr "El envio de %s fallo. Finalizando."
 
 msgid "skip, exist"
 msgstr "ignorar, existe"
