@@ -90,7 +90,7 @@ msgid "      --local        use this for local repository\\n"
 msgstr "      --local        usa questo come repository locale\\n"
 
 msgid "      --nobuild      do not build packages if exist\\n"
-msgstr "      --nobuild      se esiste, non crea i pacchetti pacchetti\\n"
+msgstr "      --nobuild      se esiste, non crea i pacchetti\\n"
 
 msgid "REMOVED"
 msgstr "RIMOSSO"
