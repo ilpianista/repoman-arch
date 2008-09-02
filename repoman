@@ -167,10 +167,10 @@ function update_changelog()
   if [ "$NOCHANGELOG" != "TRUE" ]; then
     printf "${YELL}$(gettext "Updating:") ${LGRE}$changelog${DEFA}\n"
     rm -rf /tmp/header
-    i=0
+    INDEX=0
     for pkg in ${pkgs[@]}; do
-      echo "* `date +\"%d-%m-%Y %R\"` `whoami` $IF_REMOVE$pkg ${pkgsver[$i]}" >> /tmp/header
-      let i=$i+1
+      echo "* `date +\"%d-%m-%Y %R\"` `whoami` $IF_REMOVE$pkg ${pkgsver[$INDEX]}" >> /tmp/header
+      (( INDEX++ ))
     done
     cat /tmp/header $workspace/$changelog > /tmp/$changelog
     mv /tmp/$changelog $workspace/$changelog
@@ -303,7 +303,7 @@ function ask_remove()
 function clean()
 {
   rm -rf $workspace/*
-  printf "${YELL}$(gettext "Any files in workspace directory have been removed!")${DEFA}\n"
+  printf "${YELL}$(gettext "Any files in workspace directory have been removed!\n")${DEFA}"
 }
 
 function upload_file()
@@ -314,33 +314,32 @@ function upload_file()
     else
       lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; put $workspace/$changelog; exit" &> /dev/null || print_upload_error $changelog
     fi
-    printf "${LGRE}$changelog ${YELL}uploaded!${DEFA}\n"
+    printf "${LGRE}$changelog ${YELL}$(gettext "uploaded!\n")${DEFA}"
   fi
   if [ "$VERBOSE" = "TRUE" ]; then
     lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; put $workspace/$repo.db.tar.gz; exit" || print_upload_error $repo.db.tar.gz
   else
     lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; put $workspace/$repo.db.tar.gz; exit" &> /dev/null || print_upload_error $repo.db.tar.gz
   fi
-  printf "${LGRE}$repo.db.tar.gz ${YELL}uploaded!${DEFA}\n"
+  printf "${LGRE}$repo.db.tar.gz ${YELL}$(gettext "uploaded!\n")${DEFA}"
   
-  i=0
+  INDEX=0
   for pkg in ${pkgs[@]}; do
     if [ "$VERBOSE" = "TRUE" ]; then
       if [ "$REMOVE" = "TRUE" ]; then
-	lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; glob rm $pkg-*-*-i686.pkg.tar.gz; exit" || print_upload_error $pkg-${pkgsver[$i]}-$arch.pkg.tar.gz
+	lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; glob rm $pkg-*-*-i686.pkg.tar.gz; exit" || print_upload_error $pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz
       else
-      	lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; glob rm $pkg-*-*-i686.pkg.tar.gz; put $workspace/$pkg-${pkgsver[$i]}-$arch.pkg.tar.gz; exit" || print_upload_error $pkg-${pkgsver[$i]}-$arch.pkg.tar.gz
+      	lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; glob rm $pkg-*-*-i686.pkg.tar.gz; put $workspace/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz; exit" || print_upload_error $pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz
       fi
     else
       if [ "$REMOVE" = "TRUE" ]; then
-	lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; glob rm $pkg-*-*-i686.pkg.tar.gz; exit" &> /dev/null || print_upload_error $pkg-${pkgsver[$i]}-$arch.pkg.tar.gz
-    	printf "${LGRE}$pkg ${YELL}removed!${DEFA}\n"
-    	let i=$i+1
+	lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; glob rm $pkg-*-*-i686.pkg.tar.gz; exit" &> /dev/null || print_upload_error $pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz
+    	printf "${YELL}$(gettext "All copy of %s have been removed!\n")${DEFA}" "$pkg"
       else
-      	lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; glob rm $pkg-*-*-i686.pkg.tar.gz; put $workspace/$pkg-${pkgsver[$i]}-$arch.pkg.tar.gz; exit" &> /dev/null || print_upload_error $pkg-${pkgsver[$i]}-$arch.pkg.tar.gz
-	printf "${LGRE}$pkg-${pkgsver[$i]}-$arch.pkg.tar.gz ${YELL}uploaded!${DEFA}\n"
-    	let i=$i+1
+      	lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; glob rm $pkg-*-*-i686.pkg.tar.gz; put $workspace/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz; exit" &> /dev/null || print_upload_error $pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz
+        printf "${LGRE}$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz ${YELL}$(gettext "uploaded!\n")${DEFA}"
       fi
+      (( INDEX++ ))
     fi
   done
 }
@@ -352,10 +351,10 @@ function copy_file()
   fi
   cp -f $workspace/$repo.db.tar.gz $url/
   
-  i=0
+  INDEX=0
   for pkg in ${pkgs[@]}; do
-    cp -f $workspace/$pkg-${pkgsver[$i]}-$arch.pkg.tar.gz $url/
-    let i=$i+1
+    cp -f $workspace/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz $url/
+    (( INDEX++ ))
   done
 }
 

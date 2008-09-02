@@ -15,136 +15,109 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: repoman:40
 msgid "I cannot get %s. Exiting."
 msgstr "Impossibile scaricare %s. Sto uscendo."
 
-#: repoman:46
 msgid "I cannot extract %s. Exiting."
 msgstr "Impossibile estrarre %s. Sto uscendo."
 
-#: repoman:52
 msgid "%s: Makepkg fail. Exiting."
 msgstr "%s: Makepkg terminato con errore. Sto uscendo."
 
-#: repoman:58
 msgid "Upload of %s fail. Exiting."
 msgstr "L'invio di %s non è riuscito. Sto uscendo."
 
-#: repoman:130
 msgid "skip, exist"
 msgstr "ignoro, esiste"
 
-#: repoman:137 repoman:168
 msgid "Updating:"
 msgstr "Sto aggiornando:"
 
-#: repoman:147
 msgid "added!"
 msgstr "aggiunto!"
 
-#: repoman:149
 msgid "updated!"
 msgstr "aggiornato!"
 
-#: repoman:160
 msgid "removed!"
 msgstr "rimosso!"
 
-#: repoman:182
 msgid "A tool to manage your personal ArchLinux repository\\n"
 msgstr ""
 "Uno strumento per gestire il vostro repository personale di ArchLinux\\n"
 
-#: repoman:183
 msgid "Usage: repoman action [OPTIONS] packages\\n"
 msgstr "Uso: repoman azione [OPZIONI] pacchetti\\n"
 
-#: repoman:185
 msgid "Action:\\n"
 msgstr "Azione:\\n"
 
-#: repoman:186
 msgid "  -A, --add          add or update packages to repo\\n"
 msgstr "  -A, --add          aggiunge o aggiorna i pacchetti del repo\\n"
 
-#: repoman:187
 msgid "  -R, --remove       remove packages from repo\\n"
 msgstr "  -R, --remove       rimuove i pacchetti dal repo\\n"
 
-#: repoman:188
 msgid "      --create       create database repo, then add packages\\n"
 msgstr ""
 "      --create       crea il database del repo e aggiunge i pacchetti\\n"
 
-#: repoman:189
 msgid "Options:\\n"
 msgstr "Opzioni:\\n"
 
-#: repoman:190
 msgid "      --help         display this help and exit\\n"
 msgstr "      --help         mostra questo help ed esce\\n"
 
-#: repoman:191
 msgid "      --verbose      print commands output\\n"
 msgstr "      --verbose      visualizza l'output dei comandi\\n"
 
-#: repoman:192
 msgid "      --nocolor      do not use any color\\n"
 msgstr "      --nocolor      non utilizza nessun colore\\n"
 
-#: repoman:193
 msgid "      --nochangelog  do not use a changelog file\\n"
 msgstr "      --nochangelog  non utilizza un file di changelog\\n"
 
-#: repoman:194
 msgid "      --edit         ask for edit pkgbuild\\n"
 msgstr "      --edit         chiede di editare il pkgbuild\\n"
 
-#: repoman:195
 msgid "      --clean        remove any files from workspace dir\\n"
 msgstr "      --clean        rimuove tutti i file dalla directory di lavoro\\n"
 
-#: repoman:196
 msgid "      --noupload     do not upload any file to ftp\\n"
 msgstr "      --noupload     non invia nessun file al ftp\\n"
 
-#: repoman:197
 msgid "      --local        use this for local repository\\n"
 msgstr "      --local        usa questo come repository locale\\n"
 
-#: repoman:198
 msgid "      --nobuild      do not build packages if exist\\n"
 msgstr "      --nobuild      se esiste, non crea i pacchetti pacchetti\\n"
 
-#: repoman:222
 msgid "REMOVED"
 msgstr "RIMOSSO"
 
-#: repoman:253
 msgid "Do you want to edit this PKGBUILD? (y/N):"
 msgstr "Vuoi editare questo PKGBUILD? (s/N):"
 
-#: repoman:255
 msgid "y"
 msgstr "s"
 
-#: repoman:264
 msgid "Downloading:"
 msgstr "Sto scaricando:"
 
-#: repoman:294
 msgid "Do you want to remove package build dir? (y/N):"
 msgstr "Vuoi rimuovere la directory di compilazione del pacchetto? (s/N):"
 
-#: repoman:306
 msgid "Any files in workspace directory have been removed!"
 msgstr "Sono stati rimossi tutti i file presenti nella direcotry di lavoro!"
 
-#: repoman:381
+msgid "uploaded!\\n"
+msgstr ""
+
+msgid "All copy of %s have been removed!\\n"
+msgstr ""
+
 msgid "Extracting:"
 msgstr "Sto estraendo:"
 
-#: repoman:390
 msgid "Building:"
 msgstr "Sto compilando:"
