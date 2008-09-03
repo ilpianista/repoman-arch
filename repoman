@@ -73,7 +73,7 @@ function print_repo_error()
 
 function get_file()
 {
-  printf "${LGRE} $1 ${DEFA}"
+  printf "${LGRE} $1\n${DEFA}"
   mv $workspace/$1 $workspace/$1.old
   if [ "$VERBOSE" = "TRUE" ]; then
     printf "\n"
@@ -85,9 +85,8 @@ function get_file()
 
 function get_pkg()
 {
-  printf "${LGRE} $1.tar.gz ${DEFA}"
+  printf "${LGRE} $1.tar.gz\n${DEFA}"
   if [ "$VERBOSE" = "TRUE" ]; then
-    printf "\n"
     wget -P $workspace/pkgs http://aur.archlinux.org/packages/$1/$1.tar.gz || print_wget_error $1
   else
     wget -P $workspace/pkgs http://aur.archlinux.org/packages/$1/$1.tar.gz &> /dev/null || print_wget_error $1
@@ -199,7 +198,8 @@ function print_help()
   printf "$(gettext "      --create       create database repo, then add packages\n")"
   printf "$(gettext "      --all          update the whole repository\n")"
   printf "$(gettext "Options:\n")"
-  printf "$(gettext "      --local        use this for local repository\n")"  
+  printf "$(gettext "      --local        use this for local repository\n")"
+  printf "$(gettext "      --keep         do not get tarballs from AUR, use pkgs/\n")"
   printf "$(gettext "      --noupload     do not upload any file to ftp\n")"
   printf "$(gettext "      --nobuild      do not build packages if exist\n")"
   printf "$(gettext "      --nochangelog  do not use a changelog file\n")"
@@ -236,6 +236,7 @@ function check_args()
              create) CREATE="TRUE"; ADD="TRUE" ;;
              all) ALL="TRUE"; ADD="TRUE" ;;
              local) LOCAL="TRUE"; NOUPLOAD="TRUE" ;;
+             keep) KEEP="TRUE" ;;
              noupload) NOUPLOAD="TRUE" ;;
              nobuild) NOBUILD="TRUE" ;;
              nochangelog) NOCHANGELOG="TRUE" ;;
@@ -286,8 +287,11 @@ function download_files()
   fi
   if [ "$ADD" = "TRUE" ]; then
     for pkg in ${pkgs[@]}; do
-      if [ ! -f $workspace/pkgs/$pkg.tar.gz ]; then
+      if [ ! -f $workspace/pkgs/$pkg.tar.gz ] || [ ! "$KEEP" = "TRUE" ]; then
+        rm $workspace/pkgs/$pkg.tar.gz &> /dev/null
         get_pkg $pkg
+      else
+        printf "${LGRE} $pkg ${YELL}$(gettext "(found in pkgs/)\n")${DEFA}"
       fi
     done
   fi
