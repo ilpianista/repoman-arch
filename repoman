@@ -59,10 +59,22 @@ function print_upload_error()
   exit 1
 }
 
+function print_add_error()
+{
+  printf "\n${LRED}$(gettext "I cannot add %s to repository. Exiting.") ${DEFA}\n" "$1"
+  exit 1
+}
+
+function print_repo_error()
+{
+  printf "\n${LRED}$(gettext "I cannot remove %s from repository. Exiting.") ${DEFA}\n" "$1"
+  exit 1
+}
+
 function get_file()
 {
   printf "${LGRE} $1 ${DEFA}"
-  mv $workspace/$1 $workspace/$1.old &> /dev/null
+  mv $workspace/$1 $workspace/$1.old
   if [ "$VERBOSE" = "TRUE" ]; then
     printf "\n"
     wget -P $workspace $url/$1 || print_wget_error $1
@@ -92,15 +104,15 @@ function extract()
 function check_files()
 {
   if [ ! -d $workspace ]; then
-    mkdir $workspace
+    mkdir $workspace || exit 1
   fi
   
   if [ ! -d $workspace/pkgs ]; then
-    mkdir $workspace/pkgs
+    mkdir $workspace/pkgs || exit 1
   fi
   
   if [ "$NOCHANGELOG" != "TRUE" ] && [ ! -f "$workspace/$changelog" ]; then
-    touch $changelog
+    touch $workspace/$changelog
   fi
 }
 
@@ -138,9 +150,9 @@ function update_db()
     for pkg in ${pkgs[@]}; do
       if [ "$VERBOSE" = "TRUE" ]; then
         printf "\n"
-        repo-add $workspace/$repo.db.tar.gz $workspace/$pkg-${pkgsver}-$arch.pkg.tar.gz || exit 1
+        repo-add $workspace/$repo.db.tar.gz $workspace/$pkg-${pkgsver}-$arch.pkg.tar.gz || print_add_error $pkg
       else
-        repo-add $workspace/$repo.db.tar.gz $workspace/$pkg-${pkgsver}-$arch.pkg.tar.gz &> /dev/null || exit 1
+        repo-add $workspace/$repo.db.tar.gz $workspace/$pkg-${pkgsver}-$arch.pkg.tar.gz &> /dev/null || print_add_error $pkg
       fi
       if [ "$ADD" = "TRUE" ]; then
         printf "${LGRE}$pkg ${YELL}$(gettext "added!") ${DEFA}\n"
@@ -152,9 +164,9 @@ function update_db()
     for pkg in ${pkgs[@]}; do
       if [ "$VERBOSE" = "TRUE" ]; then
         printf "\n"
-        repo-remove $workspace/$repo.db.tar.gz $pkg || exit 1
+        repo-remove $workspace/$repo.db.tar.gz $pkg || print_remove_error $pkg
       else
-        repo-remove $workspace/$repo.db.tar.gz $pkg &> /dev/null || exit 1
+        repo-remove $workspace/$repo.db.tar.gz $pkg &> /dev/null || print_remove_error $pkg
       fi
       printf "${LGRE}$pkg ${YELL}$(gettext "removed!") ${DEFA}\n"
     done
@@ -192,7 +204,7 @@ function print_help()
   printf "$(gettext "      --nobuild      do not build packages if exist\n")"
   printf "$(gettext "      --nochangelog  do not use a changelog file\n")"
   printf "$(gettext "      --edit         ask for edit pkgbuild\n")"
-  printf "$(gettext "      --verbose      print commands output\n")"
+  printf "$(gettext "  -v, --verbose      print commands output\n")"
   printf "$(gettext "      --clean        remove any files from workspace dir\n")"
   printf "$(gettext "      --nocolor      do not use any color\n")"
   printf "$(gettext "      --help         display this help and exit\n")"
@@ -213,10 +225,11 @@ function check_args()
          *) pkgs[${#pkgs[@]}]=$OPTIONS; shift;;
       esac
     done
-    while getopts ":AR:-:" ARGS; do
+    while getopts ":ARv:-:" ARGS; do
       case $ARGS in
         A) ADD="TRUE" ;;
         R) REMOVE="TRUE"; IF_REMOVE="(REMOVED) " ;;
+        v) VERBOSE="TRUE" ;;
         -) case $OPTARG in
              add) ADD="TRUE" ;;
              remove) REMOVE="TRUE"; IF_REMOVE="($(gettext "REMOVED")) " ;;
@@ -240,7 +253,7 @@ function check_args()
   done
   
   if [ "$CLEAN" != "TRUE" ] && [ "$ALL" != "TRUE" ]; then
-    if [ ${#pkgs[@]} -eq 0 ]; then
+    if [ "${#pkgs[@]}" -eq 0 ]; then
       NOCOLOR="TRUE"
       print_help
       exit 0
