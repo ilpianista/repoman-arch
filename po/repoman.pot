@@ -1,14 +1,14 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) 2008 Andrea Scarpino <bash.lnx@gmail.com>
-# This file is distributed under the same license as the PACKAGE package.
+# This file is distributed under the same license as the Repoman package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Repoman\n"
+"Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-09-02 14:56+0200\n"
+"POT-Creation-Date: 2008-09-03 19:02+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,6 +26,12 @@ msgid "%s: Makepkg fail. Exiting."
 msgstr ""
 
 msgid "Upload of %s fail. Exiting."
+msgstr ""
+
+msgid "I cannot add %s to repository. Exiting."
+msgstr ""
+
+msgid "I cannot remove %s from repository. Exiting."
 msgstr ""
 
 msgid "skip, exist"
@@ -61,16 +67,22 @@ msgstr ""
 msgid "      --create       create database repo, then add packages\\n"
 msgstr ""
 
+msgid "      --all          update the whole repository\\n"
+msgstr ""
+
 msgid "Options:\\n"
 msgstr ""
 
-msgid "      --help         display this help and exit\\n"
+msgid "      --local        use this for local repository\\n"
 msgstr ""
 
-msgid "      --verbose      print commands output\\n"
+msgid "      --keep         do not get tarballs from AUR, use pkgs/\\n"
 msgstr ""
 
-msgid "      --nocolor      do not use any color\\n"
+msgid "      --noupload     do not upload any file to ftp\\n"
+msgstr ""
+
+msgid "      --nobuild      do not build packages if exist\\n"
 msgstr ""
 
 msgid "      --nochangelog  do not use a changelog file\\n"
@@ -79,16 +91,16 @@ msgstr ""
 msgid "      --edit         ask for edit pkgbuild\\n"
 msgstr ""
 
+msgid "  -v, --verbose      print commands output\\n"
+msgstr ""
+
 msgid "      --clean        remove any files from workspace dir\\n"
 msgstr ""
 
-msgid "      --noupload     do not upload any file to ftp\\n"
+msgid "      --nocolor      do not use any color\\n"
 msgstr ""
 
-msgid "      --local        use this for local repository\\n"
-msgstr ""
-
-msgid "      --nobuild      do not build packages if exist\\n"
+msgid "      --help         display this help and exit\\n"
 msgstr ""
 
 msgid "REMOVED"
@@ -101,6 +113,9 @@ msgid "y"
 msgstr ""
 
 msgid "Downloading:"
+msgstr ""
+
+msgid "(found in pkgs/)\\n"
 msgstr ""
 
 msgid "Packages: "
@@ -119,6 +134,9 @@ msgid "All copy of %s have been removed!\\n"
 msgstr ""
 
 msgid "This will update the whole repository!\\n"
+msgstr ""
+
+msgid "You must enable %s repository in pacman. Exiting.\\n"
 msgstr ""
 
 msgid "Extracting:"
