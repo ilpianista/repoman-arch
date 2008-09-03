@@ -74,9 +74,8 @@ function print_repo_error()
 function get_file()
 {
   printf "${LGRE} $1\n${DEFA}"
-  mv $workspace/$1 $workspace/$1.old
+  mv $workspace/$1 $workspace/$1.old &> /dev/null
   if [ "$VERBOSE" = "TRUE" ]; then
-    printf "\n"
     wget -P $workspace $url/$1 || print_wget_error $1
   else
     wget -P $workspace $url/$1 &> /dev/null || print_wget_error $1
