@@ -378,6 +378,10 @@ function get_pkgs_list()
   for pkg in `pacman -Sql $repo 2> /dev/null`; do
     pkgs[${#pkgs[@]}]=$pkg
   done
+  if [ "${#pkg}" -eq 0 ]; then
+    printf "${LRED}$(gettext "You must enable %s repository in pacman. Exiting.\n")${DEFA}" "$repo"
+    exit 1
+  fi
 }
 
 function main()
