@@ -1,0 +1,130 @@
+# Chinese translation for Repoman.
+# Copyright (C) 2008 Andrea Scarpino <bash.lnx@gmail.com>
+# This file is distributed under the same license as the repoman package.
+# 甘露(Gan Lu) <rhythm.gan@gmail.com>, 2008
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: repoman\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2008-09-02 14:56+0200\n"
+"PO-Revision-Date: \n"
+"Last-Translator: 甘露(Gan Lu) <rhythm.gan@gmail.com>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Chinese\n"
+"X-Poedit-Country: CHINA\n"
+
+msgid "I cannot get %s. Exiting."
+msgstr "无法获得 %s，正在退出。"
+
+msgid "I cannot extract %s. Exiting."
+msgstr "无法解压 %s，正在退出。"
+
+msgid "%s: Makepkg fail. Exiting."
+msgstr "%s：Makepkg 失败，正在退出。"
+
+msgid "Upload of %s fail. Exiting."
+msgstr "上传 %s 失败，正在退出。"
+
+msgid "skip, exist"
+msgstr "跳过，已存在"
+
+msgid "Updating:"
+msgstr "更新中："
+
+msgid "added!"
+msgstr "已添加！"
+
+msgid "updated!"
+msgstr "已更新！"
+
+msgid "removed!"
+msgstr "已删除！"
+
+msgid "A tool to manage your personal ArchLinux repository\\n"
+msgstr "一个管理你个人 Archlinux 软件库的工具\\n"
+
+msgid "Usage: repoman action [OPTIONS] packages\\n"
+msgstr "用法：repoman 行为 [选项] 软件包\\n"
+
+msgid "Action:\\n"
+msgstr "行为：\\n"
+
+msgid "  -A, --add          add or update packages to repo\\n"
+msgstr "  -A, --add          添加或更新软件包到软件库\\n"
+
+msgid "  -R, --remove       remove packages from repo\\n"
+msgstr "  -R, --remove       从软件库中删除软件包\\n"
+
+msgid "      --create       create database repo, then add packages\\n"
+msgstr "      --create       创建软件库的数据库，再添加软件包\\n"
+
+msgid "Options:\\n"
+msgstr "选项：\\n"
+
+msgid "      --help         display this help and exit\\n"
+msgstr "      --help         显示该帮助并退出\\n"
+
+msgid "      --verbose      print commands output\\n"
+msgstr "      --verbose      打印命令行输出\\n"
+
+msgid "      --nocolor      do not use any color\\n"
+msgstr "      --nocolor      不使用颜色\\n"
+
+msgid "      --nochangelog  do not use a changelog file\\n"
+msgstr "      --nochangelog  不使用更新日志文件\\n"
+
+msgid "      --edit         ask for edit pkgbuild\\n"
+msgstr "      --edit         要求编辑 pkgbuild\\n"
+
+msgid "      --clean        remove any files from workspace dir\\n"
+msgstr "      --clean        从工作区目录中删除所有文件\\n"
+
+msgid "      --noupload     do not upload any file to ftp\\n"
+msgstr "      --noupload     不上传任何文件到 ftp\\n"
+
+msgid "      --local        use this for local repository\\n"
+msgstr "      --local        为本地软件库使用它\\n"
+
+msgid "      --nobuild      do not build packages if exist\\n"
+msgstr "      --nobuild      如果已存在则不创建软件包\\n"
+
+msgid "REMOVED"
+msgstr "已删除"
+
+msgid "Do you want to edit this PKGBUILD? (y/N):"
+msgstr "你想编辑该 PKGBUILD 吗？(y/N):"
+
+msgid "y"
+msgstr "y"
+
+msgid "Downloading:"
+msgstr "下载中："
+
+msgid "Packages: "
+msgstr "软件包："
+
+msgid "Do you want to remove package build dir? (y/N):"
+msgstr "你想删除软件包创建目录吗？ (y/N):"
+
+msgid "Any files in workspace directory have been removed!\\n"
+msgstr "工作区目录的所有文件都将被删除！\\n"
+
+msgid "uploaded!\\n"
+msgstr "已上传！\\n"
+
+msgid "All copy of %s have been removed!\\n"
+msgstr "该 %s 的所有副本都已删除！\\n"
+
+msgid "This will update the whole repository!\\n"
+msgstr "将更新整个软件库！\\n"
+
+msgid "Extracting:"
+msgstr "解压中："
+
+msgid "Building:"
+msgstr "创建中："
+
