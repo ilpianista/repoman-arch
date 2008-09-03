@@ -200,7 +200,7 @@ function print_help()
   printf "$(gettext "      --local        use this for local repository\n")"
   printf "$(gettext "      --keep         do not get tarballs from AUR, use pkgs/\n")"
   printf "$(gettext "      --noupload     do not upload any file to ftp\n")"
-  printf "$(gettext "      --nobuild      do not build packages if exist\n")"
+  printf "$(gettext "  -n, --nobuild      do not build packages if exist\n")"
   printf "$(gettext "      --nochangelog  do not use a changelog file\n")"
   printf "$(gettext "      --edit         ask for edit pkgbuild\n")"
   printf "$(gettext "  -v, --verbose      print commands output\n")"
@@ -224,11 +224,12 @@ function check_args()
          *) pkgs[${#pkgs[@]}]=$OPTIONS; shift;;
       esac
     done
-    while getopts ":ARv:-:" ARGS; do
+    while getopts ":ARvn:-:" ARGS; do
       case $ARGS in
         A) ADD="TRUE" ;;
         R) REMOVE="TRUE"; IF_REMOVE="(REMOVED) " ;;
         v) VERBOSE="TRUE" ;;
+	n) NOBUILD="TRUE" ;;
         -) case $OPTARG in
              add) ADD="TRUE" ;;
              remove) REMOVE="TRUE"; IF_REMOVE="($(gettext "REMOVED")) " ;;
