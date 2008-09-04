@@ -68,8 +68,8 @@ msgstr "选项：\\n"
 msgid "      --help         display this help and exit\\n"
 msgstr "      --help         显示该帮助并退出\\n"
 
-msgid "      --verbose      print commands output\\n"
-msgstr "      --verbose      打印命令行输出\\n"
+msgid "  -v, --verbose      print commands output\\n"
+msgstr "  -v, --verbose      打印命令行输出\\n"
 
 msgid "      --nocolor      do not use any color\\n"
 msgstr "      --nocolor      不使用颜色\\n"
@@ -89,8 +89,8 @@ msgstr "      --noupload     不上传任何文件到 ftp\\n"
 msgid "      --local        use this for local repository\\n"
 msgstr "      --local        为本地软件库使用它\\n"
 
-msgid "      --nobuild      do not build packages if exist\\n"
-msgstr "      --nobuild      如果已存在则不创建软件包\\n"
+msgid "  -n, --nobuild      do not build packages if exist\\n"
+msgstr "  -n, --nobuild      如果已存在则不创建软件包\\n"
 
 msgid "REMOVED"
 msgstr "已删除"

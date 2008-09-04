@@ -67,8 +67,8 @@ msgstr "Volby:\\n"
 msgid "      --help         display this help and exit\\n"
 msgstr "      --help         vypsat tuto nápovědu a skončit\\n"
 
-msgid "      --verbose      print commands output\\n"
-msgstr "      --verbose      vypsat výstup příkazů\\n"
+msgid "  -v, --verbose      print commands output\\n"
+msgstr "  -v, --verbose      vypsat výstup příkazů\\n"
 
 msgid "      --nocolor      do not use any color\\n"
 msgstr "      --nocolor      nepoužívat barvy\\n"
@@ -80,11 +80,10 @@ msgid "      --edit         ask for edit pkgbuild\\n"
 msgstr "      --edit         ptát se na úpravu pkgbuildu\\n"
 
 msgid "      --clean        remove any files from workspace dir\\n"
-msgstr ""
-"      --clean        odstranit jakékoliv soubory z pracovního adresáře\\n"
+msgstr "      --clean        odstranit jakékoliv soubory z pracovního adresáře\\n"
 
-msgid "      --noupload     do not upload any file to ftp\\n"
-msgstr "      --noupload     nepřenášet žádné soubory na ftp\\n"
+msgid "  -n, --noupload     do not upload any file to ftp\\n"
+msgstr "  -n, --noupload     nepřenášet žádné soubory na ftp\\n"
 
 msgid "      --local        use this for local repository\\n"
 msgstr "      --local        použít toto pro lokální repozitář\\n"

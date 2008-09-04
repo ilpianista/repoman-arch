@@ -69,8 +69,8 @@ msgstr "Opções:\\n"
 msgid "      --help         display this help and exit\\n"
 msgstr "      --help         mostra este help e sai\\n"
 
-msgid "      --verbose      print commands output\\n"
-msgstr "      --verbose      mostra as saídas dos comandos\\n"
+msgid "  -v, --verbose      print commands output\\n"
+msgstr "  -v, --verbose      mostra as saídas dos comandos\\n"
 
 msgid "      --nocolor      do not use any color\\n"
 msgstr "      --nocolor      não usa cores\\n"
@@ -90,8 +90,8 @@ msgstr "      --noupload     não envia nenhum arquivo para o ftp\\n"
 msgid "      --local        use this for local repository\\n"
 msgstr "      --local        use isto para repositório local\\n"
 
-msgid "      --nobuild      do not build packages if exist\\n"
-msgstr "      --nobuild      não constroe pacotes caso existam\\n"
+msgid "  -n, --nobuild      do not build packages if exist\\n"
+msgstr "  -n, --nobuild      não constroe pacotes caso existam\\n"
 
 msgid "REMOVED"
 msgstr "REMOVIDO"

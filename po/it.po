@@ -83,8 +83,8 @@ msgstr "      --keep         non preleva gli archivi da AUR, usa pkgs/\\n"
 msgid "      --noupload     do not upload any file to ftp\\n"
 msgstr "      --noupload     non invia nessun file al ftp\\n"
 
-msgid "      --nobuild      do not build packages if exist\\n"
-msgstr "      --nobuild      se esiste, non crea i pacchetti\\n"
+msgid "  -n,  --nobuild      do not build packages if exist\\n"
+msgstr "  -n, --nobuild      se esiste, non crea i pacchetti\\n"
 
 msgid "      --nochangelog  do not use a changelog file\\n"
 msgstr "      --nochangelog  non utilizza un file di changelog\\n"
