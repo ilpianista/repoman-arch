@@ -25,7 +25,13 @@ msgid "%s: Makepkg fail. Exiting."
 msgstr "%s: Makepkg selhalo. Končím."
 
 msgid "Upload of %s fail. Exiting."
-msgstr "Selhal upload %s. Končím."
+msgstr "Selhal přenos %s. Končím."
+
+msgid "I cannot add %s to repository. Exiting."
+msgstr "Nelze přidat %s do repozitáře. Končím."
+
+msgid "I cannot remove %s from repository. Exiting."
+msgstr "Nezle odstranit %s z repozitáře. Končím."
 
 msgid "skip, exist"
 msgstr "přeskakuji, již existuje"
@@ -58,44 +64,49 @@ msgid "  -R, --remove       remove packages from repo\\n"
 msgstr "  -R, --remove       odstranit balíčky z repozitáře\\n"
 
 msgid "      --create       create database repo, then add packages\\n"
-msgstr ""
-"      --create       vytvořit databázi repozitáře, poté přidat balíčky\\n"
+msgstr "      --create       vytvořít databázi repozitáře, poté přidat balíčky\\n"
+
+msgid "      --all          update the whole repository\\n"
+msgstr "      --all          aktualizovat celý repozitář\\n"
 
 msgid "Options:\\n"
 msgstr "Volby:\\n"
 
-msgid "      --help         display this help and exit\\n"
-msgstr "      --help         vypsat tuto nápovědu a skončit\\n"
+msgid "      --local        use this for local repository\\n"
+msgstr "      --local        použít lokální repozitář\\n"
+
+msgid "      --keep         do not get tarballs from AUR, use pkgs/\\n"
+msgstr "      --keep         nestahovat archivy z AURu, použít adresář pkgs/\\n"
+
+msgid "      --noupload     do not upload any file to ftp\\n"
+msgstr "      --noupload     nepřenášet žádné soubory na ftp\\n"
+
+msgid "  -n, --nobuild      do not build packages if exist\\n"
+msgstr "  -n, --nobuild      nepřekládat balíčky, pokud již existují\\n"
+
+msgid "      --nochangelog  do not use a changelog file\\n"
+msgstr "      --nochangelog  nepoužívat soubor changelog\\n"
+
+msgid "      --edit         ask for edit pkgbuild\\n"
+msgstr "      --edit         ptát se na úpravu PKGBUILDu\\n"
 
 msgid "  -v, --verbose      print commands output\\n"
 msgstr "  -v, --verbose      vypsat výstup příkazů\\n"
 
+msgid "      --clean        remove any files from workspace dir\\n"
+msgstr "      --clean        odstranit všechny soubory z pracovního adresáře\\n"
+
 msgid "      --nocolor      do not use any color\\n"
 msgstr "      --nocolor      nepoužívat barvy\\n"
 
-msgid "      --nochangelog  do not use a changelog file\\n"
-msgstr "      --nochangelog  nepoužívat soubor logování změn\\n"
-
-msgid "      --edit         ask for edit pkgbuild\\n"
-msgstr "      --edit         ptát se na úpravu pkgbuildu\\n"
-
-msgid "      --clean        remove any files from workspace dir\\n"
-msgstr "      --clean        odstranit jakékoliv soubory z pracovního adresáře\\n"
-
-msgid "  -n, --noupload     do not upload any file to ftp\\n"
-msgstr "  -n, --noupload     nepřenášet žádné soubory na ftp\\n"
-
-msgid "      --local        use this for local repository\\n"
-msgstr "      --local        použít toto pro lokální repozitář\\n"
-
-msgid "      --nobuild      do not build packages if exist\\n"
-msgstr "      --nobuild      nepřekládat balíčky, pokud již existují\\n"
+msgid "      --help         display this help and exit\\n"
+msgstr "      --help         vypsat tuto nápovědu a skončit\\n"
 
 msgid "REMOVED"
 msgstr "ODSTRANĚNO"
 
 msgid "Do you want to edit this PKGBUILD? (y/N):"
-msgstr "Chcete upravit tento PKGBUILD? (a/N):"
+msgstr "Přejete si upravit tento PKGBUILD? (a/N):"
 
 msgid "y"
 msgstr "a"
@@ -103,11 +114,14 @@ msgstr "a"
 msgid "Downloading:"
 msgstr "Stahuji:"
 
+msgid "(found in pkgs/)\\n"
+msgstr "(nalezeno v pkgs/)\\n"
+
 msgid "Packages: "
-msgstr "Balíčky:"
+msgstr "Balíčky: "
 
 msgid "Do you want to remove package build dir? (y/N):"
-msgstr "Chcete odstranit sestavovací adresář balíčku? (a/N):"
+msgstr "Přejete si odstranit sestavovací adresář balíčku? (a/N):"
 
 msgid "Any files in workspace directory have been removed!\\n"
 msgstr "Všechny soubory z pracovního adresáře byly odstraněny!\\n"
@@ -121,8 +135,11 @@ msgstr "Všechny kopie %s byly odstraněny!\\n"
 msgid "This will update the whole repository!\\n"
 msgstr "Toto provede aktualizaci celého repozitáře!\\n"
 
+msgid "You must enable %s repository in pacman. Exiting.\\n"
+msgstr "Je třeba povolit repozitář %s v pacmanu. Končím.\\n"
+
 msgid "Extracting:"
 msgstr "Rozbaluji:"
 
 msgid "Building:"
-msgstr "Sestavuji:"
+msgstr "Překládám:"
