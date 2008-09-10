@@ -4,6 +4,8 @@ TODO List
 that package from packages list and continue with others
 
 * If repoman see a dependence on AUR which isn't on own repository ask
-to pull that dependece on own repository.
+to pull that dependence on own repository.
 
 * A way to get packages list from $repo.db.tar.gz
+
+* add --ignore packages options

@@ -223,6 +223,7 @@ function print_help()
   printf "$(gettext "Options:\n")"
   printf "$(gettext "  -l  --local        use this for local repository\n")"
   printf "$(gettext "  -k, --keep         do not get tarballs from AUR, use pkgs/\n")"
+  printf "$(gettext "  -i, --ignore <pkg> ignore packages\n")"
   printf "$(gettext "  -u, --noupload     do not upload any file to ftp\n")"
   printf "$(gettext "  -b, --nobuild      do not build packages if exist\n")"
   printf "$(gettext "  -c, --nochangelog  do not use a changelog file\n")"
@@ -248,13 +249,14 @@ function check_args()
          *) pkgs[${#pkgs[@]}]=$OPTIONS; shift;;
       esac
     done
-    while getopts ":ARbcekluv:-:" ARGS; do
+    while getopts ":ARbceikluv:-:" ARGS; do
       case $ARGS in
         A) ADD="TRUE" ;;
         R) REMOVE="TRUE"; IF_REMOVE="(REMOVED) " ;;
         b) NOBUILD="TRUE" ;;
         c) NOCHANGELOG="TRUE" ;;
         e) EDIT="TRUE" ;;
+        i) IGNORE="TRUE" ;;
         k) KEEP="TRUE" ;;
         l) LOCAL="TRUE" ;;
         u) NOUPLOAD="TRUE" ;;
@@ -266,6 +268,7 @@ function check_args()
              all) ALL="TRUE"; ADD="TRUE" ;;
              local) LOCAL="TRUE"; NOUPLOAD="TRUE" ;;
              keep) KEEP="TRUE" ;;
+             ignore) IGNORE="TRUE" ;;
              noupload) NOUPLOAD="TRUE" ;;
              nobuild) NOBUILD="TRUE" ;;
              nochangelog) NOCHANGELOG="TRUE" ;;
