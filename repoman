@@ -55,8 +55,7 @@ function print_makepkg_error()
 
 function print_upload_error()
 {
-  printf "\n${LRED}$(gettext "Upload of %s fail. Exiting.") ${DEFA}\n" "$1"
-  exit 1
+  printf "\n${LRED}$(gettext "Upload of %s fail. Skip.") ${DEFA}\n" "$1"
 }
 
 function print_add_error()
@@ -68,7 +67,7 @@ function print_add_error()
 function print_repo_error()
 {
   printf "\n${LRED}$(gettext "I cannot remove %s from repository. Exiting.") ${DEFA}\n" "$1"
-  exit 1
+  return 1
 }
 
 function get_file()
