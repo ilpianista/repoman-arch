@@ -116,14 +116,16 @@ function check_files()
 
 function is_newer()
 {
-  unset rpkgver rpkgrel
-  rpkgver=$(echo $3 | awk -F"-" '{print $1}')
-  rpkgrel=$(echo $3 | awk -F"-" '{print $2}')
-  if [ $1 -gt $rpkgver ]; then
+  unset pkgver pkgrel rpkgver rpkgrel
+  pkgver=( $(echo $1 | tr "[:punct:]" "\ " | sed 's/[a-zA-Z]/ &/g'))
+  pkgrel=( $(echo $2 | tr "[:punct:]" "\ " | sed 's/[a-zA-Z]/ &/g'))
+  rpkgver=( $(echo $3 | awk -F"-" '{print $1}' | tr "[:punct:]" "\ " | sed 's/[a-zA-Z]/ &/g'))
+  rpkgrel=( $(echo $3 | awk -F"-" '{print $2}' | tr "[:punct:]" "\ " | sed 's/[a-zA-Z]/ &/g'))
+  if [ $pkgver -gt $rpkgver ]; then
     return 0
   fi
-  if [ $1 -eq $rpkgver ]; then
-    if [ $2 -gt $rpkgrel ]; then
+  if [ $pkgver -eq $rpkgver ]; then
+    if [ $pkgrel -gt $rpkgrel ]; then
       return 0
     fi
   fi
@@ -132,37 +134,35 @@ function is_newer()
 
 function build_pkg()
 {
-  for pkg in ${pkgs[@]}; do
-    printf "${LGRE} $1"
-    cd $workspace/pkgs/$1
-    if [ "$VERBOSE" = "TRUE" ]; then
-      printf "\n"
-      makepkg -o --noconfirm $USE_ROOT $NOCOLOR_FLAG || print_makepkg_error $1
-    else
-      makepkg -o --noconfirm $USE_ROOT $NOCOLOR_FLAG &> /dev/null || print_makepkg_error $1
-    fi
-    unset pkgver pkgrel repopkgver
-    source ./PKGBUILD
-    pkgsver[${#pkgsver[@]}]=$pkgver-$pkgrel
-    repopkgver=`LC_ALL=C pacman -Si $repo/$pkg | grep Version | awk -F": " '{print $2}' 2> /dev/null`
-    if `is_newer $pkgver $pkgrel $repopkgver`; then
-      if [ ! -f "$workspace/$1-$pkgver-$pkgrel-$arch.pkg.tar.gz" ] || [ "$NOBUILD" != "TRUE" ]; then
-        if [ "$VERBOSE" = "TRUE" ]; then
-          printf "\n"
-          makepkg -f --noconfirm $USE_ROOT $NOCOLOR_FLAG || print_makepkg_error $1
-        else
-          makepkg -f --noconfirm $USE_ROOT $NOCOLOR_FLAG &> /dev/null || print_makepkg_error $1
-        fi
-        cp -f $workspace/pkgs/$1/$1-$pkgver-$pkgrel-$arch.pkg.tar.gz $workspace/ || exit 1
-        (( UPDATED++ ))
+  printf "${LGRE} $1"
+  cd $workspace/pkgs/$1
+  if [ "$VERBOSE" = "TRUE" ]; then
+    printf "\n"
+    makepkg -o --noconfirm $USE_ROOT $NOCOLOR_FLAG || print_makepkg_error $1
+  else
+    makepkg -o --noconfirm $USE_ROOT $NOCOLOR_FLAG &> /dev/null || print_makepkg_error $1
+  fi
+  unset pkgver pkgrel repopkgver
+  source ./PKGBUILD
+  pkgsver[${#pkgsver[@]}]=$pkgver-$pkgrel
+  repopkgver=`LC_ALL=C pacman -Si $repo/$pkg | grep Version | awk -F": " '{print $2}' 2> /dev/null`
+  if `is_newer $pkgver $pkgrel $repopkgver`; then
+    if [ ! -f "$workspace/$1-$pkgver-$pkgrel-$arch.pkg.tar.gz" ] || [ "$NOBUILD" != "TRUE" ]; then
+      if [ "$VERBOSE" = "TRUE" ]; then
+        printf "\n"
+        makepkg -f --noconfirm $USE_ROOT $NOCOLOR_FLAG || print_makepkg_error $1
       else
-        printf " ${YELL}$(gettext "skip, exist")"
+        makepkg -f --noconfirm $USE_ROOT $NOCOLOR_FLAG &> /dev/null || print_makepkg_error $1
       fi
-      printf " ${LGRE}($pkgver-$pkgrel)${DEFA}\n"
+      cp -f $workspace/pkgs/$1/$1-$pkgver-$pkgrel-$arch.pkg.tar.gz $workspace/ || exit 1
+      (( UPDATED++ ))
     else
-      printf " ${YELL}$(gettext "skip, already up-to-date\n")"
+      printf " ${YELL}$(gettext "skip, exist")"
     fi
-  done
+    printf " ${LGRE}($pkgver-$pkgrel)${DEFA}\n"
+  else
+    printf " ${YELL}$(gettext "skip, already up-to-date\n")"
+  fi
 }
 
 function update_db()
@@ -450,7 +450,9 @@ function main()
     done
     
     printf "${YELL}$(gettext "Building:") "
+    for pkg in ${pkgs[@]}; do
       build_pkg $pkg
+    done
   fi
   
   if [ $UPDATED -ne 0 ] || [ "$REMOVE" = "TRUE" ]; then
