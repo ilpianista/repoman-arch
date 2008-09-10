@@ -76,7 +76,7 @@ msgstr ""
 msgid "Options:\\n"
 msgstr ""
 
-msgid "  -l  --local        use this for local repository\\n"
+msgid "  -l, --local        use this for local repository\\n"
 msgstr ""
 
 msgid "  -k, --keep         do not get tarballs from AUR, use pkgs/\\n"

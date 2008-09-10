@@ -77,8 +77,8 @@ msgstr "      --all          aggiorna l'intero repository\\n"
 msgid "Options:\\n"
 msgstr "Opzioni:\\n"
 
-msgid "  -l  --local        use this for local repository\\n"
-msgstr "  -l  --local        usa questo come repository locale\\n"
+msgid "  -l, --local        use this for local repository\\n"
+msgstr "  -l, --local        usa questo come repository locale\\n"
 
 msgid "  -k, --keep         do not get tarballs from AUR, use pkgs/\\n"
 msgstr "  -k, --keep         non preleva gli archivi da AUR, usa pkgs/\\n"

@@ -221,7 +221,7 @@ function print_help()
   printf "$(gettext "      --create       create database repo, then add packages\n")"
   printf "$(gettext "      --all          update the whole repository\n")"
   printf "$(gettext "Options:\n")"
-  printf "$(gettext "  -l  --local        use this for local repository\n")"
+  printf "$(gettext "  -l, --local        use this for local repository\n")"
   printf "$(gettext "  -k, --keep         do not get tarballs from AUR, use pkgs/\n")"
   printf "$(gettext "  -u, --noupload     do not upload any file to ftp\n")"
   printf "$(gettext "  -b, --nobuild      do not build packages if exist\n")"
