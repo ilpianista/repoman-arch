@@ -221,12 +221,12 @@ function print_help()
   printf "$(gettext "      --create       create database repo, then add packages\n")"
   printf "$(gettext "      --all          update the whole repository\n")"
   printf "$(gettext "Options:\n")"
-  printf "$(gettext "      --local        use this for local repository\n")"
-  printf "$(gettext "      --keep         do not get tarballs from AUR, use pkgs/\n")"
-  printf "$(gettext "      --noupload     do not upload any file to ftp\n")"
-  printf "$(gettext "  -n, --nobuild      do not build packages if exist\n")"
-  printf "$(gettext "      --nochangelog  do not use a changelog file\n")"
-  printf "$(gettext "      --edit         ask for edit pkgbuild\n")"
+  printf "$(gettext "  -l  --local        use this for local repository\n")"
+  printf "$(gettext "  -k, --keep         do not get tarballs from AUR, use pkgs/\n")"
+  printf "$(gettext "  -u, --noupload     do not upload any file to ftp\n")"
+  printf "$(gettext "  -b, --nobuild      do not build packages if exist\n")"
+  printf "$(gettext "  -c, --nochangelog  do not use a changelog file\n")"
+  printf "$(gettext "  -e, --edit         ask for edit pkgbuild\n")"
   printf "$(gettext "  -v, --verbose      print commands output\n")"
   printf "$(gettext "      --clean        remove any files from workspace dir\n")"
   printf "$(gettext "      --nocolor      do not use any color\n")"
@@ -248,12 +248,17 @@ function check_args()
          *) pkgs[${#pkgs[@]}]=$OPTIONS; shift;;
       esac
     done
-    while getopts ":ARvn:-:" ARGS; do
+    while getopts ":ARbcekluv:-:" ARGS; do
       case $ARGS in
         A) ADD="TRUE" ;;
         R) REMOVE="TRUE"; IF_REMOVE="(REMOVED) " ;;
+        b) NOBUILD="TRUE" ;;
+        c) NOCHANGELOG="TRUE" ;;
+        e) EDIT="TRUE" ;;
+        k) KEEP="TRUE" ;;
+        l) LOCAL="TRUE" ;;
+        u) NOUPLOAD="TRUE" ;;
         v) VERBOSE="TRUE" ;;
-	n) NOBUILD="TRUE" ;;
         -) case $OPTARG in
              add) ADD="TRUE" ;;
              remove) REMOVE="TRUE"; IF_REMOVE="($(gettext "REMOVED")) " ;;
