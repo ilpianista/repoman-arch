@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Repoman\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-09-03 19:02+0200\n"
-"PO-Revision-Date: 2008-09-03 19:40+0200\n"
+"POT-Creation-Date: 2008-09-10 15:40+0200\n"
+"PO-Revision-Date: 2008-09-10 16:20+0200\n"
 "Last-Translator: Giovanni Scafora <linuxmania@gmail.com>\n"
 "Language-Team: Arch Linux Italian Team <linuxmania@gmail.com>\n"
 "MIME-Version: 1.0\n"
@@ -35,6 +35,9 @@ msgstr "Impossibile rimuovere %s dal repository. Sto uscendo."
 
 msgid "skip, exist"
 msgstr "ignoro, esiste"
+
+msgid "skip, already up-to-date\\n"
+msgstr "ignoro, già aggiornato\\n"
 
 msgid "Updating:"
 msgstr "Sto aggiornando:"
@@ -74,23 +77,23 @@ msgstr "      --all          aggiorna l'intero repository\\n"
 msgid "Options:\\n"
 msgstr "Opzioni:\\n"
 
-msgid "      --local        use this for local repository\\n"
-msgstr "      --local        usa questo come repository locale\\n"
+msgid "  -l  --local        use this for local repository\\n"
+msgstr "  -l  --local        usa questo come repository locale\\n"
 
-msgid "      --keep         do not get tarballs from AUR, use pkgs/\\n"
-msgstr "      --keep         non preleva gli archivi da AUR, usa pkgs/\\n"
+msgid "  -k, --keep         do not get tarballs from AUR, use pkgs/\\n"
+msgstr "  -k, --keep         non preleva gli archivi da AUR, usa pkgs/\\n"
 
-msgid "      --noupload     do not upload any file to ftp\\n"
-msgstr "      --noupload     non invia nessun file al ftp\\n"
+msgid "  -u, --noupload     do not upload any file to ftp\\n"
+msgstr "  -u, --noupload     non invia nessun file al ftp\\n"
 
-msgid "  -n,  --nobuild      do not build packages if exist\\n"
-msgstr "  -n, --nobuild      se esiste, non crea i pacchetti\\n"
+msgid "  -b, --nobuild      do not build packages if exist\\n"
+msgstr "  -b, --nobuild      se esiste, non crea i pacchetti\\n"
 
-msgid "      --nochangelog  do not use a changelog file\\n"
-msgstr "      --nochangelog  non utilizza un file di changelog\\n"
+msgid "  -c, --nochangelog  do not use a changelog file\\n"
+msgstr "  -c, --nochangelog  non utilizza un file di changelog\\n"
 
-msgid "      --edit         ask for edit pkgbuild\\n"
-msgstr "      --edit         chiede di editare il pkgbuild\\n"
+msgid "  -e, --edit         ask for edit pkgbuild\\n"
+msgstr "  -e, --edit         chiede di editare il pkgbuild\\n"
 
 msgid "  -v, --verbose      print commands output\\n"
 msgstr "  -v, --verbose      visualizza l'output dei comandi\\n"
@@ -145,3 +148,6 @@ msgstr "Sto estraendo:"
 
 msgid "Building:"
 msgstr "Sto compilando:"
+
+msgid "None packages added to repository\\n"
+msgstr "Nessun pacchetto aggiunto al repository\\n"
