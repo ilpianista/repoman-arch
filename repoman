@@ -37,37 +37,48 @@ function color()
 
 function print_wget_error()
 {
-  printf "\n${LRED}$(gettext "I cannot get %s. Exiting.") ${DEFA}\n" "$1"
-  exit 1
+  if [ "$1" = "$changelog" ] || [ "$1" = "$repo.db.tar.gz" ]; then
+    printf "\n${LRED}$(gettext "I cannot get %s. Exiting.") ${DEFA}\n" "$1"
+    exit 1
+  else
+    printf "\n${LRED}$(gettext "I cannot get %s. Skip.") ${DEFA}\n" "$1"
+    skip_pkg $2
+  fi
 }
 
 function print_tar_error()
 {
-  printf "\n${LRED}$(gettext "I cannot extract %s. Exiting.") ${DEFA}\n" "$1"
-  exit 1
+  printf "\n${LRED}$(gettext "I cannot extract %s. Skip.") ${DEFA}\n" "$1"
+  skip_pkg $2
 }
 
 function print_makepkg_error()
 {
-  printf "\n${LRED}$(gettext "%s: Makepkg fail. Exiting.") ${DEFA}\n" "$1"
-  exit 1
+  printf "\n${LRED}$(gettext "%s: Makepkg fail. Skip.") ${DEFA}\n" "$1"
+  skip_pkg $2
 }
 
 function print_upload_error()
 {
-  printf "\n${LRED}$(gettext "Upload of %s fail. Skip.") ${DEFA}\n" "$1"
+  if [ "$1" = "$changelog" ] || [ "$1" = "$repo.db.tar.gz" ]; then
+    printf "\n${LRED}$(gettext "Upload of %s fail. Exiting.") ${DEFA}\n" "$1"
+    exit 1
+  else
+    printf "\n${LRED}$(gettext "Upload of %s fail. Skip.") ${DEFA}\n" "$1"
+    skip_pkg $2
+  fi
 }
 
 function print_add_error()
 {
-  printf "\n${LRED}$(gettext "I cannot add %s to repository. Exiting.") ${DEFA}\n" "$1"
-  exit 1
+  printf "\n${LRED}$(gettext "I cannot add %s to repository. Skip.") ${DEFA}\n" "$1"
+  skip_pkg $2
 }
 
-function print_repo_error()
+function print_remove_error()
 {
-  printf "\n${LRED}$(gettext "I cannot remove %s from repository. Exiting.") ${DEFA}\n" "$1"
-  return 1
+  printf "\n${LRED}$(gettext "I cannot remove %s from repository. Skip.") ${DEFA}\n" "$1"
+  skip_pkg $2
 }
 
 function get_file()
@@ -93,9 +104,15 @@ function get_pkg()
 
 function extract()
 {
-  printf "${LGRE}$1 ${DEFA}"
-  rm -rf $workspace/pkgs/$1
-  tar -xf $workspace/pkgs/$1.tar.gz -C $workspace/pkgs || print_tar_error $1
+  for pkg in ${pkgs[@]}; do
+    printf " ${LGRE}$pkg \n${DEFA}"
+    rm -rf $workspace/pkgs/$pkg
+    if [ "$VERBOSE" = "TRUE" ]; then
+      tar -xf $workspace/pkgs/$pkg.tar.gz -C $workspace/pkgs || print_tar_error $pkg
+    else
+      tar -xf $workspace/pkgs/$pkg.tar.gz -C $workspace/pkgs &> /dev/null || print_tar_error $pkg
+    fi
+  done
 }
 
 function check_files()
@@ -131,37 +148,56 @@ function is_newer()
   return 1
 }
 
+function skip_pkg()
+{
+  for i in ${!pkgs[@]}; do
+    if [ "${pkgs[$i]}" = "$1" ]; then
+      for (( j=$i; j<${#pkgs[@]}; j++)); do
+        pkgs[$j]=${pkgs[$j+1]}
+        pkgsver[$j]=${pkgsver[$j+1]}
+      done
+    fi
+  done
+  pkgs[$i]=""
+}
+
 function build_pkg()
 {
-  printf "${LGRE} $1"
-  cd $workspace/pkgs/$1
-  if [ "$VERBOSE" = "TRUE" ]; then
-    printf "\n"
-    makepkg -o --noconfirm $USE_ROOT $NOCOLOR_FLAG || print_makepkg_error $1
-  else
-    makepkg -o --noconfirm $USE_ROOT $NOCOLOR_FLAG &> /dev/null || print_makepkg_error $1
-  fi
-  unset pkgver pkgrel repopkgver
-  source ./PKGBUILD
-  pkgsver[${#pkgsver[@]}]=$pkgver-$pkgrel
-  repopkgver=`LC_ALL=C pacman -Si $repo/$pkg | grep Version | awk -F": " '{print $2}' 2> /dev/null`
-  if `is_newer $pkgver $pkgrel $repopkgver`; then
-    if [ ! -f "$workspace/$1-$pkgver-$pkgrel-$arch.pkg.tar.gz" ] || [ "$NOBUILD" != "TRUE" ]; then
-      if [ "$VERBOSE" = "TRUE" ]; then
-        printf "\n"
-        makepkg -f --noconfirm $USE_ROOT $NOCOLOR_FLAG || print_makepkg_error $1
+  for pkg in ${pkgs[@]}; do
+    printf "${LGRE} $pkg"
+    cd $workspace/pkgs/$pkg
+    if [ "$EDIT" = "TRUE" ]; then
+      edit_pkgbuild $pkg
+    fi
+    if [ "$VERBOSE" = "TRUE" ]; then
+      printf "\n"
+      makepkg -o --noconfirm $USE_ROOT $NOCOLOR_FLAG || print_makepkg_error $pkg
+    else
+      makepkg -o --noconfirm $USE_ROOT $NOCOLOR_FLAG &> /dev/null || print_makepkg_error $pkg
+    fi
+    unset pkgver pkgrel repopkgver
+    source ./PKGBUILD
+    pkgsver[${#pkgsver[@]}]=$pkgver-$pkgrel
+    repopkgver=`LC_ALL=C pacman -Si $repo/$pkg | grep Version | awk -F": " '{print $2}' 2> /dev/null`
+    if `is_newer $pkgver $pkgrel $repopkgver`; then
+      if [ ! -f "$workspace/$pkg-$pkgver-$pkgrel-$arch.pkg.tar.gz" ] || [ "$NOBUILD" != "TRUE" ]; then
+        if [ "$VERBOSE" = "TRUE" ]; then
+          printf "\n"
+          makepkg -f --noconfirm $USE_ROOT $NOCOLOR_FLAG || print_makepkg_error $pkg
+        else
+          makepkg -f --noconfirm $USE_ROOT $NOCOLOR_FLAG &> /dev/null || print_makepkg_error $pkg
+        fi
+        cp -f $workspace/pkgs/$pkg/$pkg-$pkgver-$pkgrel-$arch.pkg.tar.gz $workspace/ || exit 1
       else
-        makepkg -f --noconfirm $USE_ROOT $NOCOLOR_FLAG &> /dev/null || print_makepkg_error $1
+        printf " ${YELL}$(gettext "skip, exist")${DEFA}"
       fi
-      cp -f $workspace/pkgs/$1/$1-$pkgver-$pkgrel-$arch.pkg.tar.gz $workspace/ || exit 1
+      printf " ${LGRE}($pkgver-$pkgrel)${DEFA}\n"
       (( UPDATED++ ))
     else
-      printf " ${YELL}$(gettext "skip, exist")"
+      printf " ${YELL}$(gettext "skip, already up-to-date\n")${DEFA}"
+      skip_pkg $pkg
     fi
-    printf " ${LGRE}($pkgver-$pkgrel)${DEFA}\n"
-  else
-    printf " ${YELL}$(gettext "skip, already up-to-date\n")"
-  fi
+  done
 }
 
 function update_db()
@@ -439,19 +475,11 @@ function main()
   download_files
   
   if [ "$ADD" = "TRUE" ]; then
-    printf "${YELL}$(gettext "Extracting:") "
-    for pkg in ${pkgs[@]}; do
-      extract $pkg
-      printf "\n"
-      if [ "$EDIT" = "TRUE" ]; then
-        edit_pkgbuild $pkg
-      fi
-    done
-    
-    printf "${YELL}$(gettext "Building:") "
-    for pkg in ${pkgs[@]}; do
-      build_pkg $pkg
-    done
+    printf "${YELL}$(gettext "Extracting:")${DEFA}"
+    extract
+        
+    printf "${YELL}$(gettext "Building:")${DEFA}"
+    build_pkg
   fi
   
   if [ $UPDATED -ne 0 ] || [ "$REMOVE" = "TRUE" ]; then
