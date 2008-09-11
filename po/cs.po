@@ -1,40 +1,49 @@
-# Czech translation for Repoman.
+# LANGUAGE translation for Repoman.
 # Copyright (C) 2008 Andrea Scarpino <bash.lnx@gmail.com>
-# This file is distributed under the same license as the repoman package.
-# Jaroslav Lichtblau <tu@dragonlord.cz>, 2008.
+# This file is distributed under the same license as the Repoman package.
+# Jaroslav Lichtblau <dragonlord@seznam.cz>, 2008.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Repoman\n"
+"Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-09-02 14:56+0200\n"
-"PO-Revision-Date: 2008-09-02 23:00+0100\n"
+"POT-Creation-Date: 2008-09-11 21:01+0200\n"
+"PO-Revision-Date: 2008-09-11 21:13+0100\n"
 "Last-Translator: Jaroslav Lichtblau <dragonlord@seznam.cz>\n"
-"Language-Team: Czech <dragonlord@seznam.cz>\n"
+"Language-Team: Czech <LL@li.org>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 msgid "I cannot get %s. Exiting."
 msgstr "Nelze získat %s. Končím."
 
-msgid "I cannot extract %s. Exiting."
-msgstr "Nelze rozbalit %s. Končím."
+msgid "I cannot get %s. Skip."
+msgstr "Nelze získat %s. Přeskakuji."
 
-msgid "%s: Makepkg fail. Exiting."
-msgstr "%s: Makepkg selhalo. Končím."
+msgid "I cannot extract %s. Skip."
+msgstr "Nelze rozbalit %s. Přeskakuji."
+
+msgid "%s: Makepkg fail. Skip."
+msgstr "%s: Makepkg selhalo. Přeskakuji."
 
 msgid "Upload of %s fail. Exiting."
 msgstr "Selhal přenos %s. Končím."
 
-msgid "I cannot add %s to repository. Exiting."
-msgstr "Nelze přidat %s do repozitáře. Končím."
+msgid "Upload of %s fail. Skip."
+msgstr "Selhal přenos %s. Přeskakuji."
 
-msgid "I cannot remove %s from repository. Exiting."
-msgstr "Nezle odstranit %s z repozitáře. Končím."
+msgid "I cannot add %s to repository. Skip."
+msgstr "Nelze přidat %s do repozitáře. Přeskakuji."
+
+msgid "I cannot remove %s from repository. Skip."
+msgstr "Nezle odstranit %s z repozitáře. Přeskakuji."
 
 msgid "skip, exist"
 msgstr "přeskakuji, již existuje"
+
+msgid "skip, already up-to-date\\n"
+msgstr "přeskakuji, skip, already up-to-date\\n"
 
 msgid "Updating:"
 msgstr "Aktualizuji:"
@@ -64,7 +73,7 @@ msgid "  -R, --remove       remove packages from repo\\n"
 msgstr "  -R, --remove       odstranit balíčky z repozitáře\\n"
 
 msgid "      --create       create database repo, then add packages\\n"
-msgstr "      --create       vytvořít databázi repozitáře, poté přidat balíčky\\n"
+msgstr "      --create       vytvořit databázi repozitáře, poté přidat balíčky\\n"
 
 msgid "      --all          update the whole repository\\n"
 msgstr "      --all          aktualizovat celý repozitář\\n"
@@ -72,23 +81,23 @@ msgstr "      --all          aktualizovat celý repozitář\\n"
 msgid "Options:\\n"
 msgstr "Volby:\\n"
 
-msgid "      --local        use this for local repository\\n"
-msgstr "      --local        použít lokální repozitář\\n"
+msgid "  -l, --local        use this for local repository\\n"
+msgstr "  -l, --local        použít lokální repozitář\\n"
 
-msgid "      --keep         do not get tarballs from AUR, use pkgs/\\n"
-msgstr "      --keep         nestahovat archivy z AURu, použít adresář pkgs/\\n"
+msgid "  -k, --keep         do not get tarballs from AUR, use pkgs/\\n"
+msgstr "  -k, --keep         nestahovat archivy z AURu, použít adresář pkgs/\\n"
 
-msgid "      --noupload     do not upload any file to ftp\\n"
-msgstr "      --noupload     nepřenášet žádné soubory na ftp\\n"
+msgid "  -u, --noupload     do not upload any file to ftp\\n"
+msgstr "  -u, --noupload     nepřenášet žádné soubory na ftp\\n"
 
-msgid "  -n, --nobuild      do not build packages if exist\\n"
-msgstr "  -n, --nobuild      nepřekládat balíčky, pokud již existují\\n"
+msgid "  -b, --nobuild      do not build packages if exist\\n"
+msgstr "  -b, --nobuild      nepřekládat balíčky, pokud již existují\\n"
 
-msgid "      --nochangelog  do not use a changelog file\\n"
-msgstr "      --nochangelog  nepoužívat soubor changelog\\n"
+msgid "  -c, --nochangelog  do not use a changelog file\\n"
+msgstr "  -c, --nochangelog  nepoužívat soubor changelog\\n"
 
-msgid "      --edit         ask for edit pkgbuild\\n"
-msgstr "      --edit         ptát se na úpravu PKGBUILDu\\n"
+msgid "  -e, --edit         ask for edit pkgbuild\\n"
+msgstr "  -e, --edit         ptát se na úpravu PKGBUILDu\\n"
 
 msgid "  -v, --verbose      print commands output\\n"
 msgstr "  -v, --verbose      vypsat výstup příkazů\\n"
@@ -141,5 +150,12 @@ msgstr "Je třeba povolit repozitář %s v pacmanu. Končím.\\n"
 msgid "Extracting:"
 msgstr "Rozbaluji:"
 
+msgid "Getting all packages version...\\n"
+msgstr "Získávám verze všech balíčků...\\n"
+
 msgid "Building:"
 msgstr "Překládám:"
+
+msgid "None packages added to repository\\n"
+msgstr "Žádné balíčky nebyly přidány do repozitáře\\n"
+
