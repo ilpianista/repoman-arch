@@ -133,10 +133,10 @@ function check_files()
 function is_newer()
 {
   unset pkgver pkgrel rpkgver rpkgrel
-  pkgver=( $(echo $1 | tr "[:punct:]" "\ " | sed 's/[a-zA-Z]/ &/g'))
-  pkgrel=( $(echo $2 | tr "[:punct:]" "\ " | sed 's/[a-zA-Z]/ &/g'))
-  rpkgver=( $(echo $3 | awk -F"-" '{print $1}' | tr "[:punct:]" "\ " | sed 's/[a-zA-Z]/ &/g'))
-  rpkgrel=( $(echo $3 | awk -F"-" '{print $2}' | tr "[:punct:]" "\ " | sed 's/[a-zA-Z]/ &/g'))
+  pkgver=( $(echo $1 | awk -F"-" '{print $1}' | tr "[:punct:]" "\ " | sed 's/[a-zA-Z]/ &/g'))
+  pkgrel=( $(echo $1 | awk -F"-" '{print $2}' | tr "[:punct:]" "\ " | sed 's/[a-zA-Z]/ &/g'))
+  rpkgver=( $(echo $2 | awk -F"-" '{print $1}' | tr "[:punct:]" "\ " | sed 's/[a-zA-Z]/ &/g'))
+  rpkgrel=( $(echo $2 | awk -F"-" '{print $2}' | tr "[:punct:]" "\ " | sed 's/[a-zA-Z]/ &/g'))
   if [ $pkgver -gt $rpkgver ]; then
     return 0
   fi
@@ -146,6 +146,21 @@ function is_newer()
     fi
   fi
   return 1
+}
+
+function pkgs_version()
+{
+  for pkg in ${pkgs[@]}; do
+  cd $workspace/pkgs/$pkg/
+    if [ "$VERBOSE" = "TRUE" ]; then
+      printf "\n"
+      makepkg -o --noconfirm $USE_ROOT $NOCOLOR_FLAG || print_makepkg_error $pkg
+    else
+      makepkg -o --noconfirm $USE_ROOT $NOCOLOR_FLAG &> /dev/null || print_makepkg_error $pkg
+    fi
+    source ./PKGBUILD
+    pkgsver[${#pkgsver[@]}]=$pkgver-$pkgrel
+  done
 }
 
 function skip_pkg()
@@ -159,35 +174,28 @@ function skip_pkg()
     fi
   done
   pkgs[$i]=""
+  pkgsver[$i]=""
 }
 
 function build_pkg()
 {
+  INDEX=0
   for pkg in ${pkgs[@]}; do
     printf "${LGRE} $pkg"
     cd $workspace/pkgs/$pkg
     if [ "$EDIT" = "TRUE" ]; then
       edit_pkgbuild $pkg
     fi
-    if [ "$VERBOSE" = "TRUE" ]; then
-      printf "\n"
-      makepkg -o --noconfirm $USE_ROOT $NOCOLOR_FLAG || print_makepkg_error $pkg
-    else
-      makepkg -o --noconfirm $USE_ROOT $NOCOLOR_FLAG &> /dev/null || print_makepkg_error $pkg
-    fi
-    unset pkgver pkgrel repopkgver
-    source ./PKGBUILD
-    pkgsver[${#pkgsver[@]}]=$pkgver-$pkgrel
     repopkgver=`LC_ALL=C pacman -Si $repo/$pkg | grep Version | awk -F": " '{print $2}' 2> /dev/null`
-    if `is_newer $pkgver $pkgrel $repopkgver`; then
-      if [ ! -f "$workspace/$pkg-$pkgver-$pkgrel-$arch.pkg.tar.gz" ] || [ "$NOBUILD" != "TRUE" ]; then
+    if `is_newer ${pkgsver[$INDEX]} $repopkgver`; then
+      if [ ! -f "$workspace/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" ] || [ "$NOBUILD" != "TRUE" ]; then
         if [ "$VERBOSE" = "TRUE" ]; then
           printf "\n"
           makepkg -f --noconfirm $USE_ROOT $NOCOLOR_FLAG || print_makepkg_error $pkg
         else
           makepkg -f --noconfirm $USE_ROOT $NOCOLOR_FLAG &> /dev/null || print_makepkg_error $pkg
         fi
-        cp -f $workspace/pkgs/$pkg/$pkg-$pkgver-$pkgrel-$arch.pkg.tar.gz $workspace/ || exit 1
+        cp -f $workspace/pkgs/$pkg/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz $workspace/ || exit 1
       else
         printf " ${YELL}$(gettext "skip, exist")${DEFA}"
       fi
@@ -477,7 +485,10 @@ function main()
   if [ "$ADD" = "TRUE" ]; then
     printf "${YELL}$(gettext "Extracting:")${DEFA}"
     extract
-        
+    
+    printf "${YELL}$(gettext "Getting all packages version...\n")${DEFA}"
+    pkgs_version
+    
     printf "${YELL}$(gettext "Building:")${DEFA}"
     build_pkg
   fi
