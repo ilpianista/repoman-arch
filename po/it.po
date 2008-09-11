@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Repoman\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-09-10 15:40+0200\n"
-"PO-Revision-Date: 2008-09-10 16:20+0200\n"
+"POT-Creation-Date: 2008-09-11 14:58+0200\n"
+"PO-Revision-Date: 2008-09-11 17:05+0200\n"
 "Last-Translator: Giovanni Scafora <linuxmania@gmail.com>\n"
 "Language-Team: Arch Linux Italian Team <linuxmania@gmail.com>\n"
 "MIME-Version: 1.0\n"
@@ -16,28 +16,34 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 msgid "I cannot get %s. Exiting."
-msgstr "Impossibile scaricare %s. Sto uscendo."
+msgstr "Impossibile scaricare %s."
 
-msgid "I cannot extract %s. Exiting."
-msgstr "Impossibile estrarre %s. Sto uscendo."
+msgid "I cannot get %s. Skip."
+msgstr "Impossibile scaricare %s."
 
-msgid "%s: Makepkg fail. Exiting."
-msgstr "%s: Makepkg terminato con errore. Sto uscendo."
+msgid "I cannot extract %s. Skip."
+msgstr "Impossibile estrarre %s."
+
+msgid "%s: Makepkg fail. Skip."
+msgstr "%s: Makepkg terminato con errore."
 
 msgid "Upload of %s fail. Exiting."
-msgstr "L'invio di %s non è riuscito. Sto uscendo."
+msgstr "L'invio di %s non è riuscito."
 
-msgid "I cannot add %s to repository. Exiting."
-msgstr "Impossibile aggiungere %s al repository. Sto uscendo."
+msgid "Upload of %s fail. Skip."
+msgstr "Impossibile inviare %s."
 
-msgid "I cannot remove %s from repository. Exiting."
-msgstr "Impossibile rimuovere %s dal repository. Sto uscendo."
+msgid "I cannot add %s to repository. Skip."
+msgstr "Impossibile aggiungere %s al repository."
+
+msgid "I cannot remove %s from repository. Skip."
+msgstr "Impossibile rimuovere %s dal repository."
 
 msgid "skip, exist"
 msgstr "ignoro, esiste"
 
 msgid "skip, already up-to-date\\n"
-msgstr "ignoro, già aggiornato\\n"
+msgstr "già aggiornato\\n"
 
 msgid "Updating:"
 msgstr "Sto aggiornando:"
@@ -141,7 +147,7 @@ msgid "This will update the whole repository!\\n"
 msgstr "Questa opzione aggiornerà l'intero repository!\\n"
 
 msgid "You must enable %s repository in pacman. Exiting.\\n"
-msgstr "Devi abilitare il repository %s in pacman. Sto uscendo.\\n"
+msgstr "Devi abilitare il repository %s in pacman.\\n"
 
 msgid "Extracting:"
 msgstr "Sto estraendo:"
