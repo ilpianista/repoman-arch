@@ -186,13 +186,14 @@ function build_pkg()
     [ "$EDIT" = "TRUE" ] && edit_pkgbuild $pkg
     repopkgver=`LC_ALL=C pacman -Si $repo/$pkg | grep Version | awk -F": " '{print $2}' 2> /dev/null`
     if `is_newer ${pkgsver[$INDEX]} $repopkgver`; then
-      if [ ! -f "$workspace/pkgs/$pkg/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" ] || [ "$NOBUILD" != "TRUE" ]; then
+      if [ ! -f "$workspace/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" ] || [ "$NOBUILD" != "TRUE" ]; then
         if [ "$VERBOSE" = "TRUE" ]; then
           printf "\n"
           makepkg -f --noconfirm $USE_ROOT $NOCOLOR_FLAG || print_makepkg_error $pkg
         else
           makepkg -f --noconfirm $USE_ROOT $NOCOLOR_FLAG &> /dev/null || print_makepkg_error $pkg
         fi
+        cp $workspace/pkgs/$pkg/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz $workspace/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz || return 1
       else
         printf " ${YELL}$(gettext "skip, exist")${DEFA}"
       fi
@@ -415,14 +416,14 @@ function upload_file()
       if [ "$REMOVE" = "TRUE" ]; then
 	    lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; glob rm $pkg-*-*-i686.pkg.tar.gz; exit" || print_upload_error $pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz
       else
-      	lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; glob rm $pkg-*-*-i686.pkg.tar.gz; put $workspace/pkgs/$pkg/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz; exit" || print_upload_error $pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz
+      	lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; glob rm $pkg-*-*-i686.pkg.tar.gz; put $workspace/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz; exit" || print_upload_error $pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz
       fi
     else
       if [ "$REMOVE" = "TRUE" ]; then
 	    lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; glob rm $pkg-*-*-i686.pkg.tar.gz; exit" &> /dev/null || print_upload_error $pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz
     	printf "${YELL}$(gettext "All copy of %s have been removed!\n")${DEFA}" "$pkg"
       else
-      	lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; glob rm $pkg-*-*-i686.pkg.tar.gz; put $workspace/pkgs/$pkg/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz; exit" &> /dev/null || print_upload_error $pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz
+      	lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; glob rm $pkg-*-*-i686.pkg.tar.gz; put $workspace/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz; exit" &> /dev/null || print_upload_error $pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz
         printf "${LGRE}$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz ${YELL}$(gettext "uploaded!\n")${DEFA}"
       fi
       (( INDEX++ ))
