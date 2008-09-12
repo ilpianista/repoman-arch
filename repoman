@@ -184,7 +184,8 @@ function build_pkg()
     printf "${LGRE} $pkg"
     cd $workspace/pkgs/$pkg
     [ "$EDIT" = "TRUE" ] && edit_pkgbuild $pkg
-    repopkgver=`LC_ALL=C pacman -Si $repo/$pkg | grep Version | awk -F": " '{print $2}' 2> /dev/null`
+    repopkgver=`LC_ALL=C pacman -Si $repo/$pkg 2> /dev/null | grep Version | awk -F": " '{print $2}'`
+    [ "$repopkgver" = "" ] && repopkgver=0
     if `is_newer ${pkgsver[$INDEX]} $repopkgver`; then
       if [ ! -f "$workspace/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" ] || [ "$NOBUILD" != "TRUE" ]; then
         if [ "$VERBOSE" = "TRUE" ]; then
@@ -199,11 +200,11 @@ function build_pkg()
       fi
       printf " ${LGRE}(${pkgsver[$INDEX]})${DEFA}\n"
       (( UPDATED++ ))
+      (( INDEX++ ))
     else
       printf " ${YELL}$(gettext "skip, already up-to-date\n")${DEFA}"
       [ ${#pkgs[@]} -gt 1 ] && skip_pkg $pkg
-    fi
-    (( INDEX++ ))
+    fi    
   done
 }
 
