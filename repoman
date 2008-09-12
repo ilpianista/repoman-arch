@@ -185,7 +185,7 @@ function build_pkg()
     cd $workspace/pkgs/$pkg
     [ "$EDIT" = "TRUE" ] && edit_pkgbuild $pkg
     repopkgver=`LC_ALL=C pacman -Si $repo/$pkg 2> /dev/null | grep Version | awk -F": " '{print $2}'`
-    [ "$repopkgver" = "" ] && repopkgver=0
+    [ "$repopkgver" = "" ] && repopkgver=0-0
     if `is_newer ${pkgsver[$INDEX]} $repopkgver`; then
       if [ ! -f "$workspace/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" ] || [ "$NOBUILD" != "TRUE" ]; then
         if [ "$VERBOSE" = "TRUE" ]; then
