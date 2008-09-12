@@ -265,6 +265,7 @@ function print_help()
   printf "$(gettext "      --all          update the whole repository\n")"
   printf "$(gettext "Options:\n")"
   printf "$(gettext "  -l, --local        use this for local repository\n")"
+  printf "$(gettext "  -d, --devel        recompile only installated devel packages\n")"
   printf "$(gettext "  -k, --keep         do not get tarballs from AUR, use pkgs/\n")"
   printf "$(gettext "  -u, --noupload     do not upload any file to ftp\n")"
   printf "$(gettext "  -b, --nobuild      do not build packages if exist\n")"
@@ -274,6 +275,8 @@ function print_help()
   printf "$(gettext "      --clean        remove any files from workspace dir\n")"
   printf "$(gettext "      --nocolor      do not use any color\n")"
   printf "$(gettext "      --help         display this help and exit\n")"
+  
+  exit 0
 }
 
 function check_args()
@@ -281,7 +284,6 @@ function check_args()
   if [ -z "$1" ]; then
     NOCOLOR="TRUE"; 
     print_help
-    exit 0
   fi
   
   while [ $# -gt 0 ]; do
@@ -308,6 +310,7 @@ function check_args()
              create) CREATE="TRUE"; ADD="TRUE" ;;
              all) ALL="TRUE"; ADD="TRUE" ;;
              local) LOCAL="TRUE"; NOUPLOAD="TRUE" ;;
+             devel) DEVEL="TRUE" ;;
              keep) KEEP="TRUE" ;;
              noupload) NOUPLOAD="TRUE" ;;
              nobuild) NOBUILD="TRUE" ;;
@@ -316,22 +319,14 @@ function check_args()
              verbose) VERBOSE="TRUE" ;;
              clean) CLEAN="TRUE" ;;
              nocolor) NOCOLOR="TRUE" ;;
-             help) NOCOLOR="TRUE"; print_help; exit 0 ;;
-             -*) NOCOLOR="TRUE"; print_help; exit 0 ;;
+             help) NOCOLOR="TRUE"; print_help ;;
+             -*) NOCOLOR="TRUE"; print_help ;;
            esac ;;
-        *) NOCOLOR="TRUE"; print_help; exit 0 ;;
+        *) NOCOLOR="TRUE"; print_help ;;
       esac
     done
     shift
   done
-  
-  if [ "$CLEAN" != "TRUE" ] && [ "$ALL" != "TRUE" ]; then
-    if [ "${#pkgs[@]}" -eq 0 ]; then
-      NOCOLOR="TRUE"
-      print_help
-      exit 0
-    fi
-  fi
 }
 
 function edit_pkgbuild()
@@ -449,10 +444,16 @@ function copy_file()
 
 function get_pkgs_list()
 {
-  printf "${BOLD}$(gettext "This will update the whole repository!\n")${DEFA}"
-  for pkg in `pacman -Sql $repo 2> /dev/null`; do
-    pkgs[${#pkgs[@]}]=$pkg
-  done
+  if [ "$DEVEL" = "TRUE" ]; then
+    for pkg in `pacman -Sql $repo 2> /dev/null | grep "\-\(svn\|cvs\|hg\|git\|bzr\|darcs\)"`; do
+      pkgs[${#pkgs[@]}]=$pkg
+    done
+  else
+    printf "${BOLD}$(gettext "This will update the whole repository!\n")${DEFA}"
+    for pkg in `pacman -Sql $repo 2> /dev/null`; do
+      pkgs[${#pkgs[@]}]=$pkg
+    done
+  fi
   if [ "${#pkg}" -eq 0 ]; then
     printf "${LRED}$(gettext "You must enable %s repository in pacman. Exiting.\n")${DEFA}" "$repo"
     exit 1
@@ -475,9 +476,11 @@ function main()
     exit 0
   fi
   
-  if [ "$ALL" = "TRUE" ]; then
+  if [ "$ALL" = "TRUE" ] || [ "$DEVEL" = "TRUE" ]; then
     get_pkgs_list
   fi
+  
+  [ ${#pkgs[@]} -eq 0 ] && print_help
   
   print_pkgs_list
   download_files
@@ -498,20 +501,14 @@ function main()
 
     update_changelog
   
-    if [ "$NOUPLOAD" != "TRUE" ]; then
-      upload_file
-    fi
+    [ "$NOUPLOAD" != "TRUE" ] && upload_file
   
-    if [ "$LOCAL" = "TRUE" ]; then
-      copy_file
-    fi
+    [ "$LOCAL" = "TRUE" ] && copy_file
   else
     printf "${YELL}$(gettext "None packages added to repository\n") ${DEFA}"
   fi
   
-  if [ "$ADD" = "TRUE" ]; then
-    ask_remove
-  fi
+  [ "$ADD" = "TRUE" ] && ask_remove
 }
 
 main $@
