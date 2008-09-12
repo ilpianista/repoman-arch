@@ -42,20 +42,20 @@ function print_wget_error()
     exit 1
   else
     printf "\n${LRED}$(gettext "I cannot get %s. Skip.") ${DEFA}\n" "$1"
-    skip_pkg $2
+    skip_pkg $1
   fi
 }
 
 function print_tar_error()
 {
   printf "\n${LRED}$(gettext "I cannot extract %s. Skip.") ${DEFA}\n" "$1"
-  skip_pkg $2
+  skip_pkg $1
 }
 
 function print_makepkg_error()
 {
   printf "\n${LRED}$(gettext "%s: Makepkg fail. Skip.") ${DEFA}\n" "$1"
-  skip_pkg $2
+  skip_pkg $1
 }
 
 function print_upload_error()
@@ -65,20 +65,20 @@ function print_upload_error()
     exit 1
   else
     printf "\n${LRED}$(gettext "Upload of %s fail. Skip.") ${DEFA}\n" "$1"
-    skip_pkg $2
+    skip_pkg $1
   fi
 }
 
 function print_add_error()
 {
   printf "\n${LRED}$(gettext "I cannot add %s to repository. Skip.") ${DEFA}\n" "$1"
-  skip_pkg $2
+  skip_pkg $1
 }
 
 function print_remove_error()
 {
   printf "\n${LRED}$(gettext "I cannot remove %s from repository. Skip.") ${DEFA}\n" "$1"
-  skip_pkg $2
+  skip_pkg $1
 }
 
 function get_file()
