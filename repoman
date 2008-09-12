@@ -245,7 +245,7 @@ function update_changelog()
     rm -rf /tmp/header
     INDEX=0
     for pkg in ${pkgs[@]}; do
-      echo "* `date +\"%d-%m-%Y %R\"` `whoami` $IF_REMOVE$pkg ${pkgsver[$INDEX]}" >> /tmp/header
+      echo "* `date +\"%d-%m-%Y %R\"` `whoami` $FLAG$pkg ${pkgsver[$INDEX]}" >> /tmp/header
       (( INDEX++ ))
     done
     cat /tmp/header $workspace/$changelog > /tmp/$changelog
@@ -293,12 +293,13 @@ function check_args()
          *) pkgs[${#pkgs[@]}]=$OPTIONS; shift;;
       esac
     done
-    while getopts ":ARbcekluv:-:" ARGS; do
+    while getopts ":ARbcdekluv:-:" ARGS; do
       case $ARGS in
         A) ADD="TRUE" ;;
-        R) REMOVE="TRUE"; IF_REMOVE="(REMOVED) " ;;
+        R) REMOVE="TRUE"; FLAG="(REMOVED) " ;;
         b) NOBUILD="TRUE" ;;
         c) NOCHANGELOG="TRUE" ;;
+        d) DEVEL="TRUE" ;;
         e) EDIT="TRUE" ;;
         k) KEEP="TRUE" ;;
         l) LOCAL="TRUE" ;;
@@ -306,7 +307,7 @@ function check_args()
         v) VERBOSE="TRUE" ;;
         -) case $OPTARG in
              add) ADD="TRUE" ;;
-             remove) REMOVE="TRUE"; IF_REMOVE="($(gettext "REMOVED")) " ;;
+             remove) REMOVE="TRUE"; FLAG="($(gettext "REMOVED")) " ;;
              create) CREATE="TRUE"; ADD="TRUE" ;;
              all) ALL="TRUE"; ADD="TRUE" ;;
              local) LOCAL="TRUE"; NOUPLOAD="TRUE" ;;

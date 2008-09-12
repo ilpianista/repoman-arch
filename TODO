@@ -1,8 +1,5 @@
 TODO List
 
-* If repoman cannot get tarball package from AUR or package build fail, remove
-that package from packages list and continue with others
-
 * If repoman see a dependence on AUR which isn't on own repository ask
 to pull that dependence on own repository.
 
