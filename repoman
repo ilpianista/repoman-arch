@@ -38,46 +38,46 @@ function color()
 function print_wget_error()
 {
   if [ "$1" = "$changelog" ] || [ "$1" = "$repo.db.tar.gz" ]; then
-    printf "\n${LRED}$(gettext "I cannot get %s. Exiting.") ${DEFA}\n" "$1"
+    printf "${LRED}$(gettext "Cannot get. Exiting.") ${DEFA}\n" "$1"
     exit 1
   else
-    printf "\n${LRED}$(gettext "I cannot get %s. Skip.") ${DEFA}\n" "$1"
+    printf "${LRED}$(gettext "Cannot get. Skip.") ${DEFA}\n" "$1"
     skip_pkg $1
   fi
 }
 
 function print_tar_error()
 {
-  printf "\n${LRED}$(gettext "I cannot extract %s. Skip.") ${DEFA}\n" "$1"
+  printf "${LRED}$(gettext "Extract fail. Skip.") ${DEFA}\n"
   skip_pkg $1
 }
 
 function print_makepkg_error()
 {
-  printf "\n${LRED}$(gettext "%s: Makepkg fail. Skip.") ${DEFA}\n" "$1"
+  printf "${LRED}$(gettext "Makepkg fail. Skip.") ${DEFA}\n"
   skip_pkg $1
 }
 
 function print_upload_error()
 {
   if [ "$1" = "$changelog" ] || [ "$1" = "$repo.db.tar.gz" ]; then
-    printf "\n${LRED}$(gettext "Upload of %s fail. Exiting.") ${DEFA}\n" "$1"
+    printf "${LRED}$(gettext "Upload fail. Exiting.") ${DEFA}\n"
     exit 1
   else
-    printf "\n${LRED}$(gettext "Upload of %s fail. Skip.") ${DEFA}\n" "$1"
+    printf "${LRED}$(gettext "Upload fail. Skip.") ${DEFA}\n"
     skip_pkg $1
   fi
 }
 
 function print_add_error()
 {
-  printf "\n${LRED}$(gettext "I cannot add %s to repository. Skip.") ${DEFA}\n" "$1"
+  printf "${LRED}$(gettext "Cannot add to repository. Skip.") ${DEFA}\n"
   skip_pkg $1
 }
 
 function print_remove_error()
 {
-  printf "\n${LRED}$(gettext "I cannot remove %s from repository. Skip.") ${DEFA}\n" "$1"
+  printf "${LRED}$(gettext "Cannot remove from repository. Skip.") ${DEFA}\n"
   skip_pkg $1
 }
 
@@ -181,7 +181,7 @@ function build_pkg()
 {
   INDEX=0
   for pkg in ${pkgs[@]}; do
-    printf "${LGRE} $pkg"
+    printf "${LGRE} $pkg: "
     cd $workspace/pkgs/$pkg
     [ "$EDIT" = "TRUE" ] && edit_pkgbuild $pkg
     repopkgver=`LC_ALL=C pacman -Si $repo/$pkg 2> /dev/null | grep Version | awk -F": " '{print $2}'`
@@ -194,15 +194,15 @@ function build_pkg()
         else
           makepkg -f --noconfirm $USE_ROOT $NOCOLOR_FLAG &> /dev/null || print_makepkg_error $pkg
         fi
-        cp $workspace/pkgs/$pkg/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz $workspace/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz
+        cp $workspace/pkgs/$pkg/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz $workspace/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz &> /dev/null
+        [ -f "$workspace/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" ] && (( UPDATED++ ))
       else
-        printf " ${YELL}$(gettext "skip, exist")${DEFA}"
+        printf "${YELL}$(gettext "skip, exist")${DEFA}"
       fi
-      printf " ${LGRE}(${pkgsver[$INDEX]})${DEFA}\n"
-      (( UPDATED++ ))
+      printf "${LGRE}${pkgsver[$INDEX]}${DEFA}"
       (( INDEX++ ))
     else
-      printf " ${YELL}$(gettext "skip, already up-to-date\n")${DEFA}"
+      printf "${YELL}$(gettext "skip, already up-to-date")${DEFA}"
       [ ${#pkgs[@]} -gt 1 ] && skip_pkg $pkg
     fi    
   done
