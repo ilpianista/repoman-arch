@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-09-11 21:01+0200\n"
+"POT-Creation-Date: 2008-09-15 15:49+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,34 +16,28 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-msgid "I cannot get %s. Exiting."
+msgid "Cannot get. Exiting.\\n"
 msgstr ""
 
-msgid "I cannot get %s. Skip."
+msgid "Cannot get. Skip. "
 msgstr ""
 
-msgid "I cannot extract %s. Skip."
+msgid "Extract fail. Skip.\\n"
 msgstr ""
 
-msgid "%s: Makepkg fail. Skip."
+msgid "Makepkg fail. Skip.\\n"
 msgstr ""
 
-msgid "Upload of %s fail. Exiting."
+msgid "Cannot add to repository. Skip."
 msgstr ""
 
-msgid "Upload of %s fail. Skip."
-msgstr ""
-
-msgid "I cannot add %s to repository. Skip."
-msgstr ""
-
-msgid "I cannot remove %s from repository. Skip."
+msgid "Cannot remove from repository. Skip."
 msgstr ""
 
 msgid "skip, exist"
 msgstr ""
 
-msgid "skip, already up-to-date\\n"
+msgid "skip, already up-to-date"
 msgstr ""
 
 msgid "Updating:"
@@ -85,6 +79,9 @@ msgstr ""
 msgid "  -l, --local        use this for local repository\\n"
 msgstr ""
 
+msgid "  -d, --devel        recompile only installated devel packages\\n"
+msgstr ""
+
 msgid "  -k, --keep         do not get tarballs from AUR, use pkgs/\\n"
 msgstr ""
 
@@ -121,7 +118,7 @@ msgstr ""
 msgid "y"
 msgstr ""
 
-msgid "Downloading:"
+msgid "Downloading: "
 msgstr ""
 
 msgid "(found in pkgs/)\\n"
@@ -139,6 +136,9 @@ msgstr ""
 msgid "uploaded!\\n"
 msgstr ""
 
+msgid "Upload failed.\\n"
+msgstr ""
+
 msgid "All copy of %s have been removed!\\n"
 msgstr ""
 
@@ -148,13 +148,13 @@ msgstr ""
 msgid "You must enable %s repository in pacman. Exiting.\\n"
 msgstr ""
 
-msgid "Extracting:"
+msgid "Extracting: "
 msgstr ""
 
 msgid "Getting all packages version...\\n"
 msgstr ""
 
-msgid "Building:"
+msgid "Building: "
 msgstr ""
 
 msgid "None packages added to repository\\n"
