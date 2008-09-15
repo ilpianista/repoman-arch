@@ -7,43 +7,37 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Repoman\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-09-11 21:01+0200\n"
-"PO-Revision-Date: 2008-09-11 22:00+0200\n"
+"POT-Creation-Date: 2008-09-15 15:49+0200\n"
+"PO-Revision-Date: 2008-09-15 21:30+0200\n"
 "Last-Translator: Giovanni Scafora <linuxmania@gmail.com>\n"
 "Language-Team: Arch Linux Italian Team <linuxmania@gmail.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-msgid "I cannot get %s. Exiting."
-msgstr "Impossibile scaricare %s."
+msgid "Cannot get. Exiting.\\n"
+msgstr "Impossibile scaricare.\\n"
 
-msgid "I cannot get %s. Skip."
-msgstr "Impossibile scaricare %s."
+msgid "Cannot get. Skip. "
+msgstr "Impossibile scaricare. "
 
-msgid "I cannot extract %s. Skip."
-msgstr "Impossibile estrarre %s."
+msgid "Extract fail. Skip.\\n"
+msgstr "Estrazione non riuscita.\\n"
 
-msgid "%s: Makepkg fail. Skip."
-msgstr "%s: Makepkg terminato con errore."
+msgid "Makepkg fail. Skip.\\n"
+msgstr "Makepkg terminato con errore.\\n"
 
-msgid "Upload of %s fail. Exiting."
-msgstr "L'invio di %s non è riuscito."
+msgid "Cannot add to repository. Skip."
+msgstr "Impossibile aggiungere al repository."
 
-msgid "Upload of %s fail. Skip."
-msgstr "Impossibile inviare %s."
-
-msgid "I cannot add %s to repository. Skip."
-msgstr "Impossibile aggiungere %s al repository."
-
-msgid "I cannot remove %s from repository. Skip."
-msgstr "Impossibile rimuovere %s dal repository."
+msgid "Cannot remove from repository. Skip."
+msgstr "Impossibile rimuovere dal repository."
 
 msgid "skip, exist"
 msgstr "ignoro, esiste"
 
-msgid "skip, already up-to-date\\n"
-msgstr "già aggiornato\\n"
+msgid "skip, already up-to-date"
+msgstr "già aggiornato"
 
 msgid "Updating:"
 msgstr "Sto aggiornando:"
@@ -86,6 +80,9 @@ msgstr "Opzioni:\\n"
 msgid "  -l, --local        use this for local repository\\n"
 msgstr "  -l, --local        usa questo come repository locale\\n"
 
+msgid "  -d, --devel        recompile only installated devel packages\\n"
+msgstr "  -d, --devel        ricompila solo i pacchetti di sviluppo installati\\n"
+
 msgid "  -k, --keep         do not get tarballs from AUR, use pkgs/\\n"
 msgstr "  -k, --keep         non preleva gli archivi da AUR, usa pkgs/\\n"
 
@@ -122,8 +119,8 @@ msgstr "Vuoi editare questo PKGBUILD? (s/N):"
 msgid "y"
 msgstr "s"
 
-msgid "Downloading:"
-msgstr "Sto scaricando:"
+msgid "Downloading: "
+msgstr "Sto scaricando: "
 
 msgid "(found in pkgs/)\\n"
 msgstr "(trovato in pkgs/)\\n"
@@ -140,6 +137,9 @@ msgstr "Sono stati rimossi tutti i file presenti nella directory di lavoro!\\n"
 msgid "uploaded!\\n"
 msgstr "inviato!\\n"
 
+msgid "Upload failed.\\n"
+msgstr "Impossibile inviare.\\n"
+
 msgid "All copy of %s have been removed!\\n"
 msgstr "Tutte le copie di %s sono state rimosse!\\n"
 
@@ -149,14 +149,14 @@ msgstr "Questa opzione aggiornerà l'intero repository!\\n"
 msgid "You must enable %s repository in pacman. Exiting.\\n"
 msgstr "Devi abilitare il repository %s in pacman.\\n"
 
-msgid "Extracting:"
-msgstr "Sto estraendo:"
+msgid "Extracting: "
+msgstr "Sto estraendo: "
 
 msgid "Getting all packages version...\\n"
 msgstr "Sto scaricando tutte le versioni dei pacchetti...\\n"
 
-msgid "Building:"
-msgstr "Sto compilando:"
+msgid "Building: "
+msgstr "Sto compilando: "
 
 msgid "None packages added to repository\\n"
 msgstr "Nessun pacchetto aggiunto al repository\\n"
