@@ -41,7 +41,7 @@ function print_wget_error()
     printf "${LRED}$(gettext "Cannot get. Exiting.\n")${DEFA}"
     exit 1
   else
-    printf "${LRED}$(gettext "Cannot get. Skip.\n")${DEFA}"
+    printf "${LRED}$(gettext "Cannot get. Skip. ")${DEFA}"
     skip_pkg $1
   fi
 }
@@ -58,17 +58,6 @@ function print_makepkg_error()
   skip_pkg $1
 }
 
-function print_upload_error()
-{
-  if [ "$1" = "$changelog" ] || [ "$1" = "$repo.db.tar.gz" ]; then
-    printf "${LRED}$(gettext "Upload fail. Exiting.") ${DEFA}\n"
-    exit 1
-  else
-    printf "${LRED}$(gettext "Upload fail. Skip.") ${DEFA}\n"
-    skip_pkg $1
-  fi
-}
-
 function print_add_error()
 {
   printf "${LRED}$(gettext "Cannot add to repository. Skip.") ${DEFA}\n"
@@ -83,29 +72,31 @@ function print_remove_error()
 
 function get_file()
 {
-  printf "${LGRE} $1\n${DEFA}"
+  printf "${LGRE}$1 ${DEFA}"
   mv $workspace/$1 $workspace/$1.old &> /dev/null
   if [ "$VERBOSE" = "TRUE" ]; then
     wget -P $workspace $url/$1 || print_wget_error $1
   else
     wget -P $workspace $url/$1 &> /dev/null || print_wget_error $1
   fi
+  printf "\n"
 }
 
 function get_pkg()
 {
-  printf "${LGRE} $1.tar.gz: ${DEFA}"
+  printf "${LGRE}$1.tar.gz ${DEFA}"
   if [ "$VERBOSE" = "TRUE" ]; then
     wget -P $workspace/pkgs http://aur.archlinux.org/packages/$1/$1.tar.gz || print_wget_error $1
   else
     wget -P $workspace/pkgs http://aur.archlinux.org/packages/$1/$1.tar.gz &> /dev/null || print_wget_error $1
   fi
+  printf "\n"
 }
 
 function extract()
 {
   for pkg in ${pkgs[@]}; do
-    printf "${LGRE}$pkg \n${DEFA}"
+    printf "${LGRE}$pkg ${DEFA}"
     rm -rf $workspace/pkgs/$pkg
     if [ "$VERBOSE" = "TRUE" ]; then
       tar -xf $workspace/pkgs/$pkg.tar.gz -C $workspace/pkgs || print_tar_error $pkg
@@ -113,6 +104,7 @@ function extract()
       tar -xf $workspace/pkgs/$pkg.tar.gz -C $workspace/pkgs &> /dev/null || print_tar_error $pkg
     fi
   done
+  printf "\n"
 }
 
 function check_files()
@@ -177,11 +169,11 @@ function skip_pkg()
   pkgsver[$i]=""
 }
 
-function build_pkg()
+function build_pkgs()
 {
   INDEX=0
   for pkg in ${pkgs[@]}; do
-    printf "${LGRE} $pkg (${pkgsver[$INDEX]})${DEFA}: "
+    printf "${LGRE}$pkg (${pkgsver[$INDEX]})${DEFA}: "
     cd $workspace/pkgs/$pkg
     [ "$EDIT" = "TRUE" ] && edit_pkgbuild $pkg
     repopkgver=`LC_ALL=C pacman -Si $repo/$pkg 2> /dev/null | grep Version | awk -F": " '{print $2}'`
@@ -393,39 +385,54 @@ function clean()
 
 function upload_file()
 {
-  if [ "$NOCHANGELOG" != "TRUE" ]; then
+  if [ -f "$workspace/$1" ]; then
     if [ "$VERBOSE" = "TRUE" ]; then
-      lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; put $workspace/$changelog; exit" || print_upload_error $changelog
+      lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; put $workspace/$1; exit" || return 1
     else
-      lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; put $workspace/$changelog; exit" &> /dev/null || print_upload_error $changelog
+      lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; put $workspace/$1; exit" &> /dev/null || return 1
     fi
-    printf "${LGRE}$changelog ${YELL}$(gettext "uploaded!\n")${DEFA}"
   fi
+}
+
+function remove_from_ftp()
+{
   if [ "$VERBOSE" = "TRUE" ]; then
-    lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; put $workspace/$repo.db.tar.gz; exit" || print_upload_error $repo.db.tar.gz
+    lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; glob rm $1-*-*-$arch.pkg.tar.gz; exit" || return 1
   else
-    lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; put $workspace/$repo.db.tar.gz; exit" &> /dev/null || print_upload_error $repo.db.tar.gz
+    lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; glob rm $1-*-*-$arch.pkg.tar.gz; exit" &> /dev/null || return 1
   fi
-  printf "${LGRE}$repo.db.tar.gz ${YELL}$(gettext "uploaded!\n")${DEFA}"
+}
+
+function upload()
+{
+  if [ "$NOCHANGELOG" != "TRUE" ]; then
+    if `upload_file $changelog`; then
+      printf "${LGRE}$changelog ${YELL}$(gettext "uploaded!\n")${DEFA}"
+    else
+      printf "${LRED}$changelog $(gettext "Upload failed.\n")${DEFA}"
+    fi
+  fi
+  
+  if `upload_file $repo.db.tar.gz`; then
+    printf "${LGRE}$repo.db.tar.gz ${YELL}$(gettext "uploaded!\n")${DEFA}"
+  else
+    printf "${LRED}$repo.db.tar.gz $(gettext "Upload failed.\n")${DEFA}"
+  fi
   
   INDEX=0
   for pkg in ${pkgs[@]}; do
-    if [ "$VERBOSE" = "TRUE" ]; then
-      if [ "$REMOVE" = "TRUE" ]; then
-	    lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; glob rm $pkg-*-*-i686.pkg.tar.gz; exit" || print_upload_error $pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz
-      else
-      	lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; glob rm $pkg-*-*-i686.pkg.tar.gz; put $workspace/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz; exit" || print_upload_error $pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz
-      fi
+    if [ "$REMOVE" = "TRUE" ]; then
+      remove_from_ftp $pkg
+      printf "${YELL}$(gettext "All copy of %s have been removed!\n")${DEFA}" "$pkg"
     else
-      if [ "$REMOVE" = "TRUE" ]; then
-	    lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; glob rm $pkg-*-*-i686.pkg.tar.gz; exit" &> /dev/null || print_upload_error $pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz
-    	printf "${YELL}$(gettext "All copy of %s have been removed!\n")${DEFA}" "$pkg"
+      remove_from_ftp $pkg
+      if `upload_file $pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz`; then
+        printf "${LGRE}$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz ${YELL}$(gettext "uploaded!\n")${DEFA}"  
       else
-      	lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; glob rm $pkg-*-*-i686.pkg.tar.gz; put $workspace/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz; exit" &> /dev/null || print_upload_error $pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz
-        printf "${LGRE}$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz ${YELL}$(gettext "uploaded!\n")${DEFA}"
+        printf "${LRED}$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz $(gettext "Upload failed.\n")${DEFA}"
       fi
-      (( INDEX++ ))
     fi
+    (( INDEX++ ))
   done
 }
 
@@ -487,14 +494,14 @@ function main()
   download_files
   
   if [ "$ADD" = "TRUE" ]; then
-    printf "${YELL}$(gettext "\nExtracting: ")${DEFA}"
+    printf "${YELL}$(gettext "Extracting: ")${DEFA}"
     extract
     
     printf "${YELL}$(gettext "Getting all packages version...\n")${DEFA}"
     pkgs_version
     
-    printf "${YELL}$(gettext "Building:")${DEFA}"
-    build_pkg
+    printf "${YELL}$(gettext "Building: ")${DEFA}"
+    build_pkgs
   fi
   
   if [ $UPDATED -ne 0 ] || [ "$REMOVE" = "TRUE" ]; then
@@ -502,7 +509,7 @@ function main()
 
     update_changelog
   
-    [ "$NOUPLOAD" != "TRUE" ] && upload_file
+    [ "$NOUPLOAD" != "TRUE" ] && upload
   
     [ "$LOCAL" = "TRUE" ] && copy_file
   else
