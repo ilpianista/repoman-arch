@@ -176,7 +176,8 @@ function build_pkgs()
     printf "${LGRE}$pkg (${pkgsver[$INDEX]})${DEFA}: "
     cd $workspace/pkgs/$pkg
     [ "$EDIT" = "TRUE" ] && edit_pkgbuild $pkg
-    repopkgver=`LC_ALL=C pacman -Si $repo/$pkg 2> /dev/null | grep Version | awk -F": " '{print $2}'`
+    package=`tar -tf $workspace/$repo.db.tar.gz | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep $pkg`
+    repopkgver=`echo $package | rev | cut -d'-' -f2 | rev`-`echo $package | rev | cut -d'-' -f1 | rev`
     [ "$repopkgver" = "" ] && repopkgver=0-0
     if `is_newer ${pkgsver[$INDEX]} $repopkgver`; then
       if [ ! -f "$workspace/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" ] || [ "$NOBUILD" != "TRUE" ]; then
@@ -453,18 +454,18 @@ function copy_file()
 function get_pkgs_list()
 {
   if [ "$DEVEL" = "TRUE" ]; then
-    for pkg in `pacman -Sql $repo 2> /dev/null | grep "\-\(svn\|cvs\|hg\|git\|bzr\|darcs\)"`; do
-      pkgs[${#pkgs[@]}]=$pkg
+    for pkg in `tar -tf $workspace/$repo.db.tar.gz | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep "\-\(svn\|cvs\|hg\|git\|bzr\|darcs\)"`; do
+      pkgs[${#pkgs[@]}]=`echo $pkg | rev | cut -d'-' -f3- | rev`
+      repopkgsver[${#repopkgsver[@]}]=`echo $pkg | rev | cut -d'-' -f2 | rev`
+      repopkgsrel[${#repopkgsrel[@]}]=`echo $pkg | rev | cut -d'-' -f1 | rev`
     done
   else
     printf "${BOLD}$(gettext "This will update the whole repository!\n")${DEFA}"
-    for pkg in `pacman -Sql $repo 2> /dev/null`; do
-      pkgs[${#pkgs[@]}]=$pkg
+    for pkg in `tar -tf $workspace/$repo.db.tar.gz | grep -vE 'desc$|depends$' | sed -e 's:\/$::g'`; do
+      pkgs[${#pkgs[@]}]=`echo $pkg | rev | cut -d'-' -f3- | rev`
+      repopkgsver[${#repopkgsver[@]}]=`echo $pkg | rev | cut -d'-' -f2 | rev`
+      repopkgsrel[${#repopkgsrel[@]}]=`echo $pkg | rev | cut -d'-' -f1 | rev`
     done
-  fi
-  if [ "${#pkg}" -eq 0 ]; then
-    printf "${LRED}$(gettext "You must enable %s repository in pacman. Exiting.\n")${DEFA}" "$repo"
-    exit 1
   fi
 }
 

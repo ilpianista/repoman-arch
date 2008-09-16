@@ -145,9 +145,6 @@ msgstr ""
 msgid "This will update the whole repository!\\n"
 msgstr ""
 
-msgid "You must enable %s repository in pacman. Exiting.\\n"
-msgstr ""
-
 msgid "Extracting: "
 msgstr ""
 
