@@ -1,61 +1,55 @@
 # LANGUAGE translation for Repoman.
 # Copyright (C) 2008 Andrea Scarpino <bash.lnx@gmail.com>
 # This file is distributed under the same license as the Repoman package.
-# Jaroslav Lichtblau <dragonlord@seznam.cz>, 2008.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: repoman VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-09-11 21:01+0200\n"
-"PO-Revision-Date: 2008-09-11 21:13+0100\n"
+"POT-Creation-Date: 2008-09-15 15:49+0200\n"
+"PO-Revision-Date: 2008-09-17 20:05+0100\n"
 "Last-Translator: Jaroslav Lichtblau <dragonlord@seznam.cz>\n"
 "Language-Team: Czech <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-msgid "I cannot get %s. Exiting."
-msgstr "Nelze získat %s. Končím."
+msgid "Cannot get. Exiting.\\n"
+msgstr "Nelze stáhnout. Končím.\\n"
 
-msgid "I cannot get %s. Skip."
-msgstr "Nelze získat %s. Přeskakuji."
+msgid "Cannot get. Skip. "
+msgstr "Nelze stáhnout. Přeskakuji. "
 
-msgid "I cannot extract %s. Skip."
-msgstr "Nelze rozbalit %s. Přeskakuji."
+msgid "Extract fail. Skip.\\n"
+msgstr "Rozbalení selhalo. Přeskakuji.\\n"
 
-msgid "%s: Makepkg fail. Skip."
-msgstr "%s: Makepkg selhalo. Přeskakuji."
+msgid "Makepkg fail. Skip.\\n"
+msgstr "Makepkg selhalo. Přeskakuji.\\n"
 
-msgid "Upload of %s fail. Exiting."
-msgstr "Selhal přenos %s. Končím."
+msgid "Cannot add to repository. Skip."
+msgstr "Nelze přidat do repozitáře. Přeskakuji."
 
-msgid "Upload of %s fail. Skip."
-msgstr "Selhal přenos %s. Přeskakuji."
-
-msgid "I cannot add %s to repository. Skip."
-msgstr "Nelze přidat %s do repozitáře. Přeskakuji."
-
-msgid "I cannot remove %s from repository. Skip."
-msgstr "Nezle odstranit %s z repozitáře. Přeskakuji."
+msgid "Cannot remove from repository. Skip."
+msgstr "Nelze odstranit z repozitáře. Přeskakuji."
 
 msgid "skip, exist"
 msgstr "přeskakuji, již existuje"
 
-msgid "skip, already up-to-date\\n"
-msgstr "přeskakuji, skip, already up-to-date\\n"
+msgid "skip, already up-to-date"
+msgstr "přeskakuji, již v poslední verzi"
 
 msgid "Updating:"
 msgstr "Aktualizuji:"
 
 msgid "added!"
-msgstr "přidáno!"
+msgstr "přidán!"
 
 msgid "updated!"
-msgstr "aktualizováno!"
+msgstr "aktualizován!"
 
 msgid "removed!"
-msgstr "odstraněno!"
+msgstr "odstraněn!"
 
 msgid "A tool to manage your personal ArchLinux repository\\n"
 msgstr "Nástroj pro správu vlastního repozitáře pro ArchLinux\\n"
@@ -83,6 +77,9 @@ msgstr "Volby:\\n"
 
 msgid "  -l, --local        use this for local repository\\n"
 msgstr "  -l, --local        použít lokální repozitář\\n"
+
+msgid "  -d, --devel        recompile only installated devel packages\\n"
+msgstr "  -d, --devel        přeložit pouze instalované devel balíčky\\n"
 
 msgid "  -k, --keep         do not get tarballs from AUR, use pkgs/\\n"
 msgstr "  -k, --keep         nestahovat archivy z AURu, použít adresář pkgs/\\n"
@@ -114,14 +111,14 @@ msgstr "      --help         vypsat tuto nápovědu a skončit\\n"
 msgid "REMOVED"
 msgstr "ODSTRANĚNO"
 
-msgid "Do you want to edit this PKGBUILD? (y/N):"
-msgstr "Přejete si upravit tento PKGBUILD? (a/N):"
+msgid "Do you want to edit %s PKGBUILD? (y/N):"
+msgstr "Přejete si upravit PKGBUILD pro %s? (a/N):"
 
 msgid "y"
 msgstr "a"
 
-msgid "Downloading:"
-msgstr "Stahuji:"
+msgid "Downloading: "
+msgstr "Stahuji: "
 
 msgid "(found in pkgs/)\\n"
 msgstr "(nalezeno v pkgs/)\\n"
@@ -136,7 +133,10 @@ msgid "Any files in workspace directory have been removed!\\n"
 msgstr "Všechny soubory z pracovního adresáře byly odstraněny!\\n"
 
 msgid "uploaded!\\n"
-msgstr "přeneseno!\\n"
+msgstr "přenesen!\\n"
+
+msgid "Upload failed.\\n"
+msgstr "Upload selhal.\\n"
 
 msgid "All copy of %s have been removed!\\n"
 msgstr "Všechny kopie %s byly odstraněny!\\n"
@@ -144,17 +144,14 @@ msgstr "Všechny kopie %s byly odstraněny!\\n"
 msgid "This will update the whole repository!\\n"
 msgstr "Toto provede aktualizaci celého repozitáře!\\n"
 
-msgid "You must enable %s repository in pacman. Exiting.\\n"
-msgstr "Je třeba povolit repozitář %s v pacmanu. Končím.\\n"
-
-msgid "Extracting:"
-msgstr "Rozbaluji:"
+msgid "Extracting: "
+msgstr "Rozbaluji: "
 
 msgid "Getting all packages version...\\n"
 msgstr "Získávám verze všech balíčků...\\n"
 
-msgid "Building:"
-msgstr "Překládám:"
+msgid "Building: "
+msgstr "Překládám: "
 
 msgid "None packages added to repository\\n"
 msgstr "Žádné balíčky nebyly přidány do repozitáře\\n"
