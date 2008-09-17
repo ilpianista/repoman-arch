@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Repoman\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-09-15 15:49+0200\n"
-"PO-Revision-Date: 2008-09-15 21:30+0200\n"
+"PO-Revision-Date: 2008-09-17 08:30+0200\n"
 "Last-Translator: Giovanni Scafora <linuxmania@gmail.com>\n"
 "Language-Team: Arch Linux Italian Team <linuxmania@gmail.com>\n"
 "MIME-Version: 1.0\n"
@@ -81,7 +81,8 @@ msgid "  -l, --local        use this for local repository\\n"
 msgstr "  -l, --local        usa questo come repository locale\\n"
 
 msgid "  -d, --devel        recompile only installated devel packages\\n"
-msgstr "  -d, --devel        ricompila solo i pacchetti di sviluppo installati\\n"
+msgstr ""
+"  -d, --devel        ricompila solo i pacchetti di sviluppo installati\\n"
 
 msgid "  -k, --keep         do not get tarballs from AUR, use pkgs/\\n"
 msgstr "  -k, --keep         non preleva gli archivi da AUR, usa pkgs/\\n"
@@ -145,9 +146,6 @@ msgstr "Tutte le copie di %s sono state rimosse!\\n"
 
 msgid "This will update the whole repository!\\n"
 msgstr "Questa opzione aggiornerà l'intero repository!\\n"
-
-msgid "You must enable %s repository in pacman. Exiting.\\n"
-msgstr "Devi abilitare il repository %s in pacman.\\n"
 
 msgid "Extracting: "
 msgstr "Sto estraendo: "
