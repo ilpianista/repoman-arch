@@ -151,8 +151,7 @@ function pkgs_version()
       makepkg -o --noconfirm $USE_ROOT $NOCOLOR_FLAG &> /dev/null
     fi
     source ./PKGBUILD
-    last=${#pkgs[@]}
-    pkgs[${#pkgs[$last-1]}]=""
+    pkgs[${#pkgs[${#pkgs[@]}-1]}]=""
     pkgsver[${#pkgsver[@]}]=$pkgver-$pkgrel
   done
 }
@@ -175,10 +174,10 @@ function build_pkgs()
 {
   INDEX=0
   for pkg in ${pkgs[@]}; do
+    [ "$EDIT" = "TRUE" ] && edit_pkgbuild $pkg
     printf "${LGRE}$pkg (${pkgsver[$INDEX]})${DEFA}: "
     cd $workspace/pkgs/$pkg
-    [ "$EDIT" = "TRUE" ] && edit_pkgbuild $pkg
-    package=`tar -tf $workspace/$repo.db.tar.gz | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep $pkg`
+    package=`tar -tf $workspace/$repo.db.tar.gz | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep '^${pkg}$'`
     repopkgver=`echo $package | rev | cut -d'-' -f2 | rev`-`echo $package | rev | cut -d'-' -f1 | rev`
     [ "$repopkgver" = "-" ] && repopkgver=0-0
     if `is_newer ${pkgsver[$INDEX]} $repopkgver`; then
@@ -190,6 +189,7 @@ function build_pkgs()
           makepkg -f --noconfirm $USE_ROOT $NOCOLOR_FLAG &> /dev/null || print_makepkg_error $pkg
         fi
         cp $workspace/pkgs/$pkg/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz $workspace/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz &> /dev/null
+        printf "${YELL}$(gettext "done")${DEFA}"
       else
         printf "${YELL}$(gettext "skip, exist")${DEFA}"
       fi
@@ -328,7 +328,7 @@ function check_args()
 function edit_pkgbuild()
 {
   if [ -f $workspace/pkgs/$1/PKGBUILD ]; then
-    printf "${BOLD}$(gettext "Do you want to edit this PKGBUILD? (y/N):")${DEFA} "
+    printf "${BOLD}$(gettext "Do you want to edit %s PKGBUILD? (y/N):")${DEFA} " "$1"
     read EDIT_ANSWER
     if [ "$EDIT_ANSWER" = "$(gettext "y")" ]; then
       [ -z "$EDITOR" ] && EDITOR=vi
@@ -382,17 +382,17 @@ function ask_remove()
 
 function clean()
 {
-  rm -rf $workspace/*
+  rm -rf $workspace/
   printf "${YELL}$(gettext "Any files in workspace directory have been removed!\n")${DEFA}"
 }
 
 function upload_file()
 {
-  if [ -f "$workspace/$1" ]; then
+  if [ -f "$1" ]; then
     if [ "$VERBOSE" = "TRUE" ]; then
-      lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; put $workspace/$1; exit" || return 1
+      lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; put $1; exit" || return 1
     else
-      lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; put $workspace/$1; exit" &> /dev/null || return 1
+      lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; put $1; exit" &> /dev/null || return 1
     fi
   fi
 }
@@ -409,14 +409,14 @@ function remove_from_ftp()
 function upload()
 {
   if [ "$NOCHANGELOG" != "TRUE" ]; then
-    if `upload_file $changelog`; then
+    if `upload_file $workspace/$changelog`; then
       printf "${LGRE}$changelog ${YELL}$(gettext "uploaded!\n")${DEFA}"
     else
       printf "${LRED}$changelog $(gettext "Upload failed.\n")${DEFA}"
     fi
   fi
   
-  if `upload_file $repo.db.tar.gz`; then
+  if `upload_file $workspace/$repo.db.tar.gz`; then
     printf "${LGRE}$repo.db.tar.gz ${YELL}$(gettext "uploaded!\n")${DEFA}"
   else
     printf "${LRED}$repo.db.tar.gz $(gettext "Upload failed.\n")${DEFA}"
@@ -429,7 +429,7 @@ function upload()
       printf "${YELL}$(gettext "All copy of %s have been removed!\n")${DEFA}" "$pkg"
     else
       remove_from_ftp $pkg
-      if `upload_file $pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz`; then
+      if `upload_file $workspace/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz`; then
         printf "${LGRE}$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz ${YELL}$(gettext "uploaded!\n")${DEFA}"  
       else
         printf "${LRED}$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz $(gettext "Upload failed.\n")${DEFA}"
@@ -501,7 +501,7 @@ function main()
     extract
     
     printf "${YELL}$(gettext "Getting all packages version...\n")${DEFA}"
-    pkgs_version || skip_pkg $pkg
+    pkgs_version
     
     printf "${YELL}$(gettext "Building: ")${DEFA}"
     build_pkgs
