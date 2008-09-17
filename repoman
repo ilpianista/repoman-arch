@@ -174,7 +174,7 @@ function build_pkgs()
     [ "$EDIT" = "TRUE" ] && edit_pkgbuild $pkg
     printf "${LGRE}$pkg (${pkgsver[$INDEX]})${DEFA}: "
     cd $workspace/pkgs/$pkg
-    package=`tar -tf $workspace/$repo.db.tar.gz | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep '^${pkg}$'`
+    package=`tar -tf $workspace/$repo.db.tar.gz | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep '^${pkg}-[0-9]$*'`
     repopkgver=`echo $package | rev | cut -d'-' -f2 | rev`-`echo $package | rev | cut -d'-' -f1 | rev`
     [ "$repopkgver" = "-" ] && repopkgver=0-0
     if `is_newer ${pkgsver[$INDEX]} $repopkgver`; then
