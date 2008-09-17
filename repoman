@@ -143,14 +143,16 @@ function is_newer()
 function pkgs_version()
 {
   for pkg in ${pkgs[@]}; do
-  cd $workspace/pkgs/$pkg/
+    cd $workspace/pkgs/$pkg/
     if [ "$VERBOSE" = "TRUE" ]; then
       printf "\n"
-      makepkg -o --noconfirm $USE_ROOT $NOCOLOR_FLAG || print_makepkg_error $pkg
-    else
-      makepkg -o --noconfirm $USE_ROOT $NOCOLOR_FLAG &> /dev/null || print_makepkg_error $pkg
+      makepkg -o --noconfirm $USE_ROOT $NOCOLOR_FLAG
+    else 
+      makepkg -o --noconfirm $USE_ROOT $NOCOLOR_FLAG &> /dev/null
     fi
     source ./PKGBUILD
+    last=${#pkgs[@]}
+    pkgs[${#pkgs[$last-1]}]=""
     pkgsver[${#pkgsver[@]}]=$pkgver-$pkgrel
   done
 }
@@ -499,7 +501,7 @@ function main()
     extract
     
     printf "${YELL}$(gettext "Getting all packages version...\n")${DEFA}"
-    pkgs_version
+    pkgs_version || skip_pkg $pkg
     
     printf "${YELL}$(gettext "Building: ")${DEFA}"
     build_pkgs
