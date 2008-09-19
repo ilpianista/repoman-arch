@@ -368,11 +368,11 @@ function print_pkgs_list()
 
 function ask_remove()
 {
-  printf "${BOLD}$(gettext "Do you want to remove package build dir? (y/N):") ${DEFA}"
+  printf "${BOLD}$(gettext "Do you want to remove packages build dir? (y/N):") ${DEFA}"
   read DIR_REMOVE
   if [ "$DIR_REMOVE" = "y" ]; then
     for pkg in ${pkgs[@]}; do
-      rm -rf $workspace/pkgs/$pkg/
+      rm -rf $workspace/pkgs/
     done
   fi
 }
