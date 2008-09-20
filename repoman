@@ -218,7 +218,7 @@ function update_db()
       else
         repo-add "$workspace/$repo.db.tar.gz" "$workspace/$pkg-${pkgsver}-$arch.pkg.tar.gz" &> /dev/null || print_add_error $pkg
       fi
-      printf "${YELL}$(gettext "%s added!\n")${DEFA}" "$pkg"
+      printf "$pkg ${LGRE}$(gettext "added!\n")${DEFA}"
     done
   elif [ "$REMOVE" = "TRUE" ]; then
     for pkg in ${pkgs[@]}; do
@@ -228,7 +228,7 @@ function update_db()
       else
         repo-remove "$workspace/$repo.db.tar.gz" $pkg &> /dev/null || print_remove_error $pkg
       fi
-      printf "${YELL}$(gettext "%s removed!\n")${DEFA}" "$pkg"
+      printf "$pkg ${LGRE}$(gettext "removed!\n")${DEFA}"
     done
   fi
 }
@@ -410,7 +410,7 @@ function upload()
 {
   if [ "$NOCHANGELOG" != "TRUE" ]; then
     if `upload_file "$workspace/$changelog"`; then
-      printf "$changelog ${YELL}$(gettext "uploaded!\n")${DEFA}"
+      printf "$changelog ${LGRE}$(gettext "uploaded!\n")${DEFA}"
     else
       printf "$changelog ${LRED}$(gettext "Upload failed.\n")${DEFA}"
     fi
