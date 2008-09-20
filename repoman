@@ -72,23 +72,23 @@ function print_remove_error()
 
 function get_file()
 {
-  printf "${LGRE}$1 ${DEFA}"
-  mv $workspace/$1 $workspace/$1.old &> /dev/null
+  printf "$1 ${DEFA}"
+  mv "$workspace/$1" "$workspace/$1.old" &> /dev/null
   if [ "$VERBOSE" = "TRUE" ]; then
-    wget -P $workspace $url/$1 || print_wget_error $1
+    wget -P "$workspace" "$url/$1" || print_wget_error $1
   else
-    wget -P $workspace $url/$1 &> /dev/null || print_wget_error $1
+    wget -P "$workspace" "$url/$1" &> /dev/null || print_wget_error $1
   fi
   printf "\n"
 }
 
 function get_pkg()
 {
-  printf "${LGRE}$1.tar.gz ${DEFA}"
+  printf "$1.tar.gz ${DEFA}"
   if [ "$VERBOSE" = "TRUE" ]; then
-    wget -P $workspace/pkgs http://aur.archlinux.org/packages/$1/$1.tar.gz || print_wget_error $1
+    wget -P "$workspace/pkgs" http://aur.archlinux.org/packages/$1/$1.tar.gz || print_wget_error $1
   else
-    wget -P $workspace/pkgs http://aur.archlinux.org/packages/$1/$1.tar.gz &> /dev/null || print_wget_error $1
+    wget -P "$workspace/pkgs" http://aur.archlinux.org/packages/$1/$1.tar.gz &> /dev/null || print_wget_error $1
   fi
   printf "\n"
 }
@@ -96,12 +96,12 @@ function get_pkg()
 function extract()
 {
   for pkg in ${pkgs[@]}; do
-    printf "${LGRE}$pkg ${DEFA}"
-    rm -rf $workspace/pkgs/$pkg
+    printf "$pkg "
+    rm -rf "$workspace/pkgs/$pkg"
     if [ "$VERBOSE" = "TRUE" ]; then
-      tar -xf $workspace/pkgs/$pkg.tar.gz -C $workspace/pkgs || print_tar_error $pkg
+      tar -xf "$workspace/pkgs/$pkg.tar.gz" -C "$workspace/pkgs" || print_tar_error $pkg
     else
-      tar -xf $workspace/pkgs/$pkg.tar.gz -C $workspace/pkgs &> /dev/null || print_tar_error $pkg
+      tar -xf "$workspace/pkgs/$pkg.tar.gz" -C "$workspace/pkgs" &> /dev/null || print_tar_error $pkg
     fi
   done
   printf "\n"
@@ -109,16 +109,16 @@ function extract()
 
 function check_files()
 {
-  if [ ! -d $workspace ]; then
-    mkdir $workspace || exit 1
+  if [ ! -d "$workspace" ]; then
+    mkdir "$workspace" || exit 1
   fi
   
-  if [ ! -d $workspace/pkgs ]; then
-    mkdir $workspace/pkgs || exit 1
+  if [ ! -d "$workspace/pkgs" ]; then
+    mkdir "$workspace/pkgs" || exit 1
   fi
   
   if [ "$NOCHANGELOG" != "TRUE" ] && [ ! -f "$workspace/$changelog" ]; then
-    touch $workspace/$changelog
+    touch "$workspace/$changelog"
   fi
 }
 
@@ -142,7 +142,7 @@ function is_newer()
 
 function pkgs_version()
 {
-  cd $workspace/pkgs/$pkg/
+  cd "$workspace/pkgs/$pkg/"
   if [ "$VERBOSE" = "TRUE" ]; then
     printf "\n"
     makepkg -o --noconfirm $USE_ROOT $NOCOLOR_FLAG
@@ -163,18 +163,23 @@ function skip_pkg()
       done
     fi
   done
-  pkgs[$i]=""
-  pkgsver[$i]=""
+  last=${#pkgs[@]}
+  pkgs[${last-1}]=""
+  pkgsver[${last-1}]=""
 }
 
 function build_pkgs()
 {
   INDEX=0
   for pkg in ${pkgs[@]}; do
-    [ "$EDIT" = "TRUE" ] && edit_pkgbuild $pkg
-    printf "${LGRE}$pkg (${pkgsver[$INDEX]})${DEFA}: "
-    cd $workspace/pkgs/$pkg
-    package=`tar -tf $workspace/$repo.db.tar.gz | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep '^'$pkg'-[0-9]$*'`
+    if [ "$EDIT" = "TRUE" ]; then
+      edit_pkgbuild $pkg
+      source ./PKGBUILD
+      pkgsver[$INDEX]=$pkgver-$pkgrel
+    fi
+    printf "$pkg (${pkgsver[$INDEX]})${DEFA}: "
+    cd "$workspace/pkgs/$pkg"
+    package=`tar -tf "$workspace/$repo.db.tar.gz" | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep '^'$pkg'-[0-9]$*'`
     repopkgver=`echo $package | rev | cut -d'-' -f2 | rev`-`echo $package | rev | cut -d'-' -f1 | rev`
     [ "$repopkgver" = "-" ] && repopkgver=0-0
     if `is_newer ${pkgsver[$INDEX]} $repopkgver`; then
@@ -185,8 +190,10 @@ function build_pkgs()
         else
           makepkg -f --noconfirm $USE_ROOT $NOCOLOR_FLAG &> /dev/null || print_makepkg_error $pkg
         fi
-        cp $workspace/pkgs/$pkg/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz $workspace/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz &> /dev/null
-        printf "${YELL}$(gettext "done")${DEFA}"
+        cp "$workspace/pkgs/$pkg/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" "$workspace/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" &> /dev/null
+        if [ -f "$workspace/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" ]; then
+          printf "${LGRE}$(gettext "done")${DEFA}"
+        fi
       else
         printf "${YELL}$(gettext "skip, exist")${DEFA}"
       fi
@@ -207,9 +214,9 @@ function update_db()
     for pkg in ${pkgs[@]}; do
       if [ "$VERBOSE" = "TRUE" ]; then
         printf "\n"
-        repo-add $workspace/$repo.db.tar.gz $workspace/$pkg-${pkgsver}-$arch.pkg.tar.gz || print_add_error $pkg
+        repo-add "$workspace/$repo.db.tar.gz" "$workspace/$pkg-${pkgsver}-$arch.pkg.tar.gz" || print_add_error $pkg
       else
-        repo-add $workspace/$repo.db.tar.gz $workspace/$pkg-${pkgsver}-$arch.pkg.tar.gz &> /dev/null || print_add_error $pkg
+        repo-add "$workspace/$repo.db.tar.gz" "$workspace/$pkg-${pkgsver}-$arch.pkg.tar.gz" &> /dev/null || print_add_error $pkg
       fi
       if [ "$ADD" = "TRUE" ]; then
         printf "${LGRE}$pkg ${YELL}$(gettext "added!") ${DEFA}\n"
@@ -221,9 +228,9 @@ function update_db()
     for pkg in ${pkgs[@]}; do
       if [ "$VERBOSE" = "TRUE" ]; then
         printf "\n"
-        repo-remove $workspace/$repo.db.tar.gz $pkg || print_remove_error $pkg
+        repo-remove "$workspace/$repo.db.tar.gz" $pkg || print_remove_error $pkg
       else
-        repo-remove $workspace/$repo.db.tar.gz $pkg &> /dev/null || print_remove_error $pkg
+        repo-remove "$workspace/$repo.db.tar.gz" $pkg &> /dev/null || print_remove_error $pkg
       fi
       printf "${LGRE}$pkg ${YELL}$(gettext "removed!") ${DEFA}\n"
     done
@@ -240,8 +247,8 @@ function update_changelog()
       echo "* `date +\"%d-%m-%Y %R\"` `whoami` $FLAG$pkg ${pkgsver[$INDEX]}" >> /tmp/header
       (( INDEX++ ))
     done
-    cat /tmp/header $workspace/$changelog > /tmp/$changelog
-    mv /tmp/$changelog $workspace/$changelog
+    cat /tmp/header "$workspace/$changelog" > "/tmp/$changelog"
+    mv "/tmp/$changelog" "$workspace/$changelog"
   fi
 }
 
@@ -324,12 +331,12 @@ function check_args()
 
 function edit_pkgbuild()
 {
-  if [ -f $workspace/pkgs/$1/PKGBUILD ]; then
-    printf "${BOLD}$(gettext "Do you want to edit %s PKGBUILD? (y/N):")${DEFA} " "$1"
+  if [ -f "$workspace/pkgs/$1/PKGBUILD" ]; then
+    printf "${BOLD}$(gettext "Do you want to edit %s PKGBUILD? (Y/n):")${DEFA} " "$1"
     read EDIT_ANSWER
-    if [ "$EDIT_ANSWER" = "$(gettext "y")" ]; then
+    if [ "$EDIT_ANSWER" != "$(gettext "n")" ]; then
       [ -z "$EDITOR" ] && EDITOR=vi
-      $EDITOR $workspace/pkgs/$1/PKGBUILD
+      $EDITOR "$workspace/pkgs/$1/PKGBUILD"
     fi
   fi
 }
@@ -347,11 +354,11 @@ function download_files()
   fi
   if [ "$ADD" = "TRUE" ]; then
     for pkg in ${pkgs[@]}; do
-      if [ ! -f $workspace/pkgs/$pkg.tar.gz ] || [ ! "$KEEP" = "TRUE" ]; then
-        rm $workspace/pkgs/$pkg.tar.gz &> /dev/null
+      if [ ! -f "$workspace/pkgs/$pkg.tar.gz" ] || [ ! "$KEEP" = "TRUE" ]; then
+        rm "$workspace/pkgs/$pkg.tar.gz" &> /dev/null
         get_pkg $pkg
       else
-        printf "${LGRE} $pkg ${YELL}$(gettext "(found in pkgs/)\n")${DEFA}"
+        printf "$pkg ${YELL}$(gettext "(found in pkgs/) \n")${DEFA}"
       fi
     done
   fi
@@ -372,24 +379,24 @@ function ask_remove()
   read DIR_REMOVE
   if [ "$DIR_REMOVE" = "y" ]; then
     for pkg in ${pkgs[@]}; do
-      rm -rf $workspace/pkgs/
+      rm -rf "$workspace/pkgs/"
     done
   fi
 }
 
 function clean()
 {
-  rm -rf $workspace/
+  rm -rf "$workspace/"
   printf "${YELL}$(gettext "Any files in workspace directory have been removed!\n")${DEFA}"
 }
 
 function upload_file()
 {
-  if [ -f "$1" ]; then
+  if [ -f $1 ]; then
     if [ "$VERBOSE" = "TRUE" ]; then
-      lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; put $1; exit" || return 1
+      lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; put $1; exit" || return 1
     else
-      lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; put $1; exit" &> /dev/null || return 1
+      lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; put $1; exit" &> /dev/null || return 1
     fi
   fi
 }
@@ -397,23 +404,23 @@ function upload_file()
 function remove_from_ftp()
 {
   if [ "$VERBOSE" = "TRUE" ]; then
-    lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; glob rm $1-*-*-$arch.pkg.tar.gz; exit" || return 1
+    lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; glob rm $1-*-*-$arch.pkg.tar.gz; exit" || return 1
   else
-    lftp -u "$username,$password" $ftp_url$ftp_dir -e "set ftp:ssl-protect-data true; glob rm $1-*-*-$arch.pkg.tar.gz; exit" &> /dev/null || return 1
+    lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; glob rm $1-*-*-$arch.pkg.tar.gz; exit" &> /dev/null || return 1
   fi
 }
 
 function upload()
 {
   if [ "$NOCHANGELOG" != "TRUE" ]; then
-    if `upload_file $workspace/$changelog`; then
+    if `upload_file "$workspace/$changelog"`; then
       printf "${LGRE}$changelog ${YELL}$(gettext "uploaded!\n")${DEFA}"
     else
       printf "${LRED}$changelog $(gettext "Upload failed.\n")${DEFA}"
     fi
   fi
   
-  if `upload_file $workspace/$repo.db.tar.gz`; then
+  if `upload_file "$workspace/$repo.db.tar.gz"`; then
     printf "${LGRE}$repo.db.tar.gz ${YELL}$(gettext "uploaded!\n")${DEFA}"
   else
     printf "${LRED}$repo.db.tar.gz $(gettext "Upload failed.\n")${DEFA}"
@@ -426,7 +433,7 @@ function upload()
       printf "${YELL}$(gettext "All copy of %s have been removed!\n")${DEFA}" "$pkg"
     else
       remove_from_ftp $pkg
-      if `upload_file $workspace/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz`; then
+      if `upload_file "$workspace/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz"`; then
         printf "${LGRE}$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz ${YELL}$(gettext "uploaded!\n")${DEFA}"  
       else
         printf "${LRED}$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz $(gettext "Upload failed.\n")${DEFA}"
@@ -439,13 +446,13 @@ function upload()
 function copy_file()
 {
   if [ "$NOCHANGELOG" != "TRUE" ]; then
-    cp -f $workspace/$changelog $url/
+    cp -f "$workspace/$changelog" "$url"
   fi
-  cp -f $workspace/$repo.db.tar.gz $url/
+  cp -f "$workspace/$repo.db.tar.gz" "$url"
   
   INDEX=0
   for pkg in ${pkgs[@]}; do
-    cp -f $workspace/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz $url/
+    cp -f "$workspace/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" "$url"
     (( INDEX++ ))
   done
 }
@@ -453,14 +460,14 @@ function copy_file()
 function get_pkgs_list()
 {
   if [ "$DEVEL" = "TRUE" ]; then
-    for pkg in `tar -tf $workspace/$repo.db.tar.gz | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep "\-\(svn\|cvs\|hg\|git\|bzr\|darcs\)"`; do
+    for pkg in `tar -tf "$workspace/$repo.db.tar.gz" | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep "\-\(svn\|cvs\|hg\|git\|bzr\|darcs\)"`; do
       pkgs[${#pkgs[@]}]=`echo $pkg | rev | cut -d'-' -f3- | rev`
       repopkgsver[${#repopkgsver[@]}]=`echo $pkg | rev | cut -d'-' -f2 | rev`
       repopkgsrel[${#repopkgsrel[@]}]=`echo $pkg | rev | cut -d'-' -f1 | rev`
     done
   else
     printf "${BOLD}$(gettext "This will update the whole repository!\n")${DEFA}"
-    for pkg in `tar -tf $workspace/$repo.db.tar.gz | grep -vE 'desc$|depends$' | sed -e 's:\/$::g'`; do
+    for pkg in `tar -tf "$workspace/$repo.db.tar.gz" | grep -vE 'desc$|depends$' | sed -e 's:\/$::g'`; do
       pkgs[${#pkgs[@]}]=`echo $pkg | rev | cut -d'-' -f3- | rev`
       repopkgsver[${#repopkgsver[@]}]=`echo $pkg | rev | cut -d'-' -f2 | rev`
       repopkgsrel[${#repopkgsrel[@]}]=`echo $pkg | rev | cut -d'-' -f1 | rev`
