@@ -38,7 +38,7 @@ function color()
 function print_wget_error()
 {
   if [ "$1" = "$changelog" ] || [ "$1" = "$repo.db.tar.gz" ]; then
-    printf "${LRED}$(gettext "Cannot get. Exiting.\n")${DEFA}"
+    printf "${LRED}$(gettext "Cannot get. Exiting...\n")${DEFA}"
     exit 1
   else
     printf "${LRED}$(gettext "Cannot get. Skip. ")${DEFA}"
@@ -48,25 +48,25 @@ function print_wget_error()
 
 function print_tar_error()
 {
-  printf "${LRED}$(gettext "Extract fail. Skip.\n")${DEFA}"
+  printf "${LRED}$(gettext "Extraction failed. Skip.\n")${DEFA}"
   skip_pkg $1
 }
 
 function print_makepkg_error()
 {
-  printf "${LRED}$(gettext "Makepkg fail. Skip.\n")${DEFA}"
+  printf "${LRED}$(gettext "Makepkg failed. Skip.\n")${DEFA}"
   skip_pkg $1
 }
 
 function print_add_error()
 {
-  printf "${LRED}$(gettext "Cannot add to repository. Skip.") ${DEFA}\n"
+  printf "${LRED}$(gettext "Cannot add to repository. Skip.\n") ${DEFA}"
   skip_pkg $1
 }
 
 function print_remove_error()
 {
-  printf "${LRED}$(gettext "Cannot remove from repository. Skip.") ${DEFA}\n"
+  printf "${LRED}$(gettext "Cannot remove from repository. Skip.\n") ${DEFA}"
   skip_pkg $1
 }
 
@@ -209,7 +209,7 @@ function build_pkgs()
 
 function update_db()
 {
-  printf "${YELL}$(gettext "Updating:") ${LGRE}$repo.db.tar.gz${DEFA}\n"
+  printf "${YELL}$(gettext "Updating: ")${DEFA}$repo.db.tar.gz\n"
   if [ "$ADD" = "TRUE" ]; then
     for pkg in ${pkgs[@]}; do
       if [ "$VERBOSE" = "TRUE" ]; then
@@ -218,11 +218,7 @@ function update_db()
       else
         repo-add "$workspace/$repo.db.tar.gz" "$workspace/$pkg-${pkgsver}-$arch.pkg.tar.gz" &> /dev/null || print_add_error $pkg
       fi
-      if [ "$ADD" = "TRUE" ]; then
-        printf "${LGRE}$pkg ${YELL}$(gettext "added!") ${DEFA}\n"
-      else
-	printf "${LGRE}$pkg ${YELL}$(gettext "updated!") ${DEFA}\n"
-      fi
+      printf "${YELL}$(gettext "%s added!\n")${DEFA}" "$pkg"
     done
   elif [ "$REMOVE" = "TRUE" ]; then
     for pkg in ${pkgs[@]}; do
@@ -232,7 +228,7 @@ function update_db()
       else
         repo-remove "$workspace/$repo.db.tar.gz" $pkg &> /dev/null || print_remove_error $pkg
       fi
-      printf "${LGRE}$pkg ${YELL}$(gettext "removed!") ${DEFA}\n"
+      printf "${YELL}$(gettext "%s removed!\n")${DEFA}" "$pkg"
     done
   fi
 }
@@ -240,7 +236,7 @@ function update_db()
 function update_changelog()
 {
   if [ "$NOCHANGELOG" != "TRUE" ]; then
-    printf "${YELL}$(gettext "Updating:") ${LGRE}$changelog${DEFA}\n"
+    printf "${YELL}$(gettext "Updating: ")${DEFA}$changelog\n"
     rm -rf /tmp/header
     INDEX=0
     for pkg in ${pkgs[@]}; do
@@ -332,7 +328,7 @@ function check_args()
 function edit_pkgbuild()
 {
   if [ -f "$workspace/pkgs/$1/PKGBUILD" ]; then
-    printf "${BOLD}$(gettext "Do you want to edit %s PKGBUILD? (Y/n):")${DEFA} " "$1"
+    printf "${BOLD}$(gettext "Do you want to edit %s PKGBUILD? (Y/n): ")${DEFA}" "$1"
     read EDIT_ANSWER
     if [ "$EDIT_ANSWER" != "$(gettext "n")" ]; then
       [ -z "$EDITOR" ] && EDITOR=vi
@@ -375,7 +371,7 @@ function print_pkgs_list()
 
 function ask_remove()
 {
-  printf "${BOLD}$(gettext "Do you want to remove packages build dir? (y/N):") ${DEFA}"
+  printf "${BOLD}$(gettext "Do you want to remove packages build dir? (y/N): ")${DEFA}"
   read DIR_REMOVE
   if [ "$DIR_REMOVE" = "y" ]; then
     for pkg in ${pkgs[@]}; do
@@ -414,29 +410,29 @@ function upload()
 {
   if [ "$NOCHANGELOG" != "TRUE" ]; then
     if `upload_file "$workspace/$changelog"`; then
-      printf "${LGRE}$changelog ${YELL}$(gettext "uploaded!\n")${DEFA}"
+      printf "$changelog ${YELL}$(gettext "uploaded!\n")${DEFA}"
     else
-      printf "${LRED}$changelog $(gettext "Upload failed.\n")${DEFA}"
+      printf "$changelog ${LRED}$(gettext "Upload failed.\n")${DEFA}"
     fi
   fi
   
   if `upload_file "$workspace/$repo.db.tar.gz"`; then
-    printf "${LGRE}$repo.db.tar.gz ${YELL}$(gettext "uploaded!\n")${DEFA}"
+    printf "$repo.db.tar.gz ${LGRE}$(gettext "uploaded!\n")${DEFA}"
   else
-    printf "${LRED}$repo.db.tar.gz $(gettext "Upload failed.\n")${DEFA}"
+    printf "$repo.db.tar.gz ${LRED}$(gettext "Upload failed.\n")${DEFA}"
   fi
   
   INDEX=0
   for pkg in ${pkgs[@]}; do
     if [ "$REMOVE" = "TRUE" ]; then
       remove_from_ftp $pkg
-      printf "${YELL}$(gettext "All copy of %s have been removed!\n")${DEFA}" "$pkg"
+      printf "$(gettext "All copy of %s have been removed from ftp!\n")" "$pkg"
     else
       remove_from_ftp $pkg
       if `upload_file "$workspace/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz"`; then
-        printf "${LGRE}$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz ${YELL}$(gettext "uploaded!\n")${DEFA}"  
+        printf "$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz ${LGRE}$(gettext "uploaded!\n")${DEFA}"  
       else
-        printf "${LRED}$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz $(gettext "Upload failed.\n")${DEFA}"
+        printf "$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz ${LRED}$(gettext "Upload failed.\n")${DEFA}"
       fi
     fi
     (( INDEX++ ))
@@ -522,7 +518,7 @@ function main()
   
     [ "$LOCAL" = "TRUE" ] && copy_file
   else
-    printf "${YELL}$(gettext "None packages added to repository\n") ${DEFA}"
+    printf "$(gettext "None packages added to repository\n")"
   fi
   
   [ "$ADD" = "TRUE" ] && ask_remove
