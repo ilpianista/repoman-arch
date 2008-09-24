@@ -22,8 +22,7 @@
 export TEXTDOMAIN='repoman'
 export TEXTDOMAINDIR='/usr/share/locale'
 
-function color()
-{
+color(){
   if [ "$NOCOLOR" != "TRUE" ]; then
     DEFA="\033[1;0m"
     BOLD="\033[1;1m"
@@ -35,19 +34,7 @@ function color()
   fi
 }
 
-function print_wget_error()
-{
-  if [ "$1" = "$changelog" ] || [ "$1" = "$repo.db.tar.gz" ]; then
-    printf "${LRED}$(gettext "Cannot get. Exiting...\n")${DEFA}"
-    exit 1
-  else
-    printf "${LRED}$(gettext "Cannot get. Skip. ")${DEFA}"
-    skip_pkg $1
-  fi
-}
-
-function print_tar_error()
-{
+print_tar_error(){
   printf "${LRED}$(gettext "Extraction failed. Skip.\n")${DEFA}"
   skip_pkg $1
 }
@@ -70,31 +57,41 @@ function print_remove_error()
   skip_pkg $1
 }
 
-function get_file()
-{
-  printf "$1 ${DEFA}"
+get_file(){
+  printf "${YELL}$(gettext "Getting: ")${DEFA}"
   mv "$workspace/$1" "$workspace/$1.old" &> /dev/null
-  if [ "$VERBOSE" = "TRUE" ]; then
-    wget -P "$workspace" "$url/$1" || print_wget_error $1
+  if [ "$LOCAL" != "TRUE" ]; then
+    if [ "$VERBOSE" = "TRUE" ]; then
+      wget -P "$workspace" "$url/$1"
+    else
+      wget -P "$workspace" "$url/$1" &> /dev/null
+    fi
   else
-    wget -P "$workspace" "$url/$1" &> /dev/null || print_wget_error $1
+    cp "$url/$repo.db.tar.gz" "$workspace/" || exit 1
   fi
-  printf "\n"
+  if [ -f "$workspace/$1" ]; then
+    printf "${LGRE}$1 ${DEFA}"
+  else
+    printf "${LRED}$(gettext "Cannot get %s. Exiting...\n")${DEFA}" "$1"
+    exit 1
+  fi
 }
 
-function get_pkg()
-{
-  printf "$1.tar.gz ${DEFA}"
+get_pkg(){
   if [ "$VERBOSE" = "TRUE" ]; then
-    wget -P "$workspace/pkgs" http://aur.archlinux.org/packages/$1/$1.tar.gz || print_wget_error $1
+    wget -P "$workspace/pkgs" http://aur.archlinux.org/packages/$1/$1.tar.gz
   else
-    wget -P "$workspace/pkgs" http://aur.archlinux.org/packages/$1/$1.tar.gz &> /dev/null || print_wget_error $1
+    wget -P "$workspace/pkgs" http://aur.archlinux.org/packages/$1/$1.tar.gz &> /dev/null
   fi
-  printf "\n"
+  if [ -f "$workspace/pkgs/$1.tar.gz" ]; then
+    printf "${LGRE}$1 ${DEFA}"
+  else
+    printf "${LRED}$(gettext "Cannot get %s. Skip.\n")${DEFA}" "$1"
+    skip_pkg $1
+  fi
 }
 
-function extract()
-{
+extract_pkg(){
   for pkg in ${pkgs[@]}; do
     printf "$pkg "
     rm -rf "$workspace/pkgs/$pkg"
@@ -107,8 +104,7 @@ function extract()
   printf "\n"
 }
 
-function check_files()
-{
+check_files(){
   if [ ! -d "$workspace" ]; then
     mkdir "$workspace" || exit 1
   fi
@@ -145,9 +141,9 @@ function pkgs_version()
   cd "$workspace/pkgs/$pkg/"
   if [ "$VERBOSE" = "TRUE" ]; then
     printf "\n"
-    makepkg -o --noconfirm $USE_ROOT $NOCOLOR_FLAG
+    makepkg -o --noconfirm $ROOT_FLAG $NOCOLOR_FLAG
   else 
-    makepkg -o --noconfirm $USE_ROOT $NOCOLOR_FLAG &> /dev/null
+    makepkg -o --noconfirm $ROOT_FLAG $NOCOLOR_FLAG &> /dev/null
   fi
   source ./PKGBUILD
   pkgsver[${#pkgsver[@]}]=$pkgver-$pkgrel
@@ -186,9 +182,9 @@ function build_pkgs()
       if [ ! -f "$workspace/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" ] || [ "$NOBUILD" != "TRUE" ]; then
         if [ "$VERBOSE" = "TRUE" ]; then
           printf "\n"
-          makepkg -f --noconfirm $USE_ROOT $NOCOLOR_FLAG || print_makepkg_error $pkg
+          makepkg -f --noconfirm $ROOT_FLAG $NOCOLOR_FLAG || print_makepkg_error $pkg
         else
-          makepkg -f --noconfirm $USE_ROOT $NOCOLOR_FLAG &> /dev/null || print_makepkg_error $pkg
+          makepkg -f --noconfirm $ROOT_FLAG $NOCOLOR_FLAG &> /dev/null || print_makepkg_error $pkg
         fi
         cp "$workspace/pkgs/$pkg/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" "$workspace/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" &> /dev/null
         if [ -f "$workspace/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" ]; then
@@ -248,10 +244,9 @@ function update_changelog()
   fi
 }
 
-function print_help()
-{
+usage(){
   printf "$(gettext "A tool to manage your personal ArchLinux repository\n")"
-  printf "$(gettext "Usage: repoman action [OPTIONS] packages\n")"
+  printf "$(gettext "Usage: repoman <action> [OPTIONS] packages\n")"
   printf "\n"
   printf "$(gettext "Action:\n")"
   printf "$(gettext "  -A, --add          add or update packages to repo\n")"
@@ -270,57 +265,49 @@ function print_help()
   printf "$(gettext "      --clean        remove any files from workspace dir\n")"
   printf "$(gettext "      --nocolor      do not use any color\n")"
   printf "$(gettext "      --help         display this help and exit\n")"
-  
-  exit 0
 }
 
-function check_args()
-{
-  if [ -z "$1" ]; then
-    NOCOLOR="TRUE"; 
-    print_help
+check_args(){
+  if [ "$#" -eq "0" ]; then
+    usage
+    exit 1
   fi
-  
-  while [ $# -gt 0 ]; do
-    for OPTIONS in $@; do
-      case $OPTIONS in
-        -*) break ;;
-         *) pkgs[${#pkgs[@]}]=$OPTIONS; shift;;
+
+  while [ "$#" -ne "0" ]; do
+    case $1 in
+      --add) ADD="TRUE" ;;
+      --remove) REMOVE="TRUE"; FLAG="($(gettext "REMOVED")) " ;;
+      --create) CREATE="TRUE"; ADD="TRUE" ;;
+      --all) ALL="TRUE"; ADD="TRUE" ;;
+      --local) LOCAL="TRUE"; NOUPLOAD="TRUE" ;;
+      --devel) DEVEL="TRUE"; ADD="TRUE" ;;
+      --keep) KEEP="TRUE" ;;
+      --noupload) NOUPLOAD="TRUE" ;;
+      --nobuild) NOBUILD="TRUE" ;;
+      --nochangelog) NOCHANGELOG="TRUE" ;;
+      --edit) EDIT="TRUE" ;;
+      --verbose) VERBOSE="TRUE" ;;
+      --clean) CLEAN="TRUE" ;;
+      --nocolor) NOCOLOR="TRUE" ;;
+      --help) usage; exit 0 ;;
+      --*) usage; exit 1 ;;
+      -* )
+        while getopts ":ARbcdekluv:-:" ARGS; do
+          case $ARGS in
+            A) ADD="TRUE" ;;
+            R) REMOVE="TRUE"; FLAG="(REMOVED) " ;;
+            b) NOBUILD="TRUE" ;;
+            c) NOCHANGELOG="TRUE" ;;
+            d) DEVEL="TRUE"; ADD="TRUE" ;;
+            e) EDIT="TRUE" ;;
+            k) KEEP="TRUE" ;;
+            l) LOCAL="TRUE" ;;
+            u) NOUPLOAD="TRUE" ;;
+            v) VERBOSE="TRUE" ;;
+           esac
+         done ;;
+        *) pkgs[${#pkgs[@]}]=$1 ;;
       esac
-    done
-    while getopts ":ARbcdekluv:-:" ARGS; do
-      case $ARGS in
-        A) ADD="TRUE" ;;
-        R) REMOVE="TRUE"; FLAG="(REMOVED) " ;;
-        b) NOBUILD="TRUE" ;;
-        c) NOCHANGELOG="TRUE" ;;
-        d) DEVEL="TRUE"; ADD="TRUE" ;;
-        e) EDIT="TRUE" ;;
-        k) KEEP="TRUE" ;;
-        l) LOCAL="TRUE" ;;
-        u) NOUPLOAD="TRUE" ;;
-        v) VERBOSE="TRUE" ;;
-        -) case $OPTARG in
-             add) ADD="TRUE" ;;
-             remove) REMOVE="TRUE"; FLAG="($(gettext "REMOVED")) " ;;
-             create) CREATE="TRUE"; ADD="TRUE" ;;
-             all) ALL="TRUE"; ADD="TRUE" ;;
-             local) LOCAL="TRUE"; NOUPLOAD="TRUE" ;;
-             devel) DEVEL="TRUE"; ADD="TRUE" ;;
-             keep) KEEP="TRUE" ;;
-             noupload) NOUPLOAD="TRUE" ;;
-             nobuild) NOBUILD="TRUE" ;;
-             nochangelog) NOCHANGELOG="TRUE" ;;
-             edit) EDIT="TRUE" ;;
-             verbose) VERBOSE="TRUE" ;;
-             clean) CLEAN="TRUE" ;;
-             nocolor) NOCOLOR="TRUE" ;;
-             help) NOCOLOR="TRUE"; print_help ;;
-             -*) NOCOLOR="TRUE"; print_help ;;
-           esac ;;
-        *) NOCOLOR="TRUE"; print_help ;;
-      esac
-    done
     shift
   done
 }
@@ -337,17 +324,9 @@ function edit_pkgbuild()
   fi
 }
 
-function download_files()
+function download_pkgs()
 {
   printf "${YELL}$(gettext "Downloading: ")${DEFA}"
-  if [ "$CREATE" != "TRUE" ]; then
-    if [ "$LOCAL" != "TRUE" ]; then
-      if [ "$NOCHANGELOG" != "TRUE" ]; then
-        get_file $changelog
-      fi
-    get_file $repo.db.tar.gz
-    fi
-  fi
   if [ "$ADD" = "TRUE" ]; then
     for pkg in ${pkgs[@]}; do
       if [ ! -f "$workspace/pkgs/$pkg.tar.gz" ] || [ ! "$KEEP" = "TRUE" ]; then
@@ -360,11 +339,10 @@ function download_files()
   fi
 }
 
-function print_pkgs_list()
-{
+print_pkgs_list(){
   printf "${YELL}$(gettext "Packages: ")"
   for pkg in ${pkgs[@]}; do
-    printf "${LGRE}$pkg "
+    printf "${LGRE}$pkg ${DEFA}"
   done
   printf "\n"
 }
@@ -380,9 +358,8 @@ function ask_remove()
   fi
 }
 
-function clean()
-{
-  rm -rf "$workspace/"
+clean(){
+  rm -rf "$workspace/" /tmp/header "/tmp/$changelog"
   printf "${YELL}$(gettext "Any files in workspace directory have been removed!\n")${DEFA}"
 }
 
@@ -453,8 +430,7 @@ function copy_file()
   done
 }
 
-function get_pkgs_list()
-{
+get_pkgs_list(){
   if [ "$DEVEL" = "TRUE" ]; then
     for pkg in `tar -tf "$workspace/$repo.db.tar.gz" | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep "\-\(svn\|cvs\|hg\|git\|bzr\|darcs\)"`; do
       pkgs[${#pkgs[@]}]=`echo $pkg | rev | cut -d'-' -f3- | rev`
@@ -469,14 +445,18 @@ function get_pkgs_list()
       repopkgsrel[${#repopkgsrel[@]}]=`echo $pkg | rev | cut -d'-' -f1 | rev`
     done
   fi
+ 
+  [ ${#pkgs[@]} -eq 0 ] && exit 0
 }
 
 function main()
 {
   source /etc/repoman.conf
+  
   if [ "$UID" -eq 0 ]; then
-    USE_ROOT="--asroot "
+    ROOT_FLAG="--asroot "
   fi
+  
   check_args $@
   check_files
   color
@@ -486,19 +466,29 @@ function main()
     clean
     exit 0
   fi
-  
+
+  if [ "$CREATE" != "TRUE" ]; then
+    if [ "$NOCHANGELOG" != "TRUE" ]; then
+      get_file $changelog
+    fi
+    get_file $repo.db.tar.gz
+  fi
+
   if [ "$ALL" = "TRUE" ] || [ "$DEVEL" = "TRUE" ]; then
     get_pkgs_list
   fi
   
-  [ ${#pkgs[@]} -eq 0 ] && print_help
-  
   print_pkgs_list
-  download_files
+  if [ "$ADD" != "TRUE" ] && [ "$REMOVE" != "TRUE" ]; then
+    printf "$(gettext "What I must do with these packages?!\n\n")"
+    usage
+    exit 1
+  fi
+  download_pkgs
   
   if [ "$ADD" = "TRUE" ]; then
     printf "${YELL}$(gettext "Extracting: ")${DEFA}"
-    extract
+    extract_pkg
     
     printf "${YELL}$(gettext "Getting all packages version...\n")${DEFA}"
     for pkg in ${pkgs[@]}; do
