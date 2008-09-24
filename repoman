@@ -39,26 +39,23 @@ print_tar_error(){
   skip_pkg $1
 }
 
-function print_makepkg_error()
-{
+print_makepkg_error(){
   printf "${LRED}$(gettext "Makepkg failed. Skip.\n")${DEFA}"
-  skip_pkg $1
 }
 
 function print_add_error()
 {
-  printf "${LRED}$(gettext "Cannot add to repository. Skip.\n") ${DEFA}"
+  printf "${LRED}$(gettext "Cannot add to repository. Skip.\n")${DEFA}"
   skip_pkg $1
 }
 
 function print_remove_error()
 {
-  printf "${LRED}$(gettext "Cannot remove from repository. Skip.\n") ${DEFA}"
+  printf "${LRED}$(gettext "Cannot remove from repository. Skip.\n")${DEFA}"
   skip_pkg $1
 }
 
 get_file(){
-  printf "${YELL}$(gettext "Getting: ")${DEFA}"
   mv "$workspace/$1" "$workspace/$1.old" &> /dev/null
   if [ "$LOCAL" != "TRUE" ]; then
     if [ "$VERBOSE" = "TRUE" ]; then
@@ -101,7 +98,6 @@ extract_pkg(){
       tar -xf "$workspace/pkgs/$pkg.tar.gz" -C "$workspace/pkgs" &> /dev/null || print_tar_error $pkg
     fi
   done
-  printf "\n"
 }
 
 check_files(){
@@ -149,23 +145,16 @@ function pkgs_version()
   pkgsver[${#pkgsver[@]}]=$pkgver-$pkgrel
 }
 
-function skip_pkg()
-{
+skip_pkg(){
   for i in ${!pkgs[@]}; do
     if [ "${pkgs[$i]}" = "$1" ]; then
-      for (( j=$i; j<${#pkgs[@]}; j++)); do
-        pkgs[$j]=${pkgs[$j+1]}
-        pkgsver[$j]=${pkgsver[$j+1]}
-      done
+      pkgs[$i]=""
+      pkgsver[$i]=""
     fi
   done
-  last=${#pkgs[@]}
-  pkgs[${last-1}]=""
-  pkgsver[${last-1}]=""
 }
 
-function build_pkgs()
-{
+build_pkgs(){
   INDEX=0
   for pkg in ${pkgs[@]}; do
     if [ "$EDIT" = "TRUE" ]; then
@@ -174,31 +163,34 @@ function build_pkgs()
       pkgsver[$INDEX]=$pkgver-$pkgrel
     fi
     printf "$pkg (${pkgsver[$INDEX]})${DEFA}: "
-    cd "$workspace/pkgs/$pkg"
     package=`tar -tf "$workspace/$repo.db.tar.gz" | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep '^'$pkg'-[0-9]$*'`
     repopkgver=`echo $package | rev | cut -d'-' -f2 | rev`-`echo $package | rev | cut -d'-' -f1 | rev`
     [ "$repopkgver" = "-" ] && repopkgver=0-0
     if `is_newer ${pkgsver[$INDEX]} $repopkgver`; then
       if [ ! -f "$workspace/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" ] || [ "$NOBUILD" != "TRUE" ]; then
+        cd "$workspace/pkgs/$pkg"
         if [ "$VERBOSE" = "TRUE" ]; then
           printf "\n"
-          makepkg -f --noconfirm $ROOT_FLAG $NOCOLOR_FLAG || print_makepkg_error $pkg
+          makepkg -f --noconfirm $ROOT_FLAG $NOCOLOR_FLAG || print_makepkg_error
         else
-          makepkg -f --noconfirm $ROOT_FLAG $NOCOLOR_FLAG &> /dev/null || print_makepkg_error $pkg
+          makepkg -f --noconfirm $ROOT_FLAG $NOCOLOR_FLAG &> /dev/null || print_makepkg_error
         fi
         cp "$workspace/pkgs/$pkg/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" "$workspace/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" &> /dev/null
         if [ -f "$workspace/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" ]; then
           printf "${LGRE}$(gettext "done")${DEFA}"
+          (( UPDATED ++ ))
+        else
+          skip_pkg $pkg
         fi
       else
-        printf "${YELL}$(gettext "skip, exist")${DEFA}"
+        printf "${LGRE}$(gettext "done, already built")${DEFA}"
+        (( UPDATED++ ))
       fi
-      [ -f "$workspace/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" ] && (( UPDATED++ ))
-      (( INDEX++ ))
     else
       printf "${YELL}$(gettext "skip, already up-to-date")${DEFA}"
-      [ ${#pkgs[@]} -gt 1 ] && skip_pkg $pkg
+      skip_pkg $pkg
     fi
+    (( INDEX++ ))
     printf "\n"
   done
 }
@@ -312,8 +304,7 @@ check_args(){
   done
 }
 
-function edit_pkgbuild()
-{
+edit_pkgbuild(){
   if [ -f "$workspace/pkgs/$1/PKGBUILD" ]; then
     printf "${BOLD}$(gettext "Do you want to edit %s PKGBUILD? (Y/n): ")${DEFA}" "$1"
     read EDIT_ANSWER
@@ -324,27 +315,23 @@ function edit_pkgbuild()
   fi
 }
 
-function download_pkgs()
-{
-  printf "${YELL}$(gettext "Downloading: ")${DEFA}"
+download_pkgs(){
   if [ "$ADD" = "TRUE" ]; then
     for pkg in ${pkgs[@]}; do
       if [ ! -f "$workspace/pkgs/$pkg.tar.gz" ] || [ ! "$KEEP" = "TRUE" ]; then
         rm "$workspace/pkgs/$pkg.tar.gz" &> /dev/null
         get_pkg $pkg
       else
-        printf "$pkg ${YELL}$(gettext "(found in pkgs/) \n")${DEFA}"
+        printf "$pkg $(gettext "(found in pkgs/)\n")${DEFA}"
       fi
     done
   fi
 }
 
 print_pkgs_list(){
-  printf "${YELL}$(gettext "Packages: ")"
   for pkg in ${pkgs[@]}; do
     printf "${LGRE}$pkg ${DEFA}"
   done
-  printf "\n"
 }
 
 function ask_remove()
@@ -468,32 +455,42 @@ function main()
   fi
 
   if [ "$CREATE" != "TRUE" ]; then
+    printf "${YELL}$(gettext "Getting: ")${DEFA}"
     if [ "$NOCHANGELOG" != "TRUE" ]; then
       get_file $changelog
     fi
     get_file $repo.db.tar.gz
+    printf "\n"
   fi
 
   if [ "$ALL" = "TRUE" ] || [ "$DEVEL" = "TRUE" ]; then
     get_pkgs_list
   fi
   
+  printf "${YELL}$(gettext "Packages: ")"
   print_pkgs_list
+  printf "\n"
+  
   if [ "$ADD" != "TRUE" ] && [ "$REMOVE" != "TRUE" ]; then
     printf "$(gettext "What I must do with these packages?!\n\n")"
     usage
     exit 1
   fi
+  
+  printf "${YELL}$(gettext "Downloading: ")${DEFA}"
   download_pkgs
+  printf "\n"
   
   if [ "$ADD" = "TRUE" ]; then
     printf "${YELL}$(gettext "Extracting: ")${DEFA}"
     extract_pkg
+    printf "\n"
     
     printf "${YELL}$(gettext "Getting all packages version...\n")${DEFA}"
     for pkg in ${pkgs[@]}; do
-      pkgs_version || skip_pkg $pkg
+      pkgs_version
     done
+    printf "\n"
     
     printf "${YELL}$(gettext "Building: ")${DEFA}"
     build_pkgs
