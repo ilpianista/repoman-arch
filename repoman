@@ -43,18 +43,6 @@ print_makepkg_error(){
   printf "${LRED}$(gettext "Makepkg failed. Skip.\n")${DEFA}"
 }
 
-function print_add_error()
-{
-  printf "${LRED}$(gettext "Cannot add to repository. Skip.\n")${DEFA}"
-  skip_pkg $1
-}
-
-function print_remove_error()
-{
-  printf "${LRED}$(gettext "Cannot remove from repository. Skip.\n")${DEFA}"
-  skip_pkg $1
-}
-
 get_file(){
   mv "$workspace/$1" "$workspace/$1.old" &> /dev/null
   if [ "$LOCAL" != "TRUE" ]; then
@@ -195,37 +183,51 @@ build_pkgs(){
   done
 }
 
-function update_db()
-{
+add_pkg(){
+  if [ "$VERBOSE" = "TRUE" ]; then
+    printf "\n"
+    repo-add "$workspace/$repo.db.tar.gz" "$workspace/$1-$2-$arch.pkg.tar.gz" || return 1
+  else
+    repo-add "$workspace/$repo.db.tar.gz" "$workspace/$1-$2-$arch.pkg.tar.gz" &> /dev/null || return 1
+  fi
+}
+
+remove_pkg(){
+  if [ "$VERBOSE" = "TRUE" ]; then
+    printf "\n"
+    repo-remove "$workspace/$repo.db.tar.gz" $1 || return 1
+  else
+    repo-remove "$workspace/$repo.db.tar.gz" $1 &> /dev/null || return 1
+  fi
+}
+
+update_db(){
   printf "${YELL}$(gettext "Updating: ")${DEFA}$repo.db.tar.gz\n"
   if [ "$ADD" = "TRUE" ]; then
+    INDEX=0
     for pkg in ${pkgs[@]}; do
-      if [ "$VERBOSE" = "TRUE" ]; then
-        printf "\n"
-        repo-add "$workspace/$repo.db.tar.gz" "$workspace/$pkg-${pkgsver}-$arch.pkg.tar.gz" || print_add_error $pkg
+      if `add_pkg $pkg ${pkgsver[$INDEX]}`; then
+        printf "$pkg ${LGRE}$(gettext "added!\n")${DEFA}"
       else
-        repo-add "$workspace/$repo.db.tar.gz" "$workspace/$pkg-${pkgsver}-$arch.pkg.tar.gz" &> /dev/null || print_add_error $pkg
+        printf "${LRED}$(gettext "Cannot add %s to repository. Skip.\n")${DEFA}" "$pkg"
       fi
-      printf "$pkg ${LGRE}$(gettext "added!\n")${DEFA}"
+      (( INDEX++ ))
     done
   elif [ "$REMOVE" = "TRUE" ]; then
     for pkg in ${pkgs[@]}; do
-      if [ "$VERBOSE" = "TRUE" ]; then
-        printf "\n"
-        repo-remove "$workspace/$repo.db.tar.gz" $pkg || print_remove_error $pkg
+      if `remove_pkg $pkg`; then
+        printf "$pkg ${LGRE}$(gettext "removed!\n")${DEFA}"
       else
-        repo-remove "$workspace/$repo.db.tar.gz" $pkg &> /dev/null || print_remove_error $pkg
+        printf "${LRED}$(gettext "Cannot remove %s from repository. Skip.\n")${DEFA}" "$pkg"
       fi
-      printf "$pkg ${LGRE}$(gettext "removed!\n")${DEFA}"
     done
   fi
 }
 
-function update_changelog()
-{
+update_changelog(){
   if [ "$NOCHANGELOG" != "TRUE" ]; then
     printf "${YELL}$(gettext "Updating: ")${DEFA}$changelog\n"
-    rm -rf /tmp/header
+    rm -f /tmp/header "/tmp/$changelog"
     INDEX=0
     for pkg in ${pkgs[@]}; do
       echo "* `date +\"%d-%m-%Y %R\"` `whoami` $FLAG$pkg ${pkgsver[$INDEX]}" >> /tmp/header
@@ -486,7 +488,7 @@ function main()
     extract_pkg
     printf "\n"
     
-    printf "${YELL}$(gettext "Getting all packages version...\n")${DEFA}"
+    printf "${YELL}$(gettext "Getting all packages version...")${DEFA}"
     for pkg in ${pkgs[@]}; do
       pkgs_version
     done
