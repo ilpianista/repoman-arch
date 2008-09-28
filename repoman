@@ -153,8 +153,8 @@ build_pkgs(){
     package=`tar -tf "$workspace/$repo.db.tar.gz" | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep '^'$pkg'-[0-9]$*'`
     repopkgver=`echo $package | rev | cut -d'-' -f2 | rev`-`echo $package | rev | cut -d'-' -f1 | rev`
     [ "$repopkgver" = "-" ] && repopkgver=0-0
-    if `is_newer ${pkgsver[$INDEX]} $repopkgver`; then
-      if [ ! -f "$workspace/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" ] || [ "$NOBUILD" != "TRUE" ]; then
+    if `is_newer ${pkgsver[$INDEX]} $repopkgver` || [ "$FORCE" = "TRUE" ]; then
+      if [ ! -f "$workspace/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" ] || [ "$NOBUILD" != "TRUE"]; then
         cd "$workspace/pkgs/$pkg"
         if [ "$VERBOSE" = "TRUE" ]; then
           printf "\n"
@@ -183,22 +183,24 @@ build_pkgs(){
 }
 
 add_pkg(){
-  if [ "$VERBOSE" = "TRUE" ]; then
-    printf "\n"
-    repo-add "$workspace/$repo.db.tar.gz" "$workspace/$1-$2-$arch.pkg.tar.gz" || return 1
-  else
+  # temporary fix for #3
+  #if [ "$VERBOSE" = "TRUE" ]; then
+  #  printf "\n"
+  #  repo-add "$workspace/$repo.db.tar.gz" "$workspace/$1-$2-$arch.pkg.tar.gz" || return 1
+  #else
     repo-add "$workspace/$repo.db.tar.gz" "$workspace/$1-$2-$arch.pkg.tar.gz" &> /dev/null || return 1
-  fi
+  #fi
   return 0
 }
 
 remove_pkg(){
-  if [ "$VERBOSE" = "TRUE" ]; then
-    printf "\n"
-    repo-remove "$workspace/$repo.db.tar.gz" $1 || return 1
-  else
+  # temporary fix for #3
+  #if [ "$VERBOSE" = "TRUE" ]; then
+  #  printf "\n"
+  #  repo-remove "$workspace/$repo.db.tar.gz" $1 || return 1
+  #else
     repo-remove "$workspace/$repo.db.tar.gz" $1 &> /dev/null || return 1
-  fi
+  #fi
   return 0
 }
 
@@ -251,6 +253,7 @@ usage(){
   printf "$(gettext "Options:\n")"
   printf "$(gettext "  -l, --local        use this for local repository\n")"
   printf "$(gettext "  -d, --devel        recompile only installated devel packages\n")"
+  printf "$(gettext "  -f, --force        build packages if already up-to-date on repo\n")"
   printf "$(gettext "  -k, --keep         do not get tarballs from AUR, use pkgs/\n")"
   printf "$(gettext "  -u, --noupload     do not upload any file to ftp\n")"
   printf "$(gettext "  -b, --nobuild      do not build packages if exist\n")"
@@ -276,6 +279,7 @@ check_args(){
       --all) ALL="TRUE"; ADD="TRUE" ;;
       --local) LOCAL="TRUE"; NOUPLOAD="TRUE" ;;
       --devel) DEVEL="TRUE"; ADD="TRUE" ;;
+      --force) FORCE="TRUE" ;;
       --keep) KEEP="TRUE" ;;
       --noupload) NOUPLOAD="TRUE" ;;
       --nobuild) NOBUILD="TRUE" ;;
@@ -287,7 +291,7 @@ check_args(){
       --help) usage; exit 0 ;;
       --*) usage; exit 1 ;;
       -* )
-        while getopts ":ARbcdekluv:bcueklv:" ARGS; do
+        while getopts ":ARbcdefkluv:bcueklv:" ARGS; do
           case $ARGS in
             A) ADD="TRUE" ;;
             R) REMOVE="TRUE"; FLAG="(REMOVED) " ;;
@@ -295,6 +299,7 @@ check_args(){
             c) NOCHANGELOG="TRUE" ;;
             d) DEVEL="TRUE"; ADD="TRUE" ;;
             e) EDIT="TRUE" ;;
+            f) FORCE="TRUE" ;;
             k) KEEP="TRUE" ;;
             l) LOCAL="TRUE" ;;
             u) NOUPLOAD="TRUE" ;;
