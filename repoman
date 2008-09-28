@@ -131,7 +131,7 @@ build_pkg(){
   local package=`tar -tf "$workspace/$repo.db.tar.gz" | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep '^'$1'-[0-9]$*'`
   local repopkgver=`echo $package | rev | cut -d'-' -f2 | rev`-`echo $package | rev | cut -d'-' -f1 | rev`
   [ "$repopkgver" = "-" ] && repopkgver=0-0
-  if [ `is_newer ${pkgsver[$INDEX]} $repopkgver` -o "$FORCE" = "TRUE" ]; then
+  if `is_newer ${pkgsver[$INDEX]} $repopkgver` || [ "$FORCE" = "TRUE" ]; then
     if [ ! -f "$workspace/$1-${pkgsver[$INDEX]}-$arch.pkg.tar.gz"  -o "$NOBUILD" != "TRUE"]; then
       cd "$workspace/pkgs/$1"
       if [ "$VERBOSE" = "TRUE" ]; then
@@ -497,6 +497,7 @@ main(){
     fi
   else
     printf "$(gettext "None packages added to repository\n")"
+    exit 0
   fi
   
   [ "$ADD" = "TRUE" ] && ask_remove
