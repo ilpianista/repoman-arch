@@ -105,7 +105,8 @@ is_newer(){
 
 get_pkg_version(){
   cd "$workspace/pkgs/$1/"
-  if [ `echo $1 | sed -e 's:\/$::g' | grep "\-\(svn\|cvs\|hg\|git\|bzr\|darcs\)"` != "" ]; then
+  is_dev=`echo $1 | sed -e 's:\/$::g' | grep "\-\(svn\|cvs\|hg\|git\|bzr\|darcs\)"`
+  if [ ${#is_dev} -eq "0" ]; then
     makepkg -o --noconfirm $ROOT_FLAG $NOCOLOR_FLAG &> /dev/null
   fi
   source ./PKGBUILD
@@ -132,7 +133,7 @@ build_pkg(){
   local repopkgver=`echo $package | rev | cut -d'-' -f2 | rev`-`echo $package | rev | cut -d'-' -f1 | rev`
   [ "$repopkgver" = "-" ] && repopkgver=0-0
   if `is_newer ${pkgsver[$INDEX]} $repopkgver` || [ "$FORCE" = "TRUE" ]; then
-    if [ ! -f "$workspace/$1-${pkgsver[$INDEX]}-$arch.pkg.tar.gz"  -o "$NOBUILD" != "TRUE"]; then
+    if [ ! -f "$workspace/$1-${pkgsver[$INDEX]}-$arch.pkg.tar.gz"  -o "$NOBUILD" != "TRUE" ]; then
       cd "$workspace/pkgs/$1"
       if [ "$VERBOSE" = "TRUE" ]; then
         printf "\n"
@@ -140,7 +141,7 @@ build_pkg(){
       else
         makepkg -f --noconfirm $ROOT_FLAG $NOCOLOR_FLAG &> /dev/null || print_makepkg_error
       fi
-      cp "$workspace/pkgs/$1/$1-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" "$workspace/" &> /dev/null
+      cp "$workspace/pkgs/$1/$1-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" "$workspace/"
       if [ -f "$workspace/$1-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" ]; then
         printf "${LGRE}$(gettext "done")${DEFA}"
         (( UPDATED ++ ))
@@ -297,6 +298,7 @@ edit_pkgbuild(){
 }
 
 download_pkg(){
+  printf "${LGRE}$1 ${DEFA}"
   if [ "$KEEP" != "TRUE" ]; then
     rm "$workspace/pkgs/$1.tar.gz"
     if [ "$VERBOSE" = "TRUE" ]; then
