@@ -106,7 +106,7 @@ is_newer(){
 get_pkg_version(){
   cd "$workspace/pkgs/$1/"
   is_dev=`echo $1 | sed -e 's:\/$::g' | grep "\-\(svn\|cvs\|hg\|git\|bzr\|darcs\)"`
-  if [ ${#is_dev} -eq "0" ]; then
+  if [ ${#is_dev} -gt "0" ]; then
     makepkg -o --noconfirm $ROOT_FLAG $NOCOLOR_FLAG &> /dev/null
   fi
   source ./PKGBUILD
@@ -300,7 +300,7 @@ edit_pkgbuild(){
 download_pkg(){
   printf "${LGRE}$1 ${DEFA}"
   if [ "$KEEP" != "TRUE" ]; then
-    rm "$workspace/pkgs/$1.tar.gz"
+    rm "$workspace/pkgs/$1.tar.gz" &> /dev/null
     if [ "$VERBOSE" = "TRUE" ]; then
       wget -P "$workspace/pkgs" http://aur.archlinux.org/packages/$1/$1.tar.gz || return 1
     else
