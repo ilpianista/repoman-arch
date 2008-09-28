@@ -102,13 +102,12 @@ check_files(){
   fi
 }
 
-function is_newer()
-{
+is_newer(){
   unset pkgver pkgrel rpkgver rpkgrel
-  pkgver=( $(echo $1 | awk -F"-" '{print $1}' | tr "[:punct:]" "\ " | sed 's/[a-zA-Z]/ &/g'))
-  pkgrel=( $(echo $1 | awk -F"-" '{print $2}' | tr "[:punct:]" "\ " | sed 's/[a-zA-Z]/ &/g'))
-  rpkgver=( $(echo $2 | awk -F"-" '{print $1}' | tr "[:punct:]" "\ " | sed 's/[a-zA-Z]/ &/g'))
-  rpkgrel=( $(echo $2 | awk -F"-" '{print $2}' | tr "[:punct:]" "\ " | sed 's/[a-zA-Z]/ &/g'))
+  pkgver=$(echo $1 | awk -F"-" '{print $1}' | tr "[:punct:]" "\ " | sed 's/ //g' | sed 's/[a-zA-Z]/ &/g')
+  pkgrel=$(echo $1 | awk -F"-" '{print $2}' | tr "[:punct:]" "\ " | sed 's/ //g' | sed 's/[a-zA-Z]/ &/g')
+  rpkgver=$(echo $2 | awk -F"-" '{print $1}' | tr "[:punct:]" "\ " | sed 's/ //g' | sed 's/[a-zA-Z]/ &/g')
+  rpkgrel=$(echo $2 | awk -F"-" '{print $2}' | tr "[:punct:]" "\ " | sed 's/ //g' | sed 's/[a-zA-Z]/ &/g')
   if [ $pkgver -gt $rpkgver ]; then
     return 0
   fi
@@ -190,6 +189,7 @@ add_pkg(){
   else
     repo-add "$workspace/$repo.db.tar.gz" "$workspace/$1-$2-$arch.pkg.tar.gz" &> /dev/null || return 1
   fi
+  return 0
 }
 
 remove_pkg(){
@@ -199,6 +199,7 @@ remove_pkg(){
   else
     repo-remove "$workspace/$repo.db.tar.gz" $1 &> /dev/null || return 1
   fi
+  return 0
 }
 
 update_db(){
@@ -286,7 +287,7 @@ check_args(){
       --help) usage; exit 0 ;;
       --*) usage; exit 1 ;;
       -* )
-        while getopts ":ARbcdekluv:-:" ARGS; do
+        while getopts ":ARbcdekluv:bcueklv:" ARGS; do
           case $ARGS in
             A) ADD="TRUE" ;;
             R) REMOVE="TRUE"; FLAG="(REMOVED) " ;;
