@@ -181,7 +181,7 @@ remove_pkg(){
 
 update(){
   if [ "$NOCHANGELOG" != "TRUE" ]; then
-    prinf "$changelog "
+    printf "$changelog "
     rm -f /tmp/header "/tmp/$changelog"
     INDEX=0
     for pkg in ${pkgs[@]}; do
@@ -197,18 +197,18 @@ update(){
     INDEX=0
     for pkg in ${pkgs[@]}; do
       if `add_pkg $pkg ${pkgsver[$INDEX]}`; then
-        printf "$(gettext "%s %d added!\n")${DEFA}" "$pkg" "${LGRE}"
+        printf "$pkg ${LGRE}$(gettext "added!\n")${DEFA}"
       else
-        printf "$(gettext "Cannot add %s to repository. %d Skip.\n")${DEFA}" "$pkg" "${LRED}"
+        printf "$(gettext "Cannot add %s to repository.") ${LRED}$(gettext "Skip.\n")${DEFA}" "$pkg"
       fi
       (( INDEX++ ))
     done
   elif [ "$REMOVE" = "TRUE" ]; then
     for pkg in ${pkgs[@]}; do
       if `remove_pkg $pkg`; then
-        printf "$(gettext "%s %d removed!\n")${DEFA}" "$pkg" "${LGRE}"
+        printf "$pkg ${LGRE}$(gettext "removed!\n")${DEFA}"
       else
-        printf "$(gettext "Cannot remove %s from repository. %d Skip.\n")${DEFA}" "$pkg" "${LRED}"
+        printf "$(gettext "Cannot remove %s from repository.") ${LRED}$(gettext "Skip.\n")${DEFA}" "$pkg"
       fi
     done
   fi
@@ -354,29 +354,29 @@ remove_from_ftp(){
 upload(){
   if [ "$NOCHANGELOG" != "TRUE" ]; then
     if `upload_file $changelog`; then
-      printf "$(gettext "%s %d uploaded!\n")${DEFA}" "$changelog" "${LGRE}"
+      printf "$changelog ${LGRE}$(gettext "uploaded!\n")${DEFA}"
     else
-      printf "$(gettext "Upload of %s %d failed.\n")${DEFA}" "$changelog" "${LRED}"
+      printf "$(gettext "Upload of %s") ${LRED}$(gettext "failed.\n")${DEFA}" "$changelog"
     fi
   fi
   
   if `upload_file $repo.db.tar.gz`; then
-    printf "$(gettext "%s %d uploaded!\n")${DEFA}" "$repo.db.tar.gz" "${LGRE}"
+    printf "$repo.db.tar.gz ${LGRE}$(gettext "uploaded!\n")${DEFA}"
   else
-    printf "$(gettext "Upload of %s %d failed.\n")${DEFA}" "$repo.db.tar.gz" "${LRED}"
+    printf "$(gettext "Upload of %s") ${LRED}$(gettext "failed.\n")${DEFA}" "$repo.db.tar.gz"
   fi
   
   if [ "$REMOVE" = "TRUE" ]; then
     remove_from_ftp $pkg
     printf "$(gettext "All copy of %s have been removed from ftp!\n")" "$pkg"
-  elif [ "$ADD" = "TRUE"; then
+  elif [ "$ADD" = "TRUE" ]; then
     INDEX=0
     for pkg in ${pkgs[@]}; do
       remove_from_ftp $pkg
       if `upload_file $pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz`; then
-        printf "$(gettext "%s %d uploaded!\n")${DEFA}" "$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" "${LGRE}"
+        printf "$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz ${LGRE}$(gettext "uploaded!\n")${DEFA}"
       else
-        printf "$(gettext "Upload of %s %d failed.\n")${DEFA}" "$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" "${LGRE}"
+        printf "$(gettext "Upload of %s") ${LRED}$(gettext "failed.\n")${DEFA}" "$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz"
       fi
       (( INDEX++ ))
     done
