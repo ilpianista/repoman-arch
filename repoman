@@ -141,8 +141,8 @@ build_pkg(){
       else
         makepkg -f --noconfirm $ROOT_FLAG $NOCOLOR_FLAG &> /dev/null || print_makepkg_error
       fi
-      cp "$workspace/pkgs/$1/$1-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" "$workspace/"
-      if [ -f "$workspace/$1-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" ]; then
+      if [ -f "$workspace/pkgs/$1/$1-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" ]; then
+        cp "$workspace/pkgs/$1/$1-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" "$workspace/"
         printf "${LGRE}$(gettext "done")${DEFA}"
         (( UPDATED ++ ))
       else
