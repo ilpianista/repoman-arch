@@ -1,158 +1,225 @@
 # LANGUAGE translation for Repoman.
 # Copyright (C) 2008 Andrea Scarpino <bash.lnx@gmail.com>
-# This file is distributed under the same license as the Repoman package.
+# This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: repoman VERSION\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-09-15 15:49+0200\n"
-"PO-Revision-Date: 2008-09-17 20:05+0100\n"
+"Project-Id-Version: Repoman SVN\n"
+"Report-Msgid-Bugs-To: bash.lnx@gmail.com\n"
+"POT-Creation-Date: 2008-09-28 21:46+0200\n"
+"PO-Revision-Date: 2008-10-03 17:44+0100\n"
 "Last-Translator: Jaroslav Lichtblau <dragonlord@seznam.cz>\n"
-"Language-Team: Czech <LL@li.org>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-msgid "Cannot get. Exiting.\\n"
-msgstr "Nelze stáhnout. Končím.\\n"
-
-msgid "Cannot get. Skip. "
-msgstr "Nelze stáhnout. Přeskakuji. "
-
-msgid "Extract fail. Skip.\\n"
+#: repoman:38
+msgid "Extraction failed. Skip.\\n"
 msgstr "Rozbalení selhalo. Přeskakuji.\\n"
 
-msgid "Makepkg fail. Skip.\\n"
+#: repoman:43
+msgid "Makepkg failed. Skip.\\n"
 msgstr "Makepkg selhalo. Přeskakuji.\\n"
 
-msgid "Cannot add to repository. Skip."
-msgstr "Nelze přidat do repozitáře. Přeskakuji."
+#: repoman:60
+msgid "Cannot get %s. Exiting...\\n"
+msgstr "Nelze stáhnout %s. Končím...\\n"
 
-msgid "Cannot remove from repository. Skip."
-msgstr "Nelze odstranit z repozitáře. Přeskakuji."
+#: repoman:145
+msgid "done"
+msgstr "hotovo"
 
-msgid "skip, exist"
-msgstr "přeskakuji, již existuje"
+#: repoman:151
+msgid "done, already built"
+msgstr "hotovo, je již sestaveno"
 
+#: repoman:155
 msgid "skip, already up-to-date"
 msgstr "přeskakuji, již v poslední verzi"
 
-msgid "Updating:"
-msgstr "Aktualizuji:"
+#: repoman:200
+msgid "%s %d added!\\n"
+msgstr "%s %d přidán!\\n"
 
-msgid "added!"
-msgstr "přidán!"
+#: repoman:202
+msgid "Cannot add %s to repository. %d Skip.\\n"
+msgstr "Nelze přidat %s do repozitáře. %d Přeskakuji.\\n"
 
-msgid "updated!"
-msgstr "aktualizován!"
+#: repoman:209
+msgid "%s %d removed!\\n"
+msgstr "%s %d odstraněn!\\n"
 
-msgid "removed!"
-msgstr "odstraněn!"
+#: repoman:211
+msgid "Cannot remove %s from repository. %d Skip.\\n"
+msgstr "Nelze odstranit %s z repozitáře. %d Přeskakuji.\\n"
 
+#: repoman:218
 msgid "A tool to manage your personal ArchLinux repository\\n"
 msgstr "Nástroj pro správu vlastního repozitáře pro ArchLinux\\n"
 
-msgid "Usage: repoman action [OPTIONS] packages\\n"
-msgstr "Použití: repoman akce [VOLBY] balíčky\\n"
+#: repoman:219
+msgid "Usage: repoman <action> [OPTIONS] packages\\n"
+msgstr "Použití: repoman <akce> [VOLBY] balíčky\\n"
 
+#: repoman:221
 msgid "Action:\\n"
 msgstr "Akce:\\n"
 
-msgid "  -A, --add          add or update packages to repo\\n"
+#: repoman:222
+msgid "  -A, --add          add or update packages on repository\\n"
 msgstr "  -A, --add          přidat nebo aktualizovat balíčky v repozitáři\\n"
 
-msgid "  -R, --remove       remove packages from repo\\n"
+#: repoman:223
+msgid "  -R, --remove       remove packages from repository\\n"
 msgstr "  -R, --remove       odstranit balíčky z repozitáře\\n"
 
-msgid "      --create       create database repo, then add packages\\n"
-msgstr "      --create       vytvořit databázi repozitáře, poté přidat balíčky\\n"
+#: repoman:224
+msgid "      --create       create a new database, then add packages\\n"
+msgstr "      --create       vytvořit novou databázi repozitáře, poté přidat balíčky\\n"
 
+#: repoman:225
 msgid "      --all          update the whole repository\\n"
 msgstr "      --all          aktualizovat celý repozitář\\n"
 
+#: repoman:226
 msgid "Options:\\n"
 msgstr "Volby:\\n"
 
-msgid "  -l, --local        use this for local repository\\n"
-msgstr "  -l, --local        použít lokální repozitář\\n"
+#: repoman:227
+msgid "  -l, --local        use this for local (non-ftp) repository\\n"
+msgstr "  -l, --local        použít pro lokální (ne-ftp) repozitář\\n"
 
-msgid "  -d, --devel        recompile only installated devel packages\\n"
-msgstr "  -d, --devel        přeložit pouze instalované devel balíčky\\n"
+#: repoman:228
+msgid "  -d, --devel        rebuild only devel packages on repository\\n"
+msgstr "  -d, --devel        přeložit pouze vývojové verze balíčků v repozitáři\\n"
 
-msgid "  -k, --keep         do not get tarballs from AUR, use pkgs/\\n"
+#: repoman:229
+msgid "  -f, --force        build packages if already up-to-date on repo\\n"
+msgstr "  -f, --force        vynutit sestavení balíčků obsažených v repozitáři\\n"
+
+#: repoman:230
+msgid "  -k, --keep         do not get tarballs from AUR, use local in pkgs/\\n"
 msgstr "  -k, --keep         nestahovat archivy z AURu, použít adresář pkgs/\\n"
 
+#: repoman:231
 msgid "  -u, --noupload     do not upload any file to ftp\\n"
 msgstr "  -u, --noupload     nepřenášet žádné soubory na ftp\\n"
 
-msgid "  -b, --nobuild      do not build packages if exist\\n"
-msgstr "  -b, --nobuild      nepřekládat balíčky, pokud již existují\\n"
+#: repoman:232
+msgid "  -b, --nobuild      do not build packages if exist in workspace dir\\n"
+msgstr "  -b, --nobuild      nepřekládat balíčky, pokud jsou již sestavené v pracovním adresáři\\n"
 
+#: repoman:233
 msgid "  -c, --nochangelog  do not use a changelog file\\n"
 msgstr "  -c, --nochangelog  nepoužívat soubor changelog\\n"
 
-msgid "  -e, --edit         ask for edit pkgbuild\\n"
-msgstr "  -e, --edit         ptát se na úpravu PKGBUILDu\\n"
+#: repoman:234
+msgid "  -e, --edit         ask to edit pkgbuild for each package\\n"
+msgstr "  -e, --edit         ptát se na úpravu PKGBUILDu každého balíčku\\n"
 
-msgid "  -v, --verbose      print commands output\\n"
-msgstr "  -v, --verbose      vypsat výstup příkazů\\n"
+#: repoman:235
+msgid "  -v, --verbose      more verbose, print commands output\\n"
+msgstr "  -v, --verbose      více upovídaný výstup, vypsat výstup příkazů\\n"
 
+#: repoman:236
 msgid "      --clean        remove any files from workspace dir\\n"
 msgstr "      --clean        odstranit všechny soubory z pracovního adresáře\\n"
 
+#: repoman:237
 msgid "      --nocolor      do not use any color\\n"
 msgstr "      --nocolor      nepoužívat barvy\\n"
 
+#: repoman:238
 msgid "      --help         display this help and exit\\n"
 msgstr "      --help         vypsat tuto nápovědu a skončit\\n"
 
+#: repoman:250
 msgid "REMOVED"
 msgstr "ODSTRANĚNO"
 
-msgid "Do you want to edit %s PKGBUILD? (y/N):"
-msgstr "Přejete si upravit PKGBUILD pro %s? (a/N):"
+#: repoman:290
+msgid "Do you want to edit %s PKGBUILD? (Y/n): "
+msgstr "Přejete si upravit PKGBUILD pro %s? (A/n): "
 
-msgid "y"
-msgstr "a"
+#: repoman:292
+msgid "n"
+msgstr "n"
 
-msgid "Downloading: "
-msgstr "Stahuji: "
+#: repoman:309
+msgid "(%s found in pkgs/ dir)\\n"
+msgstr "(%s nalezen v adresáři pkgs/)\\n"
 
-msgid "(found in pkgs/)\\n"
-msgstr "(nalezeno v pkgs/)\\n"
+#: repoman:312
+msgid "Cannot get %s. Skip.\\n"
+msgstr "Nelze stáhnout %s. Přeskakuji.\\n"
 
-msgid "Packages: "
-msgstr "Balíčky: "
+#: repoman:324
+msgid "Do you want to remove packages build dir? (y/N): "
+msgstr "Přejete si odstranit sestavovací adresáře balíčků? (a/N): "
 
-msgid "Do you want to remove package build dir? (y/N):"
-msgstr "Přejete si odstranit sestavovací adresář balíčku? (a/N):"
-
+#: repoman:333
 msgid "Any files in workspace directory have been removed!\\n"
 msgstr "Všechny soubory z pracovního adresáře byly odstraněny!\\n"
 
-msgid "uploaded!\\n"
-msgstr "přenesen!\\n"
+#: repoman:357
+#: repoman:364
+#: repoman:377
+msgid "%s %d uploaded!\\n"
+msgstr "%s %d přenesen!\\n"
 
-msgid "Upload failed.\\n"
-msgstr "Upload selhal.\\n"
+#: repoman:359
+#: repoman:366
+#: repoman:379
+msgid "Upload of %s %d failed.\\n"
+msgstr "Přenesení balíčku %s %d selhalo.\\n"
 
-msgid "All copy of %s have been removed!\\n"
-msgstr "Všechny kopie %s byly odstraněny!\\n"
+#: repoman:371
+msgid "All copy of %s have been removed from ftp!\\n"
+msgstr "Všechny kopie balíčku %s byly odstraněny z ftp!\\n"
 
+#: repoman:407
 msgid "This will update the whole repository!\\n"
 msgstr "Toto provede aktualizaci celého repozitáře!\\n"
 
+#: repoman:436
+msgid "Getting: "
+msgstr "Přenáším: "
+
+#: repoman:449
+msgid "Packages: "
+msgstr "Balíčky: "
+
+#: repoman:457
+msgid ""
+"What I must do with these packages?!\\n"
+"\\n"
+msgstr ""
+"Co mám provést s těmito balíčky?!\\n"
+"\\n"
+
+#: repoman:462
+msgid "Downloading: "
+msgstr "Stahuji: "
+
+#: repoman:469
 msgid "Extracting: "
 msgstr "Rozbaluji: "
 
-msgid "Getting all packages version...\\n"
-msgstr "Získávám verze všech balíčků...\\n"
+#: repoman:475
+msgid "Getting all packages version..."
+msgstr "Získávám verze všech balíčků..."
 
+#: repoman:481
 msgid "Building: "
 msgstr "Překládám: "
 
+#: repoman:491
+msgid "Updating: "
+msgstr "Aktualizuji: "
+
+#: repoman:499
 msgid "None packages added to repository\\n"
 msgstr "Žádné balíčky nebyly přidány do repozitáře\\n"
 
