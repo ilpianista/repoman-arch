@@ -1,14 +1,13 @@
 # LANGUAGE translation for Repoman.
 # Copyright (C) 2008 Andrea Scarpino <bash.lnx@gmail.com>
-# This file is distributed under the same license as the PACKAGE package.
+# This file is distributed under the same license as the Repoman package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Repoman SVN\n"
-"Report-Msgid-Bugs-To: bash.lnx@gmail.com\n"
-"POT-Creation-Date: 2008-09-28 21:46+0200\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2008-10-04 18:03+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,203 +15,159 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: repoman:38
 msgid "Extraction failed. Skip.\\n"
 msgstr ""
 
-#: repoman:43
 msgid "Makepkg failed. Skip.\\n"
 msgstr ""
 
-#: repoman:60
 msgid "Cannot get %s. Exiting...\\n"
 msgstr ""
 
-#: repoman:145
 msgid "done"
 msgstr ""
 
-#: repoman:151
 msgid "done, already built"
 msgstr ""
 
-#: repoman:155
 msgid "skip, already up-to-date"
 msgstr ""
 
-#: repoman:200
-msgid "%s %d added!\\n"
+msgid "added!\\n"
 msgstr ""
 
-#: repoman:202
-msgid "Cannot add %s to repository. %d Skip.\\n"
+msgid "Cannot add %s to repository."
 msgstr ""
 
-#: repoman:209
-msgid "%s %d removed!\\n"
+msgid "Skip.\\n"
 msgstr ""
 
-#: repoman:211
-msgid "Cannot remove %s from repository. %d Skip.\\n"
+msgid "removed!\\n"
 msgstr ""
 
-#: repoman:218
+msgid "Cannot remove %s from repository."
+msgstr ""
+
 msgid "A tool to manage your personal ArchLinux repository\\n"
 msgstr ""
 
-#: repoman:219
 msgid "Usage: repoman <action> [OPTIONS] packages\\n"
 msgstr ""
 
-#: repoman:221
 msgid "Action:\\n"
 msgstr ""
 
-#: repoman:222
 msgid "  -A, --add          add or update packages on repository\\n"
 msgstr ""
 
-#: repoman:223
 msgid "  -R, --remove       remove packages from repository\\n"
 msgstr ""
 
-#: repoman:224
 msgid "      --create       create a new database, then add packages\\n"
 msgstr ""
 
-#: repoman:225
 msgid "      --all          update the whole repository\\n"
 msgstr ""
 
-#: repoman:226
 msgid "Options:\\n"
 msgstr ""
 
-#: repoman:227
 msgid "  -l, --local        use this for local (non-ftp) repository\\n"
 msgstr ""
 
-#: repoman:228
 msgid "  -d, --devel        rebuild only devel packages on repository\\n"
 msgstr ""
 
-#: repoman:229
 msgid "  -f, --force        build packages if already up-to-date on repo\\n"
 msgstr ""
 
-#: repoman:230
 msgid ""
 "  -k, --keep         do not get tarballs from AUR, use local in pkgs/\\n"
 msgstr ""
 
-#: repoman:231
 msgid "  -u, --noupload     do not upload any file to ftp\\n"
 msgstr ""
 
-#: repoman:232
 msgid "  -b, --nobuild      do not build packages if exist in workspace dir\\n"
 msgstr ""
 
-#: repoman:233
 msgid "  -c, --nochangelog  do not use a changelog file\\n"
 msgstr ""
 
-#: repoman:234
 msgid "  -e, --edit         ask to edit pkgbuild for each package\\n"
 msgstr ""
 
-#: repoman:235
 msgid "  -v, --verbose      more verbose, print commands output\\n"
 msgstr ""
 
-#: repoman:236
 msgid "      --clean        remove any files from workspace dir\\n"
 msgstr ""
 
-#: repoman:237
 msgid "      --nocolor      do not use any color\\n"
 msgstr ""
 
-#: repoman:238
 msgid "      --help         display this help and exit\\n"
 msgstr ""
 
-#: repoman:250
 msgid "REMOVED"
 msgstr ""
 
-#: repoman:290
 msgid "Do you want to edit %s PKGBUILD? (Y/n): "
 msgstr ""
 
-#: repoman:292
 msgid "n"
 msgstr ""
 
-#: repoman:309
 msgid "(%s found in pkgs/ dir)\\n"
 msgstr ""
 
-#: repoman:312
 msgid "Cannot get %s. Skip.\\n"
 msgstr ""
 
-#: repoman:324
 msgid "Do you want to remove packages build dir? (y/N): "
 msgstr ""
 
-#: repoman:333
 msgid "Any files in workspace directory have been removed!\\n"
 msgstr ""
 
-#: repoman:357 repoman:364 repoman:377
-msgid "%s %d uploaded!\\n"
+msgid "uploaded!\\n"
 msgstr ""
 
-#: repoman:359 repoman:366 repoman:379
-msgid "Upload of %s %d failed.\\n"
+msgid "Upload of %s"
 msgstr ""
 
-#: repoman:371
+msgid "failed.\\n"
+msgstr ""
+
 msgid "All copy of %s have been removed from ftp!\\n"
 msgstr ""
 
-#: repoman:407
 msgid "This will update the whole repository!\\n"
 msgstr ""
 
-#: repoman:436
 msgid "Getting: "
 msgstr ""
 
-#: repoman:449
 msgid "Packages: "
 msgstr ""
 
-#: repoman:457
 msgid "What I must do with these packages?!\\n\\n"
 msgstr ""
 
-#: repoman:462
 msgid "Downloading: "
 msgstr ""
 
-#: repoman:469
 msgid "Extracting: "
 msgstr ""
 
-#: repoman:475
 msgid "Getting all packages version..."
 msgstr ""
 
-#: repoman:481
 msgid "Building: "
 msgstr ""
 
-#: repoman:491
 msgid "Updating: "
 msgstr ""
 
-#: repoman:499
 msgid "None packages added to repository\\n"
 msgstr ""

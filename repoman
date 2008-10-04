@@ -347,9 +347,9 @@ upload_file(){
 
 remove_from_ftp(){
   if [ "$VERBOSE" = "TRUE" ]; then
-    lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; glob rm $1-*-*-$arch.pkg.tar.gz; exit" || return 1
+    lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; glob rm -f $1-*-*-$arch.pkg.tar.gz; exit" || return 1
   else
-    lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; glob rm $1-*-*-$arch.pkg.tar.gz; exit" &> /dev/null || return 1
+    lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; glob rm -f $1-*-*-$arch.pkg.tar.gz; exit" &> /dev/null || return 1
   fi
 }
 
@@ -368,13 +368,10 @@ upload(){
     printf "$(gettext "Upload of %s") ${LRED}$(gettext "failed.\n")${DEFA}" "$repo.db.tar.gz"
   fi
   
-  if [ "$REMOVE" = "TRUE" ]; then
-    remove_from_ftp $pkg
-    printf "$(gettext "All copy of %s have been removed from ftp!\n")" "$pkg"
-  elif [ "$ADD" = "TRUE" ]; then
+  remove_from_ftp $pkg
+  if [ "$ADD" = "TRUE" ]; then
     INDEX=0
     for pkg in ${pkgs[@]}; do
-      remove_from_ftp $pkg
       if `upload_file $pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz`; then
         printf "$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz ${LGRE}$(gettext "uploaded!\n")${DEFA}"
       else
@@ -382,6 +379,8 @@ upload(){
       fi
       (( INDEX++ ))
     done
+  elif [ "$REMOVE" = "TRUE" ]; then
+    printf "$(gettext "All copy of %s have been removed from ftp!\n")" "$pkg"
   fi
 }
 
@@ -485,8 +484,8 @@ main(){
     for pkg in ${pkgs[@]}; do
       build_pkg $pkg
       (( INDEX++ ))
+      printf "\n"
     done
-    printf "\n"
   fi
   
   if [ "$UPDATED" -ne "0" -o "$REMOVE" = "TRUE" ]; then

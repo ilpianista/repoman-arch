@@ -1,11 +1,11 @@
 # Italian translation for Repoman.
 # Copyright (C) 2008 Andrea Scarpino <bash.lnx@gmail.com>
-# This file is distributed under the same license as the repoman package.
+# This file is distributed under the same license as the Repoman package.
 # Giovanni 'voidnull' Scafora <linuxmania@gmail.com>, 2008
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Repoman\n"
+"Project-Id-Version: Repoman SVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-09-17 20:17+0200\n"
 "PO-Revision-Date: 2008-09-17 22:15+0200\n"
