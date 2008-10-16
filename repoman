@@ -88,10 +88,10 @@ check_files(){
 
 is_newer(){
   unset pkgver pkgrel rpkgver rpkgrel
-  pkgver=$(echo $1 | awk -F"-" '{print $1}' | tr "[:punct:]" "\ " | sed 's/ //g' | sed 's/[a-zA-Z]/ &/g')
-  pkgrel=$(echo $1 | awk -F"-" '{print $2}' | tr "[:punct:]" "\ " | sed 's/ //g' | sed 's/[a-zA-Z]/ &/g')
-  rpkgver=$(echo $2 | awk -F"-" '{print $1}' | tr "[:punct:]" "\ " | sed 's/ //g' | sed 's/[a-zA-Z]/ &/g')
-  rpkgrel=$(echo $2 | awk -F"-" '{print $2}' | tr "[:punct:]" "\ " | sed 's/ //g' | sed 's/[a-zA-Z]/ &/g')
+  pkgver=$(echo $1 | awk -F"-" '{print $1}' | tr "[:punct:]" "\ " | sed 's/ //g' | sed 's/[a-zA-Z]/&/g')
+  pkgrel=$(echo $1 | awk -F"-" '{print $2}' | tr "[:punct:]" "\ " | sed 's/ //g' | sed 's/[a-zA-Z]/&/g')
+  rpkgver=$(echo $2 | awk -F"-" '{print $1}' | tr "[:punct:]" "\ " | sed 's/ //g' | sed 's/[a-zA-Z]/&/g')
+  rpkgrel=$(echo $2 | awk -F"-" '{print $2}' | tr "[:punct:]" "\ " | sed 's/ //g' | sed 's/[a-zA-Z]/&/g')
   if [ $pkgver -gt $rpkgver ]; then
     return 0
   fi
