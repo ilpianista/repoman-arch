@@ -337,12 +337,14 @@ clean(){
 
 upload_file(){
   if [ -f "$workspace/$1" ]; then
-    if [ "$VERBOSE" = "TRUE" ]; then
-      lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; put $workspace/$1; exit" || return 1
-    else
+    # temporary fix for #3
+    #if [ "$VERBOSE" = "TRUE" ]; then
+    #  lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; put $workspace/$1; exit" || return 1
+    #else
       lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; put $workspace/$1; exit" &> /dev/null || return 1
-    fi
+    #fi
   fi
+  return 0
 }
 
 remove_from_ftp(){
