@@ -63,7 +63,7 @@ get_file(){
 }
 
 extract_pkg(){
-  printf "${YELL} $(gettext "extracting...\n")${DEFA}"
+  printf " $(gettext "extracting...\n")"
   rm -rf "$workspace/pkgs/$1"
   if [ "$VERBOSE" = "TRUE" ]; then
     tar -xf "$workspace/pkgs/$1.tar.gz" -C "$workspace/pkgs" || print_tar_error $1
@@ -319,15 +319,15 @@ get_community_category(){
 get_pkgbuild(){
   printf "${LGRE}$1 ${DEFA}"
   get_pkg_repo $1
-  if [ "$repo" != "aur" ]; then
-    [ "$repo" == "community" ] && pkg_repo=$pkg_repo/`get_community_category $1`
+  if [ "$pkg_repo" != "aur" ]; then
+    [ "$pkg_repo" == "community" ] && pkg_repo=$pkg_repo/`get_community_category $1`
 	if [ "$VERBOSE" = "TRUE" ]; then
       rsync -mrtv --no-motd --delete-after --delete-excluded rsync.archlinux.org::abs/`uname -m`/$pkg_repo/$1 "$workspace/pkgs"
 	else
 	  rsync -mrtv --no-motd --delete-after --delete-excluded rsync.archlinux.org::abs/`uname -m`/$pkg_repo/$1 "$workspace/pkgs" &> /dev/null
 	fi
 	printf "\n"
-  elif [ "$repo" == "aur" ]; then
+  elif [ "$pkg_repo" == "aur" ]; then
     get_pkg_from_aur $1
   fi
 }
@@ -344,7 +344,7 @@ get_pkg_from_aur(){
     return 0
   elif [ -f "$workspace/pkgs/$1.tar.gz" ]; then
     printf "$(gettext "(%s found in pkgs/ dir)\n")${DEFA}" "$1"
-	extract_pkg $1
+    extract_pkg $1
     return 0
   fi
   printf "${LRED}$(gettext "Cannot get %s. Skip.\n")${DEFA}" "$1"
