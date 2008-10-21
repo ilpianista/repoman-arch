@@ -122,8 +122,8 @@ msgstr "Fueron removidos todos los archivos en el directorio de trabajo!\\n"
 msgid "This will update the whole repository!\\n"
 msgstr "Esto actualizará el repositorio completo!\\n"
 
-msgid "Extracting:"
-msgstr "Extrayendo:"
+msgid "extracting...\\n"
+msgstr "extrayendo...\\n"
 
 msgid "Building:"
 msgstr "Compilando:"

@@ -156,8 +156,8 @@ msgstr "Co mám provést s těmito balíčky?!\\n\\n"
 msgid "Downloading: "
 msgstr "Stahuji: "
 
-msgid "Extracting: "
-msgstr "Rozbaluji: "
+msgid "extracting...\\n"
+msgstr "rozbaluji...\\n"
 
 msgid "Getting all packages version..."
 msgstr "Získávám verze všech balíčků..."

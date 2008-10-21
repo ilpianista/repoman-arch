@@ -120,8 +120,8 @@ msgstr "该 %s 的所有副本都已删除！\\n"
 msgid "This will update the whole repository!\\n"
 msgstr "将更新整个软件库！\\n"
 
-msgid "Extracting:"
-msgstr "解压中："
+msgid "extracting... \\n"
+msgstr "解压中... \\n"
 
 msgid "Building:"
 msgstr "创建中："

@@ -123,8 +123,8 @@ msgstr "Todos as cópias de %s foram removidas!\\n"
 msgid "This will update the whole repository!\\n"
 msgstr "Isto atualizará todo o repositório!\\n"
 
-msgid "Extracting:"
-msgstr "Extraindo:"
+msgid "extracting...\\n"
+msgstr "extraindo...\\n"
 
 msgid "Building:"
 msgstr "Construindo:"

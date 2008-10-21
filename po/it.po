@@ -164,8 +164,8 @@ msgstr "Cosa devo fare con questi pacchetti?!\\n\\n"
 msgid "Downloading: "
 msgstr "Scaricamento in corso: "
 
-msgid "Extracting: "
-msgstr "Estrazione in corso: "
+msgid "extracting...\\n"
+msgstr "estrazione in corso...\\n"
 
 msgid "Getting all packages version..."
 msgstr "Sto scaricando tutte le versioni dei pacchetti..."

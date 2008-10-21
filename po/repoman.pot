@@ -157,7 +157,7 @@ msgstr ""
 msgid "Downloading: "
 msgstr ""
 
-msgid "Extracting: "
+msgid "extracting...\\n"
 msgstr ""
 
 msgid "Getting all packages version..."
