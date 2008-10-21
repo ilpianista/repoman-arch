@@ -63,7 +63,7 @@ get_file(){
 }
 
 extract_pkg(){
-  printf " $(gettext "extracting...\n")"
+  printf " $(gettext "(extracting...\n)")"
   rm -rf "$workspace/pkgs/$1"
   if [ "$VERBOSE" = "TRUE" ]; then
     tar -xf "$workspace/pkgs/$1.tar.gz" -C "$workspace/pkgs" || print_tar_error $1
@@ -86,21 +86,35 @@ check_files(){
   fi
 }
 
+isnumeric(){
+	if let $1 2>/dev/null; then
+	  return 0
+	else
+	  return 1
+	fi
+}
+
 is_newer(){
-  unset pkgver pkgrel rpkgver rpkgrel
-  pkgver=$(echo $1 | awk -F"-" '{print $1}' | tr "[:punct:]" "\ " | sed 's/ //g' | sed 's/[a-zA-Z]/&/g')
-  pkgrel=$(echo $1 | awk -F"-" '{print $2}' | tr "[:punct:]" "\ " | sed 's/ //g' | sed 's/[a-zA-Z]/&/g')
-  rpkgver=$(echo $2 | awk -F"-" '{print $1}' | tr "[:punct:]" "\ " | sed 's/ //g' | sed 's/[a-zA-Z]/&/g')
-  rpkgrel=$(echo $2 | awk -F"-" '{print $2}' | tr "[:punct:]" "\ " | sed 's/ //g' | sed 's/[a-zA-Z]/&/g')
-  if [ $pkgver -gt $rpkgver ]; then
-    return 0
-  fi
-  if [ $pkgver -eq $rpkgver ]; then
-    if [ $pkgrel -gt $rpkgrel ]; then
-      return 0
-    fi
-  fi
-  return 1
+	local version=( $(echo $1 | tr "[:punct:]" "\ " | sed 's/[a-zA-Z]/ &/g') )
+	local lversion=( $(echo $2 | tr "[:punct:]" "\ " | sed 's/[a-zA-Z]/ &/g') )
+	if [ ${#version[@]} -gt ${#lversion[@]} ]; then 
+		versionlength=${#version[@]}
+	else
+		versionlength=${#lversion[@]}
+	fi
+	
+	for i_index in `seq 0 $((${versionlength}-1))`; do 
+		if `isnumeric ${version[$i_index]}` && `isnumeric ${lversion[$i_index]}`;  then
+			if [ ${version[$i_index]} -eq ${lversion[$i_index]} ]; then continue; fi
+			if [ ${version[$i_index]} -gt ${lversion[$i_index]} ]; then return 0; else return 1; fi
+			break
+		elif [ `isnumeric ${version[$i_index]}` -ne  `isnumeric ${lversion[$i_index]}` ]; then
+			if [ "${version[$i_index]}" = "${lversion[$i_index]}" ]; then continue;fi
+			if [ "${version[$i_index]}" \> "${lversion[$i_index]}" ]; then return 0; else return 1; fi
+			break
+		fi
+	done
+	return 1
 }
 
 get_pkg_version(){
