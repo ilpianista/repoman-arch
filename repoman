@@ -366,7 +366,8 @@ get_pkg_from_aur(){
   return 1
 }
 
-print_pkgs_list(){
+print_pkgs_list()
+{
   for pkg in ${pkgs[@]}; do
     printf "${LGRE}$pkg ${DEFA}"
   done
@@ -380,7 +381,8 @@ ask_remove(){
   fi
 }
 
-clean(){
+clean()
+{
   rm -rf "$workspace/" /tmp/header "/tmp/$changelog"
   printf "${YELL}$(gettext "Any files in workspace directory have been removed!\n")${DEFA}"
 }
