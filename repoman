@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Repoman
-# A tool to manage your ArchLinux repository
+# A tool to manage your Arch Linux repository
 #
 # Copyright (C) 2008 Andrea Scarpino <bash.lnx@gmail.com>
 #                    Dario Vilardi <dax@deelab.org>
@@ -44,17 +44,17 @@ print_makepkg_error(){
 }
 
 get_file(){
-  mv "$workspace/$1" "$workspace/$1.old" &> /dev/null
+  mv "${workspace}/$1" "${workspace}/$1.old" &> /dev/null
   if [ "$LOCAL" != "TRUE" ]; then
     if [ "$VERBOSE" = "TRUE" ]; then
-      wget -P "$workspace" "$url/$1"
+      wget -P "${workspace}" "$url/$1"
     else
-      wget -P "$workspace" "$url/$1" &> /dev/null
+      wget -P "${workspace}" "$url/$1" &> /dev/null
     fi
   else
-    cp "$url/$repo.db.tar.gz" "$workspace/" || exit 1
+    cp "$url/$repo.db.tar.gz" "${workspace}/" || exit 1
   fi
-  if [ -f "$workspace/$1" ]; then
+  if [ -f "${workspace}/$1" ]; then
     printf "${LGRE}$1 ${DEFA}"
   else
     printf "${LRED}$(gettext "Cannot get %s. Exiting...\n")${DEFA}" "$1"
@@ -63,26 +63,27 @@ get_file(){
 }
 
 extract_pkg(){
-  printf " $(gettext "(extracting...\n)")"
-  rm -rf "$workspace/pkgs/$1"
+  printf "$(gettext "extracting...")"
+  rm -rf "${workspace}/pkgs/$1"
   if [ "$VERBOSE" = "TRUE" ]; then
-    tar -xf "$workspace/pkgs/$1.tar.gz" -C "$workspace/pkgs" || print_tar_error $1
+    tar -xf "${workspace}/pkgs/$1.tar.gz" -C "${workspace}/pkgs" || print_tar_error $1
+    printf "\n"
   else
-    tar -xf "$workspace/pkgs/$1.tar.gz" -C "$workspace/pkgs" &> /dev/null || print_tar_error $1
+    tar -xf "${workspace}/pkgs/$1.tar.gz" -C "${workspace}/pkgs" &> /dev/null || print_tar_error $1
   fi
 }
 
 check_files(){
-  if [ ! -d "$workspace" ]; then
-    mkdir "$workspace" || exit 1
+  if [ ! -d "${workspace}" ]; then
+    mkdir "${workspace}" || exit 1
   fi
   
-  if [ ! -d "$workspace/pkgs" ]; then
-    mkdir "$workspace/pkgs" || exit 1
+  if [ ! -d "${workspace}/pkgs" ]; then
+    mkdir "${workspace}/pkgs" || exit 1
   fi
   
-  if [ "$NOCHANGELOG" != "TRUE" -a ! -f "$workspace/$changelog" ]; then
-    touch "$workspace/$changelog"
+  if [ "$NOCHANGELOG" != "TRUE" -a ! -f "${workspace}/$changelog" ]; then
+    touch "${workspace}/$changelog"
   fi
 }
 
@@ -109,7 +110,7 @@ is_newer(){
 			if [ ${version[$i_index]} -gt ${lversion[$i_index]} ]; then return 0; else return 1; fi
 			break
 		elif [ `isnumeric ${version[$i_index]}` -ne  `isnumeric ${lversion[$i_index]}` ]; then
-			if [ "${version[$i_index]}" = "${lversion[$i_index]}" ]; then continue;fi
+			if [ "${version[$i_index]}" = "${lversion[$i_index]}" ]; then continue; fi
 			if [ "${version[$i_index]}" \> "${lversion[$i_index]}" ]; then return 0; else return 1; fi
 			break
 		fi
@@ -118,7 +119,7 @@ is_newer(){
 }
 
 get_pkg_version(){
-  cd "$workspace/pkgs/$1/"
+  cd "${workspace}/pkgs/$1/"
   is_dev=`echo $1 | sed -e 's:\/$::g' | grep "\-\(svn\|cvs\|hg\|git\|bzr\|darcs\)"`
   if [ ${#is_dev} -gt "0" ]; then
     makepkg -o --noconfirm $ROOT_FLAG $NOCOLOR_FLAG &> /dev/null
@@ -143,20 +144,20 @@ build_pkg(){
     pkgsver[$INDEX]=$pkgver-$pkgrel
   fi
   printf "$1 (${pkgsver[$INDEX]})${DEFA}: "
-  local package=`tar -tf "$workspace/$repo.db.tar.gz" | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep '^'$1'-[0-9]$*'`
+  local package=`tar -tf "${workspace}/$repo.db.tar.gz" | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep '^'$1'-[0-9]$*'`
   local repopkgver=`echo $package | rev | cut -d'-' -f2 | rev`-`echo $package | rev | cut -d'-' -f1 | rev`
   [ "$repopkgver" = "-" ] && repopkgver=0-0
   if `is_newer ${pkgsver[$INDEX]} $repopkgver` || [ "$FORCE" = "TRUE" ]; then
-    if [ ! -f "$workspace/$1-${pkgsver[$INDEX]}-$arch.pkg.tar.gz"  -o "$NOBUILD" != "TRUE" ]; then
-      cd "$workspace/pkgs/$1"
+    if [ ! -f "${workspace}/$1-${pkgsver[$INDEX]}-$arch.pkg.tar.gz"  -o "$NOBUILD" != "TRUE" ]; then
+      cd "${workspace}/pkgs/$1"
       if [ "$VERBOSE" = "TRUE" ]; then
         printf "\n"
         makepkg -f --noconfirm $ROOT_FLAG $NOCOLOR_FLAG || print_makepkg_error
       else
         makepkg -f --noconfirm $ROOT_FLAG $NOCOLOR_FLAG &> /dev/null || print_makepkg_error
       fi
-      if [ -f "$workspace/pkgs/$1/$1-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" ]; then
-        cp "$workspace/pkgs/$1/$1-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" "$workspace/"
+      if [ -f "${workspace}/pkgs/$1/$1-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" ]; then
+        cp "${workspace}/pkgs/$1/$1-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" "${workspace}/"
         printf "${LGRE}$(gettext "done")${DEFA}"
         (( UPDATED ++ ))
       else
@@ -176,9 +177,9 @@ add_pkg(){
   # temporary fix for #3
   #if [ "$VERBOSE" = "TRUE" ]; then
   #  printf "\n"
-  #  repo-add "$workspace/$repo.db.tar.gz" "$workspace/$1-$2-$arch.pkg.tar.gz" || return 1
+  #  repo-add "${workspace}/$repo.db.tar.gz" "${workspace}/$1-$2-$arch.pkg.tar.gz" || return 1
   #else
-    repo-add "$workspace/$repo.db.tar.gz" "$workspace/$1-$2-$arch.pkg.tar.gz" &> /dev/null || return 1
+    repo-add "${workspace}/$repo.db.tar.gz" "${workspace}/$1-$2-$arch.pkg.tar.gz" &> /dev/null || return 1
   #fi
   return 0
 }
@@ -187,9 +188,9 @@ remove_pkg(){
   # temporary fix for #3
   #if [ "$VERBOSE" = "TRUE" ]; then
   #  printf "\n"
-  #  repo-remove "$workspace/$repo.db.tar.gz" $1 || return 1
+  #  repo-remove "${workspace}/$repo.db.tar.gz" $1 || return 1
   #else
-    repo-remove "$workspace/$repo.db.tar.gz" $1 &> /dev/null || return 1
+    repo-remove "${workspace}/$repo.db.tar.gz" $1 &> /dev/null || return 1
   #fi
   return 0
 }
@@ -203,8 +204,8 @@ update(){
       echo "* `date +\"%d-%m-%Y %R\"` `whoami` $FLAG$pkg ${pkgsver[$INDEX]}" >> /tmp/header
       (( INDEX++ ))
     done
-    cat /tmp/header "$workspace/$changelog" > "/tmp/$changelog"
-    mv "/tmp/$changelog" "$workspace/$changelog"
+    cat /tmp/header "${workspace}/$changelog" > "/tmp/$changelog"
+    mv "/tmp/$changelog" "${workspace}/$changelog"
   fi
 	
   printf "$repo.db.tar.gz\n"
@@ -230,17 +231,18 @@ update(){
 }
 
 usage(){
-  printf "$(gettext "A tool to manage your personal ArchLinux repository\n")"
-  printf "$(gettext "Usage: repoman <action> [OPTIONS] packages\n")"
+  printf "$(gettext "A tool to manage your personal Arch Linux repository\n")"
+  printf "$(gettext "Usage: repoman <action>|<flag> [OPTIONS] packages\n")"
   printf "\n"
   printf "$(gettext "Action:\n")"
   printf "$(gettext "  -A, --add          add or update packages on repository\n")"
   printf "$(gettext "  -R, --remove       remove packages from repository\n")"
   printf "$(gettext "      --create       create a new database, then add packages\n")"
+  printf "$(gettext "Flag:\n")"
   printf "$(gettext "      --all          update the whole repository\n")"
+  printf "$(gettext "  -d, --devel        rebuild only devel packages on repository\n")"
   printf "$(gettext "Options:\n")"
   printf "$(gettext "  -l, --local        use this for local (non-ftp) repository\n")"
-  printf "$(gettext "  -d, --devel        rebuild only devel packages on repository\n")"
   printf "$(gettext "  -f, --force        build packages if already up-to-date on repo\n")"
   printf "$(gettext "  -k, --keep         do not get tarballs from AUR, use local in pkgs/\n")"
   printf "$(gettext "  -u, --noupload     do not upload any file to ftp\n")"
@@ -301,12 +303,12 @@ check_args(){
 }
 
 edit_pkgbuild(){
-  if [ -f "$workspace/pkgs/$1/PKGBUILD" ]; then
+  if [ -f "${workspace}/pkgs/$1/PKGBUILD" ]; then
     printf "${BOLD}$(gettext "Do you want to edit %s PKGBUILD? (Y/n): ")${DEFA}" "$1"
     read EDIT_ANSWER
     if [ "$EDIT_ANSWER" != "$(gettext "n")" ]; then
       [ -z "$EDITOR" ] && EDITOR=vi
-      $EDITOR "$workspace/pkgs/$1/PKGBUILD"
+      $EDITOR "${workspace}/pkgs/$1/PKGBUILD"
     fi
   fi
 }
@@ -336,9 +338,9 @@ get_pkgbuild(){
   if [ "$pkg_repo" != "aur" ]; then
     [ "$pkg_repo" == "community" ] && pkg_repo=$pkg_repo/`get_community_category $1`
 	if [ "$VERBOSE" = "TRUE" ]; then
-      rsync -mrtv --no-motd --delete-after --delete-excluded rsync.archlinux.org::abs/`uname -m`/$pkg_repo/$1 "$workspace/pkgs"
+      rsync -mrtv --no-motd --delete-after --delete-excluded rsync.archlinux.org::abs/`uname -m`/$pkg_repo/$1 "${workspace}/pkgs"
 	else
-	  rsync -mrtv --no-motd --delete-after --delete-excluded rsync.archlinux.org::abs/`uname -m`/$pkg_repo/$1 "$workspace/pkgs" &> /dev/null
+	  rsync -mrtv --no-motd --delete-after --delete-excluded rsync.archlinux.org::abs/`uname -m`/$pkg_repo/$1 "${workspace}/pkgs" &> /dev/null
 	fi
 	printf "\n"
   elif [ "$pkg_repo" == "aur" ]; then
@@ -348,22 +350,20 @@ get_pkgbuild(){
 
 get_pkg_from_aur(){
   if [ "$KEEP" != "TRUE" ]; then
-    rm "$workspace/pkgs/$1.tar.gz" &> /dev/null
+    rm -rf "${workspace}/pkgs/$1.tar.gz" "$owrkspace/pkgs/$1" &> /dev/null
     if [ "$VERBOSE" = "TRUE" ]; then
-      wget -P "$workspace/pkgs" http://aur.archlinux.org/packages/$1/$1.tar.gz || return 1
+      wget -P "${workspace}/pkgs" http://aur.archlinux.org/packages/$1/$1.tar.gz || return 1
     else
-      wget -P "$workspace/pkgs" http://aur.archlinux.org/packages/$1/$1.tar.gz &> /dev/null || return 1
+      wget -P "${workspace}/pkgs" http://aur.archlinux.org/packages/$1/$1.tar.gz &> /dev/null || return 1
     fi
-    extract_pkg $1
-    return 0
-  elif [ -f "$workspace/pkgs/$1.tar.gz" ]; then
+  elif [ -f "${workspace}/pkgs/$1.tar.gz" ]; then
     printf "$(gettext "(%s found in pkgs/ dir)\n")${DEFA}" "$1"
-    extract_pkg $1
-    return 0
+  else
+    printf "${LRED}$(gettext "Cannot get %s. Skip.\n")${DEFA}" "$1"
+  	skip_pkg $1
+  	return 1
   fi
-  printf "${LRED}$(gettext "Cannot get %s. Skip.\n")${DEFA}" "$1"
-  skip_pkg $1
-  return 1
+  extract_pkg $1
 }
 
 print_pkgs_list()
@@ -377,23 +377,23 @@ ask_remove(){
   printf "${BOLD}$(gettext "Do you want to remove packages build dir? (y/N): ")${DEFA}"
   read DIR_REMOVE
   if [ "$DIR_REMOVE" = "y" ]; then
-    rm -rf "$workspace/pkgs/"
+    rm -rf "${workspace}/pkgs/"
   fi
 }
 
 clean()
 {
-  rm -rf "$workspace/" /tmp/header "/tmp/$changelog"
+  rm -rf "${workspace}/" /tmp/header "/tmp/$changelog"
   printf "${YELL}$(gettext "Any files in workspace directory have been removed!\n")${DEFA}"
 }
 
 upload_file(){
-  if [ -f "$workspace/$1" ]; then
+  if [ -f "${workspace}/$1" ]; then
     # temporary fix for #3
     #if [ "$VERBOSE" = "TRUE" ]; then
-    #  lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; put $workspace/$1; exit" || return 1
+    #  lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; put ${workspace}/$1; exit" || return 1
     #else
-      lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; put $workspace/$1; exit" &> /dev/null || return 1
+      lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; put ${workspace}/$1; exit" &> /dev/null || return 1
     #fi
   fi
   return 0
@@ -440,27 +440,27 @@ upload(){
 
 copy_files(){
   if [ "$NOCHANGELOG" != "TRUE" ]; then
-    cp -f "$workspace/$changelog" "$url/"
+    cp -f "${workspace}/$changelog" "$url/"
   fi
-  cp -f "$workspace/$repo.db.tar.gz" "$url/"
+  cp -f "${workspace}/$repo.db.tar.gz" "$url/"
   
   INDEX=0
   for pkg in ${pkgs[@]}; do
-    cp -f "$workspace/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" "$url/"
+    cp -f "${workspace}/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" "$url/"
     (( INDEX++ ))
   done
 }
 
 get_pkgs_list(){
   if [ "$DEVEL" = "TRUE" ]; then
-    for pkg in `tar -tf "$workspace/$repo.db.tar.gz" | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep "\-\(svn\|cvs\|hg\|git\|bzr\|darcs\)"`; do
+    for pkg in `tar -tf "${workspace}/$repo.db.tar.gz" | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep "\-\(svn\|cvs\|hg\|git\|bzr\|darcs\)"`; do
       pkgs[${#pkgs[@]}]=`echo $pkg | rev | cut -d'-' -f3- | rev`
       repopkgsver[${#repopkgsver[@]}]=`echo $pkg | rev | cut -d'-' -f2 | rev`
       repopkgsrel[${#repopkgsrel[@]}]=`echo $pkg | rev | cut -d'-' -f1 | rev`
     done
   else
     printf "${BOLD}$(gettext "This will update the whole repository!\n")${DEFA}"
-    for pkg in `tar -tf "$workspace/$repo.db.tar.gz" | grep -vE 'desc$|depends$' | sed -e 's:\/$::g'`; do
+    for pkg in `tar -tf "${workspace}/$repo.db.tar.gz" | grep -vE 'desc$|depends$' | sed -e 's:\/$::g'`; do
       pkgs[${#pkgs[@]}]=`echo $pkg | rev | cut -d'-' -f3- | rev`
       repopkgsver[${#repopkgsver[@]}]=`echo $pkg | rev | cut -d'-' -f2 | rev`
       repopkgsrel[${#repopkgsrel[@]}]=`echo $pkg | rev | cut -d'-' -f1 | rev`
