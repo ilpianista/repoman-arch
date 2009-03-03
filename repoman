@@ -3,8 +3,8 @@
 # Repoman
 # A tool to manage your Arch Linux repository
 #
-# Copyright (C) 2008 Andrea Scarpino <bash.lnx@gmail.com>
-#                    Dario Vilardi <dax@deelab.org>
+# Copyright (C) 2008-2009 Andrea Scarpino <bash.lnx@gmail.com>
+#                         Dario Vilardi <dax@deelab.org>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -73,51 +73,6 @@ extract_pkg(){
   fi
 }
 
-check_files(){
-  if [ ! -d "${workspace}" ]; then
-    mkdir "${workspace}" || exit 1
-  fi
-  
-  if [ ! -d "${workspace}/pkgs" ]; then
-    mkdir "${workspace}/pkgs" || exit 1
-  fi
-  
-  if [ "$NOCHANGELOG" != "TRUE" -a ! -f "${workspace}/$changelog" ]; then
-    touch "${workspace}/$changelog"
-  fi
-}
-
-isnumeric(){
-	if let $1 2>/dev/null; then
-	  return 0
-	else
-	  return 1
-	fi
-}
-
-is_newer(){
-	local version=( $(echo $1 | tr "[:punct:]" "\ " | sed 's/[a-zA-Z]/ &/g') )
-	local lversion=( $(echo $2 | tr "[:punct:]" "\ " | sed 's/[a-zA-Z]/ &/g') )
-	if [ ${#version[@]} -gt ${#lversion[@]} ]; then 
-		versionlength=${#version[@]}
-	else
-		versionlength=${#lversion[@]}
-	fi
-	
-	for i_index in `seq 0 $((${versionlength}-1))`; do 
-		if `isnumeric ${version[$i_index]}` && `isnumeric ${lversion[$i_index]}`;  then
-			if [ ${version[$i_index]} -eq ${lversion[$i_index]} ]; then continue; fi
-			if [ ${version[$i_index]} -gt ${lversion[$i_index]} ]; then return 0; else return 1; fi
-			break
-		elif [ `isnumeric ${version[$i_index]}` -ne  `isnumeric ${lversion[$i_index]}` ]; then
-			if [ "${version[$i_index]}" = "${lversion[$i_index]}" ]; then continue; fi
-			if [ "${version[$i_index]}" \> "${lversion[$i_index]}" ]; then return 0; else return 1; fi
-			break
-		fi
-	done
-	return 1
-}
-
 get_pkg_version(){
   cd "${workspace}/pkgs/$1/"
   is_dev=`echo $1 | sed -e 's:\/$::g' | grep "\-\(svn\|cvs\|hg\|git\|bzr\|darcs\)"`
@@ -147,7 +102,7 @@ build_pkg(){
   local package=`tar -tf "${workspace}/$repo.db.tar.gz" | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep '^'$1'-[0-9]$*'`
   local repopkgver=`echo $package | rev | cut -d'-' -f2 | rev`-`echo $package | rev | cut -d'-' -f1 | rev`
   [ "$repopkgver" = "-" ] && repopkgver=0-0
-  if `is_newer ${pkgsver[$INDEX]} $repopkgver` || [ "$FORCE" = "TRUE" ]; then
+  if `is_x_gt_y ${pkgsver[$INDEX]} $repopkgver` || [ "$FORCE" = "TRUE" ]; then
     if [ ! -f "${workspace}/$1-${pkgsver[$INDEX]}-$arch.pkg.tar.gz"  -o "$NOBUILD" != "TRUE" ]; then
       cd "${workspace}/pkgs/$1"
       if [ "$VERBOSE" = "TRUE" ]; then
@@ -174,24 +129,22 @@ build_pkg(){
 }
 
 add_pkg(){
-  # temporary fix for #3
-  #if [ "$VERBOSE" = "TRUE" ]; then
-  #  printf "\n"
-  #  repo-add "${workspace}/$repo.db.tar.gz" "${workspace}/$1-$2-$arch.pkg.tar.gz" || return 1
-  #else
+  if [ "$VERBOSE" = "TRUE" ]; then
+    printf "\n"
+    repo-add "${workspace}/$repo.db.tar.gz" "${workspace}/$1-$2-$arch.pkg.tar.gz" || return 1
+  else
     repo-add "${workspace}/$repo.db.tar.gz" "${workspace}/$1-$2-$arch.pkg.tar.gz" &> /dev/null || return 1
-  #fi
+  fi
   return 0
 }
 
 remove_pkg(){
-  # temporary fix for #3
-  #if [ "$VERBOSE" = "TRUE" ]; then
-  #  printf "\n"
-  #  repo-remove "${workspace}/$repo.db.tar.gz" $1 || return 1
-  #else
+  if [ "$VERBOSE" = "TRUE" ]; then
+    printf "\n"
+    repo-remove "${workspace}/$repo.db.tar.gz" $1 || return 1
+  else
     repo-remove "${workspace}/$repo.db.tar.gz" $1 &> /dev/null || return 1
-  #fi
+  fi
   return 0
 }
 
@@ -325,13 +278,6 @@ get_pkg_repo(){
   esac
 }
 
-get_community_category(){
-  id=`wget -q -O - "http://aur.archlinux.org/rpc.php?type=info&arg=$1" \
-      | sed -e 's/^.*{"ID":"// -e 's/",".*$//'' | sed '/^$/d'`
-  category=`wget -q -O - "http://aur.archlinux.org/packages.php?ID=$id" \
-            | grep 'community ::' | sed 's|<[^<]*>||g' | awk '{print $3}'`
-}
-
 get_pkgbuild(){
   printf "${LGRE}$1 ${DEFA}"
   get_pkg_repo $1
@@ -366,35 +312,33 @@ get_pkg_from_aur(){
   fi
 }
 
-print_pkgs_list()
-{
+print_pkgs_list(){
   for pkg in ${pkgs[@]}; do
     printf "${LGRE}$pkg ${DEFA}"
   done
 }
 
 ask_remove(){
-  printf "${BOLD}$(gettext "Do you want to remove packages build dir? (y/N): ")${DEFA}"
+  printf "${BOLD}$(gettext "Do you want to clean packages build dirs? (y/N): ")${DEFA}"
   read DIR_REMOVE
   if [ "$DIR_REMOVE" = "y" ]; then
-    rm -rf "${workspace}/pkgs/"
+    rm -rf ${workspace}/pkgs/*/{pkg,src,*.pkg.tar.gz}
   fi
 }
 
-clean()
-{
+clean(){
   rm -rf "${workspace}/" /tmp/header "/tmp/$changelog"
   printf "${YELL}$(gettext "Any files in workspace directory have been removed!\n")${DEFA}"
 }
 
 upload_file(){
   if [ -f "${workspace}/$1" ]; then
-    # temporary fix for #3
-    #if [ "$VERBOSE" = "TRUE" ]; then
-    #  lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; put ${workspace}/$1; exit" || return 1
-    #else
-      lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; put ${workspace}/$1; exit" &> /dev/null || return 1
-    #fi
+#    if [ "$VERBOSE" = "TRUE" ]; then
+#      wput ${workspace}/$1 ftp://$username:$password@${ftp_url}/${ftp_dir}/ || return 1
+#    else
+      #wput ${workspace}/$1 ftp://$username:$password@${ftp_url}/${ftp_dir}/ &> /dev/null || return 1
+	  lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; put ${workspace}/$1; exit" &> /dev/null || return 1
+#    fi
   fi
   return 0
 }
@@ -471,11 +415,9 @@ get_pkgs_list(){
 }
 
 main(){
-  source /etc/repoman.conf
+  source /usr/lib/repoman/basicfunctions.sh || exit 1
   
-  if [ "$UID" -eq 0 ]; then
-    ROOT_FLAG="--asroot "
-  fi
+  [ "$UID" -eq 0 ] && ROOT_FLAG="--asroot "
   
   check_args $@
   check_files
