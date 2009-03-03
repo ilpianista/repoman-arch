@@ -1,173 +1,176 @@
 # LANGUAGE translation for Repoman.
-# Copyright (C) 2008 Andrea Scarpino <bash.lnx@gmail.com>
+# Copyright (C) 2008-2009 Andrea Scarpino <bash.lnx@gmail.com>
 # This file is distributed under the same license as the Repoman package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-msgid ""
-msgstr ""
-"Project-Id-Version: Repoman SVN\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-10-04 18:03+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
-"Content-Transfer-Encoding: 8bit\n"
+msgid   ""
+msgstr  "Project-Id-Version: PACKAGE VERSION\n"
+        "Report-Msgid-Bugs-To: \n"
+        "POT-Creation-Date: 2009-03-04 00:15+0100\n"
+        "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+        "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+        "Language-Team: LANGUAGE <LL@li.org>\n"
+        "MIME-Version: 1.0\n"
+        "Content-Type: text/plain; charset=CHARSET\n"
+        "Content-Transfer-Encoding: 8bit\n"
 
-msgid "Extraction failed. Skip.\\n"
-msgstr ""
+msgid   "Extraction failed. Skip.\\n"
+msgstr  ""
 
-msgid "Makepkg failed. Skip.\\n"
-msgstr ""
+msgid   "Makepkg failed. Skip.\\n"
+msgstr  ""
 
-msgid "Cannot get %s. Exiting...\\n"
-msgstr ""
+msgid   "Cannot get %s. Exiting...\\n"
+msgstr  ""
 
-msgid "done"
-msgstr ""
+msgid   "extracting..."
+msgstr  ""
 
-msgid "done, already built"
-msgstr ""
+msgid   "done"
+msgstr  ""
 
-msgid "skip, already up-to-date"
-msgstr ""
+msgid   "done, already built"
+msgstr  ""
 
-msgid "added!\\n"
-msgstr ""
+msgid   "skip, already up-to-date"
+msgstr  ""
 
-msgid "Cannot add %s to repository."
-msgstr ""
+msgid   "added!\\n"
+msgstr  ""
 
-msgid "Skip.\\n"
-msgstr ""
+msgid   "Cannot add %s to repository."
+msgstr  ""
 
-msgid "removed!\\n"
-msgstr ""
+msgid   "Skip.\\n"
+msgstr  ""
 
-msgid "Cannot remove %s from repository."
-msgstr ""
+msgid   "removed!\\n"
+msgstr  ""
 
-msgid "A tool to manage your personal ArchLinux repository\\n"
-msgstr ""
+msgid   "Cannot remove %s from repository."
+msgstr  ""
 
-msgid "Usage: repoman <action> [OPTIONS] packages\\n"
-msgstr ""
+msgid   "A tool to manage your personal Arch Linux repository\\n"
+msgstr  ""
 
-msgid "Action:\\n"
-msgstr ""
+msgid   "Usage: repoman <action>|<flag> [OPTIONS] packages\\n"
+msgstr  ""
 
-msgid "  -A, --add          add or update packages on repository\\n"
-msgstr ""
+msgid   "Action:\\n"
+msgstr  ""
 
-msgid "  -R, --remove       remove packages from repository\\n"
-msgstr ""
+msgid   "  -A, --add          add or update packages on repository\\n"
+msgstr  ""
 
-msgid "      --create       create a new database, then add packages\\n"
-msgstr ""
+msgid   "  -R, --remove       remove packages from repository\\n"
+msgstr  ""
 
-msgid "      --all          update the whole repository\\n"
-msgstr ""
+msgid   "      --create       create a new database, then add packages\\n"
+msgstr  ""
 
-msgid "Options:\\n"
-msgstr ""
+msgid   "Flag:\\n"
+msgstr  ""
 
-msgid "  -l, --local        use this for local (non-ftp) repository\\n"
-msgstr ""
+msgid   "      --all          update the whole repository\\n"
+msgstr  ""
 
-msgid "  -d, --devel        rebuild only devel packages on repository\\n"
-msgstr ""
+msgid   "  -d, --devel        rebuild only devel packages on repository\\n"
+msgstr  ""
 
-msgid "  -f, --force        build packages if already up-to-date on repo\\n"
-msgstr ""
+msgid   "Options:\\n"
+msgstr  ""
 
-msgid ""
-"  -k, --keep         do not get tarballs from AUR, use local in pkgs/\\n"
-msgstr ""
+msgid   "  -l, --local        use this for local (non-ftp) repository\\n"
+msgstr  ""
 
-msgid "  -u, --noupload     do not upload any file to ftp\\n"
-msgstr ""
+msgid   "  -f, --force        build packages if already up-to-date on repo\\n"
+msgstr  ""
 
-msgid "  -b, --nobuild      do not build packages if exist in workspace dir\\n"
-msgstr ""
+msgid   "  -k, --keep         do not get tarballs from AUR, use local in pkgs/"
+        "\\n"
+msgstr  ""
 
-msgid "  -c, --nochangelog  do not use a changelog file\\n"
-msgstr ""
+msgid   "  -u, --noupload     do not upload any file to ftp\\n"
+msgstr  ""
 
-msgid "  -e, --edit         ask to edit pkgbuild for each package\\n"
-msgstr ""
+msgid   "  -b, --nobuild      do not build packages if exist in workspace dir"
+        "\\n"
+msgstr  ""
 
-msgid "  -v, --verbose      more verbose, print commands output\\n"
-msgstr ""
+msgid   "  -c, --nochangelog  do not use a changelog file\\n"
+msgstr  ""
 
-msgid "      --clean        remove any files from workspace dir\\n"
-msgstr ""
+msgid   "  -e, --edit         ask to edit pkgbuild for each package\\n"
+msgstr  ""
 
-msgid "      --nocolor      do not use any color\\n"
-msgstr ""
+msgid   "  -v, --verbose      more verbose, print commands output\\n"
+msgstr  ""
 
-msgid "      --help         display this help and exit\\n"
-msgstr ""
+msgid   "      --clean        remove any files from workspace dir\\n"
+msgstr  ""
 
-msgid "REMOVED"
-msgstr ""
+msgid   "      --nocolor      do not use any color\\n"
+msgstr  ""
 
-msgid "Do you want to edit %s PKGBUILD? (Y/n): "
-msgstr ""
+msgid   "      --help         display this help and exit\\n"
+msgstr  ""
 
-msgid "n"
-msgstr ""
+msgid   "REMOVED"
+msgstr  ""
 
-msgid "(%s found in pkgs/ dir)\\n"
-msgstr ""
+msgid   "Do you want to edit %s PKGBUILD? (Y/n): "
+msgstr  ""
 
-msgid "Cannot get %s. Skip.\\n"
-msgstr ""
+msgid   "n"
+msgstr  ""
 
-msgid "Do you want to remove packages build dir? (y/N): "
-msgstr ""
+msgid   "(PKGBUILD found in pkgs/ dir)\\n"
+msgstr  ""
 
-msgid "Any files in workspace directory have been removed!\\n"
-msgstr ""
+msgid   "Cannot get %s. Skip.\\n"
+msgstr  ""
 
-msgid "uploaded!\\n"
-msgstr ""
+msgid   "Do you want to clean packages build dirs? (y/N): "
+msgstr  ""
 
-msgid "Upload of %s"
-msgstr ""
+msgid   "Any files in workspace directory have been removed!\\n"
+msgstr  ""
 
-msgid "failed.\\n"
-msgstr ""
+msgid   "uploaded!\\n"
+msgstr  ""
 
-msgid "All copy of %s have been removed from ftp!\\n"
-msgstr ""
+msgid   "Upload of %s"
+msgstr  ""
 
-msgid "This will update the whole repository!\\n"
-msgstr ""
+msgid   "failed.\\n"
+msgstr  ""
 
-msgid "Getting: "
-msgstr ""
+msgid   "All copy of %s have been removed from ftp!\\n"
+msgstr  ""
 
-msgid "Packages: "
-msgstr ""
+msgid   "This will update the whole repository!\\n"
+msgstr  ""
 
-msgid "What I must do with these packages?!\\n\\n"
-msgstr ""
+msgid   "Getting: "
+msgstr  ""
 
-msgid "Downloading: "
-msgstr ""
+msgid   "Packages: "
+msgstr  ""
 
-msgid "extracting...\\n"
-msgstr ""
+msgid   "What I must do with these packages?!\\n\\n"
+msgstr  ""
 
-msgid "Getting all packages version..."
-msgstr ""
+msgid   "Downloading: "
+msgstr  ""
 
-msgid "Building: "
-msgstr ""
+msgid   "Getting all packages version..."
+msgstr  ""
 
-msgid "Updating: "
-msgstr ""
+msgid   "Building: "
+msgstr  ""
 
-msgid "None packages added to repository\\n"
-msgstr ""
+msgid   "Updating: "
+msgstr  ""
+
+msgid   "None packages added to repository\\n"
+msgstr  ""
