@@ -29,10 +29,11 @@ localedir = /usr/share/locale
 PROGRAMS = repoman
 install: 
 	$(INSTALL) -d $(DESTDIR)$(bindir)
+	$(INSTALL) -d $(DESTDIR)$(libdir)
 	$(INSTALL) -d $(DESTDIR)$(sysconfdir)
-	$(INSTALL) -m755 repoman $(DESTDIR)$(bindir)/repoman
-	$(INSTALL) -m644 repoman.conf $(DESTDIR)$(sysconfdir)/repoman.conf
-	$(INSTALL) -m644 lib/basicfunctions.sh $(DESTDIR)$(libdir)/repoman.conf
+	$(INSTALL) -m755 repoman $(DESTDIR)$(bindir)
+	$(INSTALL) -m644 repoman.conf $(DESTDIR)$(sysconfdir)
+	$(INSTALL) -m644 lib/basicfunctions.sh $(DESTDIR)$(libdir)
 	for file in po/*.po; \
 	do \
 	  lang=$$(echo $$file | $(SED) -e 's#.*/\([^/]\+\).po#\1#'); \
