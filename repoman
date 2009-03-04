@@ -115,12 +115,16 @@ build_pkg(){
     source ./PKGBUILD
     pkgsver[$INDEX]=$pkgver-$pkgrel
   fi
-  printf "$1 (${pkgsver[$INDEX]})${DEFA}: "
+  printf "$1 "
+  is_dev=`echo $1 | sed -e 's:\/$::g' | grep "\-\(svn\|cvs\|hg\|git\|bzr\|darcs\)"`
+  if [ ${#is_dev} -eq "0" ]; then
+    printf "(${pkgsver[$INDEX]})${DEFA}: "
+  fi
   local package=`tar -tf "${workspace}/$repo.db.tar.gz" | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep '^'$1'-[0-9]$*'`
   local repopkgver=`echo $package | rev | cut -d'-' -f2 | rev`-`echo $package | rev | cut -d'-' -f1 | rev`
   # if the package isn't on the repo set to 0 the pkgver
   [ "$repopkgver" = "-" ] && repopkgver=0-0
-  if `is_x_gt_y ${pkgsver[$INDEX]} $repopkgver` || [ "$FORCE" = "TRUE" ]; then
+  if `is_x_gt_y ${pkgsver[$INDEX]} $repopkgver` || [ "$FORCE" = "TRUE" ] || [ ${#is_dev} -gt "0" ]; then
     if [ ! -f "${workspace}/$1-${pkgsver[$INDEX]}-$arch.pkg.tar.gz"  -o "$NOBUILD" != "TRUE" ]; then
       cd "${workspace}/pkgs/$1"
       if [ "$VERBOSE" = "TRUE" ]; then
