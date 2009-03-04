@@ -90,11 +90,13 @@ extract_pkg(){
 
 get_pkg_version(){
   cd "${workspace}/pkgs/$1/"
+  source ./PKGBUILD
   is_dev=`echo $1 | sed -e 's:\/$::g' | grep "\-\(svn\|cvs\|hg\|git\|bzr\|darcs\)"`
   if [ ${#is_dev} -gt "0" ]; then
-    makepkg -o --noconfirm $ROOT_FLAG $NOCOLOR_FLAG &> /dev/null
+    #makepkg -o --noconfirm $ROOT_FLAG $NOCOLOR_FLAG &> /dev/null
+# temporarily. ever build devel packages
+    pkgver=0;
   fi
-  source ./PKGBUILD
   pkgsver[${#pkgsver[@]}]=$pkgver-$pkgrel
 }
 
@@ -116,8 +118,9 @@ build_pkg(){
   printf "$1 (${pkgsver[$INDEX]})${DEFA}: "
   local package=`tar -tf "${workspace}/$repo.db.tar.gz" | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep '^'$1'-[0-9]$*'`
   local repopkgver=`echo $package | rev | cut -d'-' -f2 | rev`-`echo $package | rev | cut -d'-' -f1 | rev`
+  # if the package isn't on the repo set to 0 the pkgver
   [ "$repopkgver" = "-" ] && repopkgver=0-0
-  if `is_x_gt_y ${pkgsver[$INDEX]} $repopkgver` || [ "$FORCE" = "TRUE" ]; then
+  if `is_x_gt_y $repopkgver ${pkgsver[$INDEX]}` || [ "$FORCE" = "TRUE" ]; then
     if [ ! -f "${workspace}/$1-${pkgsver[$INDEX]}-$arch.pkg.tar.gz"  -o "$NOBUILD" != "TRUE" ]; then
       cd "${workspace}/pkgs/$1"
       if [ "$VERBOSE" = "TRUE" ]; then
@@ -125,6 +128,10 @@ build_pkg(){
         makepkg -f --noconfirm $ROOT_FLAG $NOCOLOR_FLAG || print_makepkg_error
       else
         makepkg -f --noconfirm $ROOT_FLAG $NOCOLOR_FLAG &> /dev/null || print_makepkg_error
+      fi
+      if [ ${#is_dev} -gt "0" ]; then
+        source ./PKGBUILD
+        pkgsver[$INDEX]=$pkgver-$pkgrel
       fi
       if [ -f "${workspace}/pkgs/$1/$1-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" ]; then
         cp "${workspace}/pkgs/$1/$1-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" "${workspace}/"
@@ -175,7 +182,7 @@ update(){
     cat /tmp/header "${workspace}/$changelog" > "/tmp/$changelog"
     mv "/tmp/$changelog" "${workspace}/$changelog"
   fi
-	
+    
   printf "$repo.db.tar.gz\n"
   if [ "$ADD" = "TRUE" ]; then
     INDEX=0
@@ -186,7 +193,7 @@ update(){
   elif [ "$REMOVE" = "TRUE" ]; then
     for pkg in ${pkgs[@]}; do
       remove_pkg $pkg || print_removepkg_error $pkg
-	  printf "$pkg ${LGRE}$(gettext "removed!\n")${DEFA}"
+      printf "$pkg ${LGRE}$(gettext "removed!\n")${DEFA}"
     done
   fi
 }
@@ -291,12 +298,12 @@ get_pkgbuild(){
   get_pkg_repo $1
   if [ "$pkg_repo" != "aur" ]; then
     [ "$pkg_repo" == "community" ] && pkg_repo=$pkg_repo/`get_community_category $1`
-	if [ "$VERBOSE" = "TRUE" ]; then
+    if [ "$VERBOSE" = "TRUE" ]; then
       rsync -mrtv --no-motd --delete-after --delete-excluded rsync.archlinux.org::abs/`uname -m`/$pkg_repo/$1 "${workspace}/pkgs"
-	else
-	  rsync -mrtv --no-motd --delete-after --delete-excluded rsync.archlinux.org::abs/`uname -m`/$pkg_repo/$1 "${workspace}/pkgs" &> /dev/null
-	fi
-	printf "\n"
+    else
+      rsync -mrtv --no-motd --delete-after --delete-excluded rsync.archlinux.org::abs/`uname -m`/$pkg_repo/$1 "${workspace}/pkgs" &> /dev/null
+    fi
+    printf "\n"
   elif [ "$pkg_repo" == "aur" ]; then
     get_pkg_from_aur $1
   fi
@@ -337,9 +344,9 @@ clean(){
 upload_file(){
   if [ -f "${workspace}/$1" ]; then
     if [ "$VERBOSE" = "TRUE" ]; then
-	  lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; put ${workspace}/$1; exit" || print_upload_error $1
+      lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; put ${workspace}/$1; exit" || print_upload_error $1
     else
-	  lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; put ${workspace}/$1; exit" &> /dev/null || print_upload_error $1
+      lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; put ${workspace}/$1; exit" &> /dev/null || print_upload_error $1
     fi
   fi
   return 0
@@ -357,17 +364,20 @@ upload(){
   if [ "$NOCHANGELOG" != "TRUE" ]; then
     printf "Uploading $changelog..."
     upload_file $changelog || print_upload_error $changelog
+	printf "\n"
   fi
   
   printf "Uploading $repo.db.tar.gz..."
   upload_file $repo.db.tar.gz || print_upload_error $repo.db.tar.gz
+  printf "\n"
   
   remove_from_ftp $pkg
   if [ "$ADD" = "TRUE" ]; then
     INDEX=0
     for pkg in ${pkgs[@]}; do
-	  printf "Uploading $pkg-${pkgsver[$INDEX]}..."
+      printf "Uploading $pkg-${pkgsver[$INDEX]}..."
       upload_file $pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz || print_upload_error $pkg-${pkgsver[$INDEX]}
+	  printf "\n"
       (( INDEX++ ))
     done
   elif [ "$REMOVE" = "TRUE" ]; then
@@ -455,12 +465,12 @@ main(){
       get_pkgbuild $pkg
     done
     printf "\n"
-	
-	printf "${YELL}$(gettext "Extracting: ")${DEFA}"
-	for pkg in ${pkgs[@]}; do
-	  extract_pkg $pkg
-	done
-	printf "\n"
+    
+    printf "${YELL}$(gettext "Extracting: ")${DEFA}"
+    for pkg in ${pkgs[@]}; do
+      extract_pkg $pkg
+    done
+    printf "\n"
     
     printf "${YELL}$(gettext "Getting all packages version...")${DEFA}"
     for pkg in ${pkgs[@]}; do
