@@ -41,6 +41,10 @@ print_addpkg_error(){
 
 print_cannotgetfile_error(){
   printf "${LRED}$(gettext "Cannot get %s. Skip.")${DEFA}" "$1"
+  if [ "$1" == "$repo.db.tar.gz" ]; then
+    printf "${LRED}$(gettext "\nI cannot continue without the database repo file. Exit.\n")${DEFA}"
+    exit 1
+  fi
   skip_pkg $1
 }
 
