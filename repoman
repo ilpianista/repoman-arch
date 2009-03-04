@@ -466,11 +466,13 @@ main(){
     done
     printf "\n"
     
-    printf "${YELL}$(gettext "Extracting: ")${DEFA}"
-    for pkg in ${pkgs[@]}; do
-      extract_pkg $pkg
-    done
-    printf "\n"
+	if [ "$KEEP" != "TRUE" ]; then
+      printf "${YELL}$(gettext "Extracting: ")${DEFA}"
+      for pkg in ${pkgs[@]}; do
+        extract_pkg $pkg
+      done
+      printf "\n"
+	fi
     
     printf "${YELL}$(gettext "Getting all packages version...")${DEFA}"
     for pkg in ${pkgs[@]}; do
