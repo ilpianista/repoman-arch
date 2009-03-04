@@ -127,6 +127,9 @@ msgstr  ""
 msgid   "(PKGBUILD found in pkgs/ dir)\\n"
 msgstr  ""
 
+msgid   "PKGBUILD not found. Skip\\n"
+msgstr  ""
+
 msgid   "Do you want to clean packages build dirs? (y/N): "
 msgstr  ""
 

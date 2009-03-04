@@ -325,8 +325,11 @@ get_pkg_from_aur(){
     else
       wget -P "${workspace}/pkgs" http://aur.archlinux.org/packages/$1/$1.tar.gz &> /dev/null || print_cannotgetfile_error $1
     fi
-  else [ -f "${workspace}/pkgs/$1/PKGBUILD" ]
+  elif [ -f "${workspace}/pkgs/$1/PKGBUILD" ]; then
     printf "$(gettext "(PKGBUILD found in pkgs/ dir)\n")${DEFA}"
+  else
+    printf "$(gettext "PKGBUILD not found. Skip\n")${DEFA}"
+	skip_pkg $1
   fi
 }
 
