@@ -83,12 +83,13 @@ get_file(){
 
 extract_pkg(){
   printf "$1 "
-  rm -rf "${workspace}/pkgs/$1"
-  if [ "$VERBOSE" = "TRUE" ]; then
-    tar -xf "${workspace}/pkgs/$1.tar.gz" -C "${workspace}/pkgs" || print_tar_error $1
-    printf "\n"
-  else
-    tar -xf "${workspace}/pkgs/$1.tar.gz" -C "${workspace}/pkgs" &> /dev/null || print_tar_error $1
+  if [ ! -f "${workspace}/pkgs/$1/PKGBUILD" ]; then
+    if [ "$VERBOSE" = "TRUE" ]; then
+      printf "\n"
+      tar -xf "${workspace}/pkgs/$1.tar.gz" -C "${workspace}/pkgs" || print_tar_error $1
+    else
+      tar -xf "${workspace}/pkgs/$1.tar.gz" -C "${workspace}/pkgs" &> /dev/null || print_tar_error $1
+    fi
   fi
 }
 
@@ -159,7 +160,7 @@ build_pkg(){
 }
 
 add_pkg(){
-  printf "Adding $1-$2 to $repo...\n"
+  printf "Adding $1 $2 to $repo...\n"
   if [ "$VERBOSE" = "TRUE" ]; then
     repo-add "${workspace}/$repo.db.tar.gz" "${workspace}/$1-$2-$arch.pkg.tar.gz" || print_addpkg_error $1
   else
@@ -289,47 +290,37 @@ edit_pkgbuild(){
   fi
 }
 
-get_pkg_repo(){
-  pkg_repo=`LC_ALL=C pacman -Si $1 2> /dev/null \
-            | grep -m1 Repository | awk -F": " '{print $2}'`
-  case $pkg_repo in
-    core) ;;
-    extra) ;;
-    testing) ;;
-    community) ;;
-    *) pkg_repo="aur" ;;
-  esac
-}
-
 get_pkgbuild(){
   printf "${LGRE}$1 ${DEFA}"
-  get_pkg_repo $1
-  if [ "$pkg_repo" != "aur" ]; then
-    [ "$pkg_repo" == "community" ] && pkg_repo=$pkg_repo/`get_community_category $1`
-    if [ "$VERBOSE" = "TRUE" ]; then
-      rsync -mrtv --no-motd --delete-after --delete-excluded rsync.archlinux.org::abs/`uname -m`/$pkg_repo/$1 "${workspace}/pkgs"
-    else
-      rsync -mrtv --no-motd --delete-after --delete-excluded rsync.archlinux.org::abs/`uname -m`/$pkg_repo/$1 "${workspace}/pkgs" &> /dev/null
-    fi
-    printf "\n"
-  elif [ "$pkg_repo" == "aur" ]; then
-    get_pkg_from_aur $1
-  fi
-}
-
-get_pkg_from_aur(){
   if [ "$KEEP" != "TRUE" ]; then
-    rm -rf "${workspace}/pkgs/$1.tar.gz" "$owrkspace/pkgs/$1" &> /dev/null
-    if [ "$VERBOSE" = "TRUE" ]; then
-      wget -P "${workspace}/pkgs" http://aur.archlinux.org/packages/$1/$1.tar.gz || print_cannotgetfile_error $1
-    else
-      wget -P "${workspace}/pkgs" http://aur.archlinux.org/packages/$1/$1.tar.gz &> /dev/null || print_cannotgetfile_error $1
+    rm -rf "${workspace}/pkgs/$1.tar.gz" "${workspace}/pkgs/$1" &> /dev/null
+    get_pkg_repo $1
+    if [ "$pkg_repo" != "aur" ]; then
+      [ "$pkg_repo" == "community" ] && pkg_repo=$pkg_repo/`get_community_category $1`
+      if [ "$VERBOSE" = "TRUE" ]; then
+	    printf "\n"
+        rsync -mrtv --no-motd --delete-after --delete-excluded rsync.archlinux.org::abs/`uname -m`/$pkg_repo/$1 "${workspace}/pkgs"
+      else
+        rsync -mrtv --no-motd --delete-after --delete-excluded rsync.archlinux.org::abs/`uname -m`/$pkg_repo/$1 "${workspace}/pkgs" &> /dev/null
+      fi
+      printf "\n"
+    elif [ "$pkg_repo" == "aur" ]; then
+      get_pkg_from_aur $1
     fi
   elif [ -f "${workspace}/pkgs/$1/PKGBUILD" ]; then
     printf "$(gettext "(PKGBUILD found in pkgs/ dir)\n")${DEFA}"
   else
     printf "$(gettext "PKGBUILD not found. Skip\n")${DEFA}"
 	skip_pkg $1
+  fi
+}
+
+get_pkg_from_aur(){
+  if [ "$VERBOSE" = "TRUE" ]; then
+    printf "\n"
+    wget -P "${workspace}/pkgs" http://aur.archlinux.org/packages/$1/$1.tar.gz || print_cannotgetfile_error $1
+  else
+    wget -P "${workspace}/pkgs" http://aur.archlinux.org/packages/$1/$1.tar.gz &> /dev/null || print_cannotgetfile_error $1
   fi
 }
 
@@ -386,7 +377,7 @@ upload(){
   if [ "$ADD" = "TRUE" ]; then
     INDEX=0
     for pkg in ${pkgs[@]}; do
-      printf "Uploading $pkg-${pkgsver[$INDEX]}..."
+      printf "Uploading $pkg ${pkgsver[$INDEX]}..."
       upload_file $pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz || print_upload_error $pkg-${pkgsver[$INDEX]}
 	  printf "\n"
       (( INDEX++ ))

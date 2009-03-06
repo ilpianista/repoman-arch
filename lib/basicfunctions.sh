@@ -52,6 +52,18 @@ get_community_category(){
 		| grep 'community ::' | sed 's|<[^<]*>||g' | awk '{print $3}'`
 }
 
+get_pkg_repo(){
+    pkg_repo=`LC_ALL=C pacman -Si $1 2> /dev/null \
+        | grep -m1 Repository | awk -F": " '{print $2}'`
+    case $pkg_repo in
+        core) ;;
+        extra) ;;
+        testing) ;;
+        community) ;;
+        *) pkg_repo="aur" ;;
+    esac
+}
+
 check_files(){
 	if [ ! -d "${workspace}/pkgs" ]; then
 		mkdir -p "${workspace}/pkgs" || exit 1
