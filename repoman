@@ -363,10 +363,10 @@ upload_file(){
 
 remove_from_ftp(){
   if [ "$VERBOSE" = "TRUE" ]; then
-    ncftpput -u $username -p $password $ftp_url /$ftp_dir -W "rm -f $1-*-*-$arch.pkg.tar.gz" || print_upload_error $1
+    ncftpput -u $username -p $password $ftp_url /$ftp_dir -W "rm -f $1-*-$arch.pkg.tar.gz" || print_upload_error $1
     #lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; glob rm -f $1-*-*-$arch.pkg.tar.gz; exit" || return 1
   else
-    ncftpput -u $username -p $password $ftp_url /$ftp_dir -W "rm -f $1-*-*-$arch.pkg.tar.gz" || print_upload_error $1
+    ncftpput -u $username -p $password $ftp_url /$ftp_dir -W "rm -f $1-*-$arch.pkg.tar.gz" &> /dev/null || print_upload_error $1
     #lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; glob rm -f $1-*-*-$arch.pkg.tar.gz; exit" &> /dev/null || return 1
   fi
 }
@@ -382,7 +382,7 @@ upload(){
   upload_file $repo.db.tar.gz || print_upload_error $repo.db.tar.gz
   printf "\n"
   
-  remove_from_ftp $pkg
+  #remove_from_ftp $pkg
   if [ "$ADD" = "TRUE" ]; then
     INDEX=0
     for pkg in ${pkgs[@]}; do
