@@ -95,14 +95,16 @@ extract_pkg(){
 
 get_pkg_version(){
   cd "${workspace}/pkgs/$1/"
+  unset pkgver
+  unset pkgrel
   source ./PKGBUILD
   is_dev=`echo $1 | sed -e 's:\/$::g' | grep "\-\(svn\|cvs\|hg\|git\|bzr\|darcs\)"`
   if [ ${#is_dev} -gt "0" ]; then
     #makepkg -o --noconfirm $ROOT_FLAG $NOCOLOR_FLAG &> /dev/null
-# temporarily. ever build devel packages
-    pkgver=0;
+    # temporarily. ever build devel packages
+    pkgver=0
   fi
-  pkgsver[${#pkgsver[@]}]=$pkgver-$pkgrel
+  pkgsver[${#pkgsver[@]}]="$pkgver-$pkgrel"
 }
 
 skip_pkg(){
@@ -127,7 +129,7 @@ build_pkg(){
   fi
   local package=`tar -tf "${workspace}/$repo.db.tar.gz" | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep '^'$1'-[0-9]$*'`
   local repopkgver=`echo $package | rev | cut -d'-' -f2 | rev`-`echo $package | rev | cut -d'-' -f1 | rev`
-  # if the package isn't on the repo set to 0 the pkgver
+  # if the package isn't on the repo set repopkgver to 0
   [ "$repopkgver" = "-" ] && repopkgver=0-0
   if `is_x_gt_y ${pkgsver[$INDEX]} $repopkgver` || [ "$FORCE" = "TRUE" ] || [ ${#is_dev} -gt "0" ]; then
     if [ ! -f "${workspace}/$1-${pkgsver[$INDEX]}-$arch.pkg.tar.gz"  -o "$NOBUILD" != "TRUE" ]; then
@@ -225,7 +227,7 @@ usage(){
   printf "$(gettext "  -u, --noupload     do not upload any file to ftp\n")"
   printf "$(gettext "  -b, --nobuild      do not build packages if exist in workspace dir\n")"
   printf "$(gettext "  -c, --nochangelog  do not use a changelog file\n")"
-  printf "$(gettext "  -o, --noconfirm    do not ask to delete files from workspace dir\n")"
+  printf "$(gettext "  -o, --noconfirm    do not ask\n")"
   printf "$(gettext "  -e, --edit         ask to edit pkgbuild for each package\n")"
   printf "$(gettext "  -v, --verbose      more verbose, print commands output\n")"
   printf "$(gettext "      --clean        remove any files from workspace dir\n")"
@@ -252,7 +254,7 @@ check_args(){
       --noupload) NOUPLOAD="TRUE" ;;
       --nobuild) NOBUILD="TRUE" ;;
       --nochangelog) NOCHANGELOG="TRUE" ;;
-	  --noconfirm) NOCONFIRM="TRUE" ;;
+      --noconfirm) NOCONFIRM="TRUE" ;;
       --edit) EDIT="TRUE" ;;
       --verbose) VERBOSE="TRUE" ;;
       --clean) CLEAN="TRUE" ;;
@@ -271,7 +273,7 @@ check_args(){
             f) FORCE="TRUE" ;;
             k) KEEP="TRUE" ;;
             l) LOCAL="TRUE" ;;
-			o) NOCONFIRM="TRUE" ;;
+            o) NOCONFIRM="TRUE" ;;
             u) NOUPLOAD="TRUE" ;;
             v) VERBOSE="TRUE" ;;
            esac
@@ -301,7 +303,7 @@ get_pkgbuild(){
     if [ "$pkg_repo" != "aur" ]; then
       [ "$pkg_repo" == "community" ] && pkg_repo=$pkg_repo/`get_community_category $1`
       if [ "$VERBOSE" = "TRUE" ]; then
-	    printf "\n"
+        printf "\n"
         rsync -mrtv --no-motd --delete-after --delete-excluded rsync.archlinux.org::abs/`uname -m`/$pkg_repo/$1 "${workspace}/pkgs"
       else
         rsync -mrtv --no-motd --delete-after --delete-excluded rsync.archlinux.org::abs/`uname -m`/$pkg_repo/$1 "${workspace}/pkgs" &> /dev/null
@@ -314,7 +316,7 @@ get_pkgbuild(){
     printf "$(gettext "(PKGBUILD found in pkgs/ dir)\n")${DEFA}"
   else
     printf "$(gettext "PKGBUILD not found. Skip\n")${DEFA}"
-	skip_pkg $1
+    skip_pkg $1
   fi
 }
 
@@ -343,15 +345,17 @@ ask_remove(){
 
 clean(){
   rm -rf "${workspace}/" /tmp/header "/tmp/$changelog"
-  printf "${YELL}$(gettext "Any files in workspace directory have been removed!\n")${DEFA}"
+  printf "${BOLD}$(gettext "Any files in workspace directory have been removed!\n")${DEFA}"
 }
 
 upload_file(){
   if [ -f "${workspace}/$1" ]; then
     if [ "$VERBOSE" = "TRUE" ]; then
-      lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; put ${workspace}/$1; exit" || print_upload_error $1
+      ncftpput -u $username -p $password $ftp_url /$ftp_dir "${workspace}/$1" || print_upload_error $1
+      #lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; put ${workspace}/$1; exit" || print_upload_error $1
     else
-      lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; put ${workspace}/$1; exit" &> /dev/null || print_upload_error $1
+      ncftpput -u $username -p $password $ftp_url /$ftp_dir "${workspace}/$1" &> /dev/null || print_upload_error $1
+      #lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; put ${workspace}/$1; exit" &> /dev/null || print_upload_error $1
     fi
   fi
   return 0
@@ -359,9 +363,11 @@ upload_file(){
 
 remove_from_ftp(){
   if [ "$VERBOSE" = "TRUE" ]; then
-    lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; glob rm -f $1-*-*-$arch.pkg.tar.gz; exit" || return 1
+    ncftpput -u $username -p $password $ftp_url /$ftp_dir -W "rm -f $1-*-*-$arch.pkg.tar.gz" || print_upload_error $1
+    #lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; glob rm -f $1-*-*-$arch.pkg.tar.gz; exit" || return 1
   else
-    lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; glob rm -f $1-*-*-$arch.pkg.tar.gz; exit" &> /dev/null || return 1
+    ncftpput -u $username -p $password $ftp_url /$ftp_dir -W "rm -f $1-*-*-$arch.pkg.tar.gz" || print_upload_error $1
+    #lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; glob rm -f $1-*-*-$arch.pkg.tar.gz; exit" &> /dev/null || return 1
   fi
 }
 
@@ -369,7 +375,7 @@ upload(){
   if [ "$NOCHANGELOG" != "TRUE" ]; then
     printf "Uploading $changelog..."
     upload_file $changelog || print_upload_error $changelog
-	printf "\n"
+    printf "\n"
   fi
   
   printf "Uploading $repo.db.tar.gz..."
@@ -382,7 +388,7 @@ upload(){
     for pkg in ${pkgs[@]}; do
       printf "Uploading $pkg ${pkgsver[$INDEX]}..."
       upload_file $pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz || print_upload_error $pkg-${pkgsver[$INDEX]}
-	  printf "\n"
+      printf "\n"
       (( INDEX++ ))
     done
   elif [ "$REMOVE" = "TRUE" ]; then
@@ -471,13 +477,13 @@ main(){
     done
     printf "\n"
     
-	if [ "$KEEP" != "TRUE" ]; then
+    if [ "$KEEP" != "TRUE" ]; then
       printf "${YELL}$(gettext "Extracting: ")${DEFA}"
       for pkg in ${pkgs[@]}; do
         extract_pkg $pkg
       done
       printf "\n"
-	fi
+    fi
     
     printf "${YELL}$(gettext "Getting all packages version...")${DEFA}"
     for pkg in ${pkgs[@]}; do
