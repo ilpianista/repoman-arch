@@ -73,11 +73,3 @@ check_files(){
 		touch "${workspace}/$changelog"
 	fi
 }
-
-if [ -f ~/.repomanrc ]; then
-	configfile="$HOME/.repoman.conf"
-else
-	configfile="/etc/repoman.conf"
-fi
-
-source $configfile

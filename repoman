@@ -236,6 +236,29 @@ usage(){
 }
 
 check_args(){
+  ADD="FALSE"
+  REMOVE="FALSE"
+  CREATE="FALSE"
+  ALL="FALSE"
+  LOCAL="FALSE"
+  DEVEL="FALSE"
+  FORCE="FALSE"
+  KEEP="FALSE"
+  NOUPLOAD="FALSE"
+  NOBUILD="FALSE"
+  NOCHANGELOG="FALSE"
+  NOCOLOR="FALSE"
+  NOCONFIRM="FALSE"
+  EDIT="FALSE"
+  VERBOSE="FALSE"
+  
+  if [ -f ~/.repomanrc ]; then
+	configfile="$HOME/.repoman.conf"
+  else
+	configfile="/etc/repoman.conf"
+  fi
+  source $configfile
+  
   if [ "$#" -eq "0" ]; then
     usage
     exit 1
@@ -254,11 +277,11 @@ check_args(){
       --noupload) NOUPLOAD="TRUE" ;;
       --nobuild) NOBUILD="TRUE" ;;
       --nochangelog) NOCHANGELOG="TRUE" ;;
+      --nocolor) NOCOLOR="TRUE" ;;
       --noconfirm) NOCONFIRM="TRUE" ;;
       --edit) EDIT="TRUE" ;;
       --verbose) VERBOSE="TRUE" ;;
-      --clean) CLEAN="TRUE" ;;
-      --nocolor) NOCOLOR="TRUE" ;;
+      --clean) clean; exit 0 ;;
       --help) usage; exit 0 ;;
       --*) usage; exit 1 ;;
       -* )
@@ -438,11 +461,6 @@ main(){
   color
   UPDATED=0
   
-  if [ "$CLEAN" = "TRUE" ]; then
-    clean
-    exit 0
-  fi
-
   if [ "$CREATE" != "TRUE" ]; then
     printf "${YELL}$(gettext "Getting: ")${DEFA}"
     if [ "$NOCHANGELOG" != "TRUE" ]; then

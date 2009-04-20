@@ -32,7 +32,7 @@ install:
 	$(INSTALL) -d $(DESTDIR)$(libdir)
 	$(INSTALL) -d $(DESTDIR)$(sysconfdir)
 	$(INSTALL) -m755 repoman $(DESTDIR)$(bindir)
-	$(INSTALL) -m644 repoman.conf $(DESTDIR)$(sysconfdir)
+	$(INSTALL) -m644 etc/repoman.conf $(DESTDIR)$(sysconfdir)
 	$(INSTALL) -m644 lib/basicfunctions.sh $(DESTDIR)$(libdir)
 	for file in po/*.po; \
 	do \
