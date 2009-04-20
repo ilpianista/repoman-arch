@@ -260,7 +260,7 @@ check_args(){
       --help) usage; exit 0 ;;
       --*) usage; exit 1 ;;
       -* )
-        while getopts ":ARd:bcefkluv:" ARGS; do
+        while getopts ":ARd:bcefklouv:" ARGS; do
           case $ARGS in
             A) ADD="TRUE" ;;
             R) REMOVE="TRUE"; FLAG="(REMOVED) " ;;
