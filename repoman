@@ -321,7 +321,7 @@ edit_pkgbuild(){
 get_pkgbuild(){
   printf "${LGRE}$1 ${DEFA}"
   if [ "$KEEP" != "TRUE" ]; then
-    rm -rf "${workspace}/pkgs/$1.tar.gz" "${workspace}/pkgs/$1" &> /dev/null
+    #rm -rf "${workspace}/pkgs/$1.tar.gz" "${workspace}/pkgs/$1" &> /dev/null
     get_pkg_repo $1
     if [ "$pkg_repo" != "aur" ]; then
       [ "$pkg_repo" == "community" ] && pkg_repo=$pkg_repo/`get_community_category $1`
