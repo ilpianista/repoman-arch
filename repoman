@@ -255,9 +255,9 @@ check_args(){
   VERBOSE="FALSE"
   
   if [ -f ~/.repomanrc ]; then
-	configfile="$HOME/.repoman.conf"
+    configfile="$HOME/.repoman.conf"
   else
-	configfile="/etc/repoman.conf"
+    configfile="/etc/repoman.conf"
   fi
   source $configfile
   
@@ -276,7 +276,7 @@ check_args(){
       --devel) DEVEL="TRUE"; ADD="TRUE" ;;
       --force) FORCE="TRUE" ;;
       --keep) KEEP="TRUE" ;;
-	  --keepsrc) KEEPSRC="TRUE" ;;
+      --keepsrc) KEEPSRC="TRUE" ;;
       --noupload) NOUPLOAD="TRUE" ;;
       --nobuild) NOBUILD="TRUE" ;;
       --nochangelog) NOCHANGELOG="TRUE" ;;
@@ -327,10 +327,10 @@ get_pkgbuild(){
     if [ "$KEEPSRC" = "TRUE" ]; then
       mv ${workspace}/pkgs/$1/src ${workspace}/pkgs/temp
       rm -rf "${workspace}/pkgs/$1.tar.gz" "${workspace}/pkgs/$1/*" &> /dev/null
-	  mv ${workspace}/pkgs/temp ${workspace}/pkgs/$1/src
-	else
-	  rm -rf "${workspace}/pkgs/$1.tar.gz" "${workspace}/pkgs/$1" &> /dev/null
-	fi
+      mv ${workspace}/pkgs/temp ${workspace}/pkgs/$1/src
+    else
+      rm -rf "${workspace}/pkgs/$1.tar.gz" "${workspace}/pkgs/$1" &> /dev/null
+    fi
     get_pkg_repo $1
     if [ "$pkg_repo" != "aur" ]; then
       [ "$pkg_repo" == "community" ] && pkg_repo=$pkg_repo/`get_community_category $1`
