@@ -230,6 +230,7 @@ usage(){
   printf "$(gettext "  -o, --noconfirm    do not ask\n")"
   printf "$(gettext "  -e, --edit         ask to edit pkgbuild for each package\n")"
   printf "$(gettext "  -v, --verbose      more verbose, print commands output\n")"
+  printf "$(gettext "      --keepsrc      backup/restore for the local sources (src)\n")"
   printf "$(gettext "      --clean        remove any files from workspace dir\n")"
   printf "$(gettext "      --nocolor      do not use any color\n")"
   printf "$(gettext "      --help         display this help and exit\n")"
@@ -244,6 +245,7 @@ check_args(){
   DEVEL="FALSE"
   FORCE="FALSE"
   KEEP="FALSE"
+  KEEPSRC="FALSE"
   NOUPLOAD="FALSE"
   NOBUILD="FALSE"
   NOCHANGELOG="FALSE"
@@ -274,6 +276,7 @@ check_args(){
       --devel) DEVEL="TRUE"; ADD="TRUE" ;;
       --force) FORCE="TRUE" ;;
       --keep) KEEP="TRUE" ;;
+	  --keepsrc) KEEPSRC="TRUE" ;;
       --noupload) NOUPLOAD="TRUE" ;;
       --nobuild) NOBUILD="TRUE" ;;
       --nochangelog) NOCHANGELOG="TRUE" ;;
@@ -321,8 +324,13 @@ edit_pkgbuild(){
 get_pkgbuild(){
   printf "${LGRE}$1 ${DEFA}"
   if [ "$KEEP" != "TRUE" ]; then
-    #rm -rf "${workspace}/pkgs/$1.tar.gz" "${workspace}/pkgs/$1" &> /dev/null
-	rm -f "${workspace}/pkgs/$1.tar.gz" "${workspace}/pkgs/$1/$1*.pkg.tar.gz" &> /dev/null
+    if [ "$KEEPSRC" = "TRUE" ]; then
+      mv ${workspace}/pkgs/$1/src ${workspace}/pkgs/temp
+      rm -rf "${workspace}/pkgs/$1.tar.gz" "${workspace}/pkgs/$1/*" &> /dev/null
+	  mv ${workspace}/pkgs/temp ${workspace}/pkgs/$1/src
+	else
+	  rm -rf "${workspace}/pkgs/$1.tar.gz" "${workspace}/pkgs/$1" &> /dev/null
+	fi
     get_pkg_repo $1
     if [ "$pkg_repo" != "aur" ]; then
       [ "$pkg_repo" == "community" ] && pkg_repo=$pkg_repo/`get_community_category $1`
