@@ -132,7 +132,7 @@ build_pkg(){
   # if the package isn't on the repo set repopkgver to 0
   [ "$repopkgver" = "-" ] && repopkgver=0-0
   if `is_x_gt_y ${pkgsver[$INDEX]} $repopkgver` || [ "$FORCE" = "TRUE" ] || [ ${#is_dev} -gt "0" ]; then
-    if [ ! -f "${workspace}/$1-${pkgsver[$INDEX]}-*.pkg.tar.gz"  -o "$NOBUILD" != "TRUE" ]; then
+    if [ ! -f ${workspace}/$1-${pkgsver[$INDEX]}-*.pkg.tar.gz  -o "$NOBUILD" != "TRUE" ]; then
       cd "${workspace}/pkgs/$1"
       if [ "$VERBOSE" = "TRUE" ]; then
         printf "\n"
@@ -144,8 +144,8 @@ build_pkg(){
         source ./PKGBUILD
         pkgsver[$INDEX]=$pkgver-$pkgrel
       fi
-      if [ -f "${workspace}/pkgs/$1/$1-${pkgsver[$INDEX]}-*.pkg.tar.gz" ]; then
-        cp "${workspace}/pkgs/$1/$1-${pkgsver[$INDEX]}-*.pkg.tar.gz" "${workspace}/"
+      if [ -f ${workspace}/pkgs/$1/$1-${pkgsver[$INDEX]}-*.pkg.tar.gz ]; then
+        cp ${workspace}/pkgs/$1/$1-${pkgsver[$INDEX]}-*.pkg.tar.gz ${workspace}/
         printf "${LGRE}$(gettext "done")${DEFA}"
         (( UPDATED ++ ))
       else
@@ -164,9 +164,9 @@ build_pkg(){
 add_pkg(){
   printf "Adding $1 $2 to $repo...\n"
   if [ "$VERBOSE" = "TRUE" ]; then
-    repo-add "${workspace}/$repo.db.tar.gz" "${workspace}/$1-$2-*.pkg.tar.gz" || print_addpkg_error $1
+    repo-add "${workspace}/$repo.db.tar.gz" ${workspace}/$1-$2-*.pkg.tar.gz || print_addpkg_error $1
   else
-    repo-add "${workspace}/$repo.db.tar.gz" "${workspace}/$1-$2-*.pkg.tar.gz" &> /dev/null || print_addpkg_error $1
+    repo-add "${workspace}/$repo.db.tar.gz" ${workspace}/$1-$2-*.pkg.tar.gz &> /dev/null || print_addpkg_error $1
   fi
   return 0
 }
@@ -336,7 +336,7 @@ get_pkgbuild(){
     if [ "$KEEPSRC" = "TRUE" ]; then
       rm -rf ${workspace}/pkgs/$1/{pkg/,${1}*} &> /dev/null
     else
-      rm -rf "${workspace}/pkgs/$1{,.tar.gz}" &> /dev/null
+      rm -rf ${workspace}/pkgs/$1{,.tar.gz} &> /dev/null
     fi
     get_pkg_repo $1
     if [ "$pkg_repo" != "aur" ]; then
@@ -436,7 +436,7 @@ copy_files(){
   
   INDEX=0
   for pkg in ${pkgs[@]}; do
-    [ -f "${workspace}/$pkg-${pkgsver[$INDEX]}-*.pkg.tar.gz" ] && cp "${workspace}/$pkg-${pkgsver[$INDEX]}-*.pkg.tar.gz" "$url/"
+    [ -f ${workspace}/$pkg-${pkgsver[$INDEX]}-*.pkg.tar.gz ] && cp ${workspace}/$pkg-${pkgsver[$INDEX]}-*.pkg.tar.gz "$url/"
     (( INDEX++ ))
   done
 }
@@ -493,7 +493,7 @@ main(){
   fi
 
   if [ "$ADD" = "TRUE" ]; then
-    printf "${YELL}$(gettext "Gettings PKGBUILDs: ")${DEFA}"
+    printf "${YELL}$(gettext "Getting PKGBUILDs: ")${DEFA}"
     if [ "$KEEP" != "TRUE" ]; then
       for pkg in ${pkgs[@]}; do
         get_pkgbuild $pkg
