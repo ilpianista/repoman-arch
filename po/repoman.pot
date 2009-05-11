@@ -14,157 +14,165 @@ msgstr  "Project-Id-Version: Repoman SVN\n"
         "Content-Type: text/plain; charset=utf-8\n"
         "Content-Transfer-Encoding: 8bit\n"
 
-msgid   "failed! Cannot add %s to repository."
-msgstr  ""
+msgid "failed! Cannot add %s to repository."
+msgstr ""
 
-msgid   "Skip.\\n"
-msgstr  ""
+msgid "Skip.\\n"
+msgstr ""
 
-msgid   "Cannot get %s. Skip."
-msgstr  ""
+msgid "Cannot get %s. Skip."
+msgstr ""
 
-msgid   "\\nI cannot continue without the database repo file. Exit.\\n"
-msgstr  ""
+msgid "\\nI cannot continue without the database repo file. Exit.\\n"
+msgstr ""
 
-msgid   "Makepkg failed! Skip.\\n"
-msgstr  ""
+msgid "makepkg failed! Skip.\\n"
+msgstr ""
 
-msgid   "failed! Cannot remove %s from repository."
-msgstr  ""
+msgid "failed! Cannot remove %s from repository."
+msgstr ""
 
-msgid   "Extraction failed! Skip.\\n"
-msgstr  ""
+msgid "Extraction failed! Skip.\\n"
+msgstr ""
 
-msgid   "failed! Cannot upload %s.\\n"
-msgstr  ""
+msgid "failed! Cannot upload %s.\\n"
+msgstr ""
 
-msgid   "done"
-msgstr  ""
+msgid "tarball not found. Skip\\n"
+msgstr ""
 
-msgid   "done, already built"
-msgstr  ""
+msgid "done"
+msgstr ""
 
-msgid   "skip, already up-to-date"
-msgstr  ""
+msgid "done, already built"
+msgstr ""
 
-msgid   "removed!\\n"
-msgstr  ""
+msgid "skip, already up-to-date"
+msgstr ""
 
-msgid   "A tool to manage your personal Arch Linux repository\\n"
-msgstr  ""
+msgid "removed!\\n"
+msgstr ""
 
-msgid   "Usage: repoman <action>|<flag> [OPTIONS] packages\\n"
-msgstr  ""
+msgid "A tool to manage your personal Arch Linux repository\\n"
+msgstr ""
 
-msgid   "Action:\\n"
-msgstr  ""
+msgid "Usage: repoman <action>|<flag> [OPTIONS] packages\\n"
+msgstr ""
 
-msgid   "  -A, --add          add or update packages on repository\\n"
-msgstr  ""
+msgid "Action:\\n"
+msgstr ""
 
-msgid   "  -R, --remove       remove packages from repository\\n"
-msgstr  ""
+msgid "  -A, --add          add or update packages on repository\\n"
+msgstr ""
 
-msgid   "      --create       create a new database, then add packages\\n"
-msgstr  ""
+msgid "  -R, --remove       remove packages from repository\\n"
+msgstr ""
 
-msgid   "Flag:\\n"
-msgstr  ""
+msgid "      --create       create a new database, then add packages\\n"
+msgstr ""
 
-msgid   "      --all          update the whole repository\\n"
-msgstr  ""
+msgid "Flag:\\n"
+msgstr ""
 
-msgid   "  -d, --devel        rebuild only devel packages on repository\\n"
-msgstr  ""
+msgid "      --all          update the whole repository\\n"
+msgstr ""
 
-msgid   "Options:\\n"
-msgstr  ""
+msgid "  -d, --devel        rebuild only devel packages on repository\\n"
+msgstr ""
 
-msgid   "  -l, --local        use this for local (non-ftp) repository\\n"
-msgstr  ""
+msgid "Options:\\n"
+msgstr ""
 
-msgid   "  -f, --force        build packages if already up-to-date on repo\\n"
-msgstr  ""
+msgid "  -l, --local        use this for local (non-ftp) repository\\n"
+msgstr ""
 
-msgid   "  -k, --keep         do not get tarballs from AUR, use local in pkgs/"
-        "\\n"
-msgstr  ""
+msgid "  -f, --force        build packages if already up-to-date on repo\\n"
+msgstr ""
 
-msgid   "  -u, --noupload     do not upload any file to ftp\\n"
-msgstr  ""
+msgid ""
+"  -k, --keep         do not get tarballs from AUR, use local in pkgs/\\n"
+msgstr ""
 
-msgid   "  -b, --nobuild      do not build packages if exist in workspace dir"
-        "\\n"
-msgstr  ""
+msgid "  -u, --noupload     do not upload any file to ftp\\n"
+msgstr ""
 
-msgid   "  -c, --nochangelog  do not use a changelog file\\n"
-msgstr  ""
+msgid "  -b, --nobuild      do not build packages if exist in workspace dir\\n"
+msgstr ""
 
-msgid   "  -e, --edit         ask to edit pkgbuild for each package\\n"
-msgstr  ""
+msgid "  -c, --nochangelog  do not use a changelog file\\n"
+msgstr ""
 
-msgid   "  -v, --verbose      more verbose, print commands output\\n"
-msgstr  ""
+msgid "  -o, --noconfirm    do not ask\\n"
+msgstr ""
 
-msgid   "      --clean        remove any files from workspace dir\\n"
-msgstr  ""
+msgid "  -e, --edit         ask to edit pkgbuild for each package\\n"
+msgstr ""
 
-msgid   "      --nocolor      do not use any color\\n"
-msgstr  ""
+msgid "  -v, --verbose      more verbose, print commands output\\n"
+msgstr ""
 
-msgid   "      --help         display this help and exit\\n"
-msgstr  ""
+msgid "      --keepsrc      backup/restore for the local sources (src)\\n"
+msgstr ""
 
-msgid   "REMOVED"
-msgstr  ""
+msgid "      --clean        remove any files from workspace dir\\n"
+msgstr ""
 
-msgid   "Do you want to edit %s PKGBUILD? (Y/n): "
-msgstr  ""
+msgid "      --nocolor      do not use any color\\n"
+msgstr ""
 
-msgid   "n"
-msgstr  ""
+msgid "      --help         display this help and exit\\n"
+msgstr ""
 
-msgid   "(PKGBUILD found in pkgs/ dir)\\n"
-msgstr  ""
+msgid "REMOVED"
+msgstr ""
 
-msgid   "PKGBUILD not found. Skip\\n"
-msgstr  ""
+msgid "Do you want to edit %s PKGBUILD? (Y/n): "
+msgstr ""
 
-msgid   "Do you want to clean packages build dirs? (y/N): "
-msgstr  ""
+msgid "n"
+msgstr ""
 
-msgid   "Any files in workspace directory have been removed!\\n"
-msgstr  ""
+msgid "(keeping PKGBUILD)\\n"
+msgstr ""
 
-msgid   "All copy of %s have been removed from ftp!\\n"
-msgstr  ""
+msgid "PKGBUILD not found. Skip\\n"
+msgstr ""
 
-msgid   "This will update the whole repository!\\n"
-msgstr  ""
+msgid "Do you want to clean packages build dirs? (y/N): "
+msgstr ""
 
-msgid   "Getting: "
-msgstr  ""
+msgid "Any files in workspace directory have been removed!\\n"
+msgstr ""
 
-msgid   "Packages: "
-msgstr  ""
+msgid "All copy of %s have been removed from ftp!\\n"
+msgstr ""
 
-msgid   "What I must do with these packages?!\\n\\n"
-msgstr  ""
+msgid "This will update the whole repository!\\n"
+msgstr ""
 
-msgid   "Downloading: "
-msgstr  ""
+msgid "Getting: "
+msgstr ""
 
-msgid   "Extracting: "
-msgstr  ""
+msgid "Packages: "
+msgstr ""
 
-msgid   "Getting all packages version..."
-msgstr  ""
+msgid "None package.\\n\\n"
+msgstr ""
 
-msgid   "Building: "
-msgstr  ""
+msgid "What I must do with these packages?!\\n\\n"
+msgstr ""
 
-msgid   "Updating: "
-msgstr  ""
+msgid "Getting PKGBUILDs: "
+msgstr ""
 
-msgid   "None packages added to repository\\n"
-msgstr  ""
+msgid "Getting packages version..."
+msgstr ""
+
+msgid "Building: "
+msgstr ""
+
+msgid "Updating: "
+msgstr ""
+
+msgid "None packages added to repository\\n"
+msgstr ""
