@@ -22,7 +22,7 @@
 export TEXTDOMAIN='repoman'
 export TEXTDOMAINDIR='/usr/share/locale'
 
-color(){
+colors(){
   if [ "$NOCOLOR" != "TRUE" ]; then
     DEFA="\033[1;0m"
     BOLD="\033[1;1m"
@@ -30,7 +30,7 @@ color(){
     LGRE="\033[1;32m"
     YELL="\033[1;33m"
   else
-    NOCOLOR_FLAG="--nocolor"
+    NOCOLOR_FLAG=" --nocolor"
   fi
 }
 
@@ -49,7 +49,7 @@ print_cannotgetfile_error(){
 }
 
 print_makepkg_error(){
-  printf "${LRED}$(gettext "Makepkg failed! Skip.\n")${DEFA}"
+  printf "${LRED}$(gettext "makepkg failed! Skip.\n")${DEFA}"
 }
 
 print_removepkg_error(){
@@ -82,21 +82,21 @@ get_file(){
 }
 
 extract_pkg(){
-  printf "$1 "
-  if [ ! -f "${workspace}/pkgs/$1/PKGBUILD" ]; then
+  if [ -f "${workspace}/pkgs/$1.tar.gz" ]; then
     if [ "$VERBOSE" = "TRUE" ]; then
-      printf "\n"
       tar -xf "${workspace}/pkgs/$1.tar.gz" -C "${workspace}/pkgs" || print_tar_error $1
+      printf "\n"
     else
       tar -xf "${workspace}/pkgs/$1.tar.gz" -C "${workspace}/pkgs" &> /dev/null || print_tar_error $1
     fi
+  else
+    printf "$(gettext "tarball not found. Skip\n")"
+    skip_pkg $1
   fi
 }
 
 get_pkg_version(){
   cd "${workspace}/pkgs/$1/"
-  unset pkgver
-  unset pkgrel
   source ./PKGBUILD
   is_dev=`echo $1 | sed -e 's:\/$::g' | grep "\-\(svn\|cvs\|hg\|git\|bzr\|darcs\)"`
   if [ ${#is_dev} -gt "0" ]; then
@@ -132,7 +132,7 @@ build_pkg(){
   # if the package isn't on the repo set repopkgver to 0
   [ "$repopkgver" = "-" ] && repopkgver=0-0
   if `is_x_gt_y ${pkgsver[$INDEX]} $repopkgver` || [ "$FORCE" = "TRUE" ] || [ ${#is_dev} -gt "0" ]; then
-    if [ ! -f "${workspace}/$1-${pkgsver[$INDEX]}-$arch.pkg.tar.gz"  -o "$NOBUILD" != "TRUE" ]; then
+    if [ ! -f "${workspace}/$1-${pkgsver[$INDEX]}-*.pkg.tar.gz"  -o "$NOBUILD" != "TRUE" ]; then
       cd "${workspace}/pkgs/$1"
       if [ "$VERBOSE" = "TRUE" ]; then
         printf "\n"
@@ -144,8 +144,8 @@ build_pkg(){
         source ./PKGBUILD
         pkgsver[$INDEX]=$pkgver-$pkgrel
       fi
-      if [ -f "${workspace}/pkgs/$1/$1-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" ]; then
-        cp "${workspace}/pkgs/$1/$1-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" "${workspace}/"
+      if [ -f "${workspace}/pkgs/$1/$1-${pkgsver[$INDEX]}-*.pkg.tar.gz" ]; then
+        cp "${workspace}/pkgs/$1/$1-${pkgsver[$INDEX]}-*.pkg.tar.gz" "${workspace}/"
         printf "${LGRE}$(gettext "done")${DEFA}"
         (( UPDATED ++ ))
       else
@@ -164,9 +164,9 @@ build_pkg(){
 add_pkg(){
   printf "Adding $1 $2 to $repo...\n"
   if [ "$VERBOSE" = "TRUE" ]; then
-    repo-add "${workspace}/$repo.db.tar.gz" "${workspace}/$1-$2-$arch.pkg.tar.gz" || print_addpkg_error $1
+    repo-add "${workspace}/$repo.db.tar.gz" "${workspace}/$1-$2-*.pkg.tar.gz" || print_addpkg_error $1
   else
-    repo-add "${workspace}/$repo.db.tar.gz" "${workspace}/$1-$2-$arch.pkg.tar.gz" &> /dev/null || print_addpkg_error $1
+    repo-add "${workspace}/$repo.db.tar.gz" "${workspace}/$1-$2-*.pkg.tar.gz" &> /dev/null || print_addpkg_error $1
   fi
   return 0
 }
@@ -321,43 +321,42 @@ edit_pkgbuild(){
   fi
 }
 
+get_pkg_from_aur(){
+  if [ "$VERBOSE" = "TRUE" ]; then
+    wget -P "${workspace}/pkgs" http://aur.archlinux.org/packages/$1/$1.tar.gz || print_cannotgetfile_error $1
+    printf "\n"
+  else
+    wget -P "${workspace}/pkgs" http://aur.archlinux.org/packages/$1/$1.tar.gz &> /dev/null || print_cannotgetfile_error $1
+  fi
+}
+
 get_pkgbuild(){
   printf "${LGRE}$1 ${DEFA}"
   if [ "$KEEP" != "TRUE" ]; then
     if [ "$KEEPSRC" = "TRUE" ]; then
-      mv ${workspace}/pkgs/$1/src ${workspace}/pkgs/temp
-      rm -rf "${workspace}/pkgs/$1.tar.gz" "${workspace}/pkgs/$1/*" &> /dev/null
-      mv ${workspace}/pkgs/temp ${workspace}/pkgs/$1/src
+      rm -rf ${workspace}/pkgs/$1/{pkg/,${1}*} &> /dev/null
     else
-      rm -rf "${workspace}/pkgs/$1.tar.gz" "${workspace}/pkgs/$1" &> /dev/null
+      rm -rf "${workspace}/pkgs/$1{,.tar.gz}" &> /dev/null
     fi
     get_pkg_repo $1
     if [ "$pkg_repo" != "aur" ]; then
       [ "$pkg_repo" == "community" ] && pkg_repo=$pkg_repo/`get_community_category $1`
       if [ "$VERBOSE" = "TRUE" ]; then
-        printf "\n"
         rsync -mrtv --no-motd --delete-after --delete-excluded rsync.archlinux.org::abs/`uname -m`/$pkg_repo/$1 "${workspace}/pkgs"
+        printf "\n"
       else
         rsync -mrtv --no-motd --delete-after --delete-excluded rsync.archlinux.org::abs/`uname -m`/$pkg_repo/$1 "${workspace}/pkgs" &> /dev/null
       fi
       printf "\n"
     elif [ "$pkg_repo" == "aur" ]; then
       get_pkg_from_aur $1
+      extract_pkg $1
     fi
   elif [ -f "${workspace}/pkgs/$1/PKGBUILD" ]; then
-    printf "$(gettext "(PKGBUILD found in pkgs/ dir)\n")${DEFA}"
+    printf "$(gettext "(keeping PKGBUILD)\n")${DEFA}"
   else
     printf "$(gettext "PKGBUILD not found. Skip\n")${DEFA}"
     skip_pkg $1
-  fi
-}
-
-get_pkg_from_aur(){
-  if [ "$VERBOSE" = "TRUE" ]; then
-    printf "\n"
-    wget -P "${workspace}/pkgs" http://aur.archlinux.org/packages/$1/$1.tar.gz || print_cannotgetfile_error $1
-  else
-    wget -P "${workspace}/pkgs" http://aur.archlinux.org/packages/$1/$1.tar.gz &> /dev/null || print_cannotgetfile_error $1
   fi
 }
 
@@ -395,11 +394,11 @@ upload_file(){
 
 remove_from_ftp(){
   if [ "$VERBOSE" = "TRUE" ]; then
-    #ncftpput -u $username -p $password $ftp_url /$ftp_dir -W "rm -f $1-*-$arch.pkg.tar.gz" || print_upload_error $1
-    lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; glob rm -f $1-*-*-$arch.pkg.tar.gz; exit" || return 1
+    #ncftpput -u $username -p $password $ftp_url /$ftp_dir -W "rm -f $1-*-*-*.pkg.tar.gz" || print_upload_error $1
+    lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; glob rm -f $1-*-*-*.pkg.tar.gz; exit" || return 1
   else
-    #ncftpput -u $username -p $password $ftp_url /$ftp_dir -W "rm -f $1-*-$arch.pkg.tar.gz" &> /dev/null || print_upload_error $1
-    lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; glob rm -f $1-*-*-$arch.pkg.tar.gz; exit" &> /dev/null || return 1
+    #ncftpput -u $username -p $password $ftp_url /$ftp_dir -W "rm -f $1-*-*-*.pkg.tar.gz" &> /dev/null || print_upload_error $1
+    lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; glob rm -f $1-*-*-*.pkg.tar.gz; exit" &> /dev/null || return 1
   fi
 }
 
@@ -419,7 +418,7 @@ upload(){
     INDEX=0
     for pkg in ${pkgs[@]}; do
       printf "Uploading $pkg ${pkgsver[$INDEX]}..."
-      upload_file $pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz || print_upload_error $pkg-${pkgsver[$INDEX]}
+      upload_file $pkg-${pkgsver[$INDEX]}-*.pkg.tar.gz || print_upload_error $pkg-${pkgsver[$INDEX]}
       printf "\n"
       (( INDEX++ ))
     done
@@ -430,13 +429,14 @@ upload(){
 
 copy_files(){
   if [ "$NOCHANGELOG" != "TRUE" ]; then
-    cp -f "${workspace}/$changelog" "$url/"
+    [ -f "${workspace}/$changelog" ] && cp "${workspace}/$changelog" "$url/"
   fi
-  cp -f "${workspace}/$repo.db.tar.gz" "$url/"
+  
+  [ -f "${workspace}/$repo.db.tar.gz" ] && cp "${workspace}/$repo.db.tar.gz" "$url/"
   
   INDEX=0
   for pkg in ${pkgs[@]}; do
-    cp -f "${workspace}/$pkg-${pkgsver[$INDEX]}-$arch.pkg.tar.gz" "$url/"
+    [ -f "${workspace}/$pkg-${pkgsver[$INDEX]}-*.pkg.tar.gz" ] && cp "${workspace}/$pkg-${pkgsver[$INDEX]}-*.pkg.tar.gz" "$url/"
     (( INDEX++ ))
   done
 }
@@ -463,62 +463,52 @@ get_pkgs_list(){
 main(){
   source /usr/lib/repoman/basicfunctions.sh || exit 1
   
-  [ "$UID" -eq 0 ] && ROOT_FLAG="--asroot "
-  
+  [ "$UID" -eq 0 ] && ROOT_FLAG=" --asroot"
+
   check_args $@
   check_files
-  color
-  UPDATED=0
-  
+  colors
+
   if [ "$CREATE" != "TRUE" ]; then
     printf "${YELL}$(gettext "Getting: ")${DEFA}"
-    if [ "$NOCHANGELOG" != "TRUE" ]; then
-      get_file $changelog
-    fi
+    [ "$NOCHANGELOG" != "TRUE" ] && get_file $changelog
     get_file $repo.db.tar.gz
     printf "\n"
   fi
 
-  if [ "$ALL" = "TRUE" -o "$DEVEL" = "TRUE" ]; then
-    get_pkgs_list
-  fi
-  
+  [ "$ALL" = "TRUE" -o "$DEVEL" = "TRUE" ] && get_pkgs_list
+
   if [ "${#pkgs[@]}" -gt "0" ]; then
     printf "${YELL}$(gettext "Packages: ")"
     print_pkgs_list
     printf "\n"
   else
+    printf "$(gettext "None package.\n\n")"
     exit 0
   fi
-  
-  if [ "$ADD" != "TRUE"  -a "$REMOVE" != "TRUE" ]; then
+
+  if [ "$ADD" != "TRUE" -a "$REMOVE" != "TRUE" ]; then
     printf "$(gettext "What I must do with these packages?!\n\n")"
-    usage
-    exit 1
+    exit 0
   fi
-  
+
   if [ "$ADD" = "TRUE" ]; then
-    printf "${YELL}$(gettext "Downloading: ")${DEFA}"
-    for pkg in ${pkgs[@]}; do
-      get_pkgbuild $pkg
-    done
+    printf "${YELL}$(gettext "Gettings PKGBUILDs: ")${DEFA}"
+    if [ "$KEEP" != "TRUE" ]; then
+      for pkg in ${pkgs[@]}; do
+        get_pkgbuild $pkg
+      done
+    fi
     printf "\n"
     
-    if [ "$KEEP" != "TRUE" ]; then
-      printf "${YELL}$(gettext "Extracting: ")${DEFA}"
-      for pkg in ${pkgs[@]}; do
-        extract_pkg $pkg
-      done
-      printf "\n"
-    fi
-    
-    printf "${YELL}$(gettext "Getting all packages version...")${DEFA}"
+    printf "${YELL}$(gettext "Getting packages version...")${DEFA}"
     for pkg in ${pkgs[@]}; do
       get_pkg_version $pkg
     done
     printf "\n"
     
     printf "${YELL}$(gettext "Building: ")${DEFA}"
+    UPDATED=0
     INDEX=0
     for pkg in ${pkgs[@]}; do
       build_pkg $pkg
@@ -537,12 +527,12 @@ main(){
     fi
   else
     printf "$(gettext "None packages added to repository\n")"
-    exit 0
+    exit 1
   fi
   
-  #if [ "$NOCONFIRM" != "TRUE" ]; then
-  #  [ "$ADD" = "TRUE" ] && ask_remove    
-  #fi
+  if [ "$NOCONFIRM" != "TRUE" ]; then
+    [ "$ADD" = "TRUE" ] && ask_remove    
+  fi
 }
 
 main $@

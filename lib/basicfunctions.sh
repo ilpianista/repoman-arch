@@ -53,7 +53,7 @@ get_community_category(){
 }
 
 get_pkg_repo(){
-    pkg_repo=`LC_ALL=C pacman -Si $1 2> /dev/null \
+    pkg_repo=`LC_ALL=C /usr/bin/pacman -Si $1 2> /dev/null \
         | grep -m1 Repository | awk -F": " '{print $2}'`
     case $pkg_repo in
         core) ;;
