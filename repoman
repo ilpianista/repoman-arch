@@ -132,7 +132,7 @@ build_pkg(){
 
       if [ -f ${workspace}/pkgs/$1/$1-${pkgsver[$INDEX]}-*.pkg.tar.gz ]; then
         cp ${workspace}/pkgs/$1/$1-${pkgsver[$INDEX]}-*.pkg.tar.gz ${workspace}/
-        printf "${LGRE}${pkgsver[$INDEX]} $(gettext "done")${DEFA}"
+        printf "${LGRE} ${pkgsver[$INDEX]} $(gettext "done")${DEFA}"
         (( UPDATED ++ ))
       else
         skip_pkg $1
@@ -488,7 +488,7 @@ main(){
     fi
     printf "\n"
     
-    printf "${YELL}$(gettext "Building: ")${DEFA}"
+    printf "${YELL}$(gettext "Building:")${DEFA}"
     UPDATED=0
     INDEX=0
     for pkg in ${pkgs[@]}; do
@@ -498,7 +498,7 @@ main(){
     done
   fi
   
-  if [ "$UPDATED" -ne "0" -o "$REMOVE" = "TRUE" ]; then
+  if [[ "$UPDATED" -ne "0" ]] || [ "$REMOVE" = "TRUE" ]; then
     printf "${YELL}$(gettext "Updating: ")${DEFA}"
     update
     if [ "$NOUPLOAD" != "TRUE" ]; then

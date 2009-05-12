@@ -1,6 +1,6 @@
 TODO List
 
 * If repoman see a dependence on AUR which isn't on own repository ask
-to pull that dependence on own repository.
+to pull that dependence on your own repository.
 
-* add --ignore packages options
+!!! add --ignore packages options
