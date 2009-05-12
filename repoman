@@ -95,18 +95,6 @@ extract_pkg(){
   fi
 }
 
-get_pkg_version(){
-  cd "${workspace}/pkgs/$1/"
-  source ./PKGBUILD
-  is_dev=`echo $1 | sed -e 's:\/$::g' | grep "\-\(svn\|cvs\|hg\|git\|bzr\|darcs\)"`
-  if [ ${#is_dev} -gt "0" ]; then
-    #makepkg -o --noconfirm $ROOT_FLAG $NOCOLOR_FLAG &> /dev/null
-    # temporarily. ever build devel packages
-    pkgver=0
-  fi
-  pkgsver[${#pkgsver[@]}]="$pkgver-$pkgrel"
-}
-
 skip_pkg(){
   for i in ${!pkgs[@]}; do
     if [ "${pkgs[$i]}" = "$1" ]; then
@@ -117,36 +105,34 @@ skip_pkg(){
 }
 
 build_pkg(){
-  if [ "$EDIT" = "TRUE" ]; then
-    edit_pkgbuild $1
-    source ./PKGBUILD
-    pkgsver[$INDEX]=$pkgver-$pkgrel
-  fi
-  printf "$1 "
-  is_dev=`echo $1 | sed -e 's:\/$::g' | grep "\-\(svn\|cvs\|hg\|git\|bzr\|darcs\)"`
-  if [ ${#is_dev} -eq "0" ]; then
-    printf "(${pkgsver[$INDEX]})${DEFA}: "
-  fi
+  [ "$EDIT" = "TRUE" ] && edit_pkgbuild $1
+
+  cd ${workspace}/pkgs/$1 && source PKGBUILD || skip_pkg $1
+  pkgsver[$INDEX]=$pkgver-$pkgrel
+
+  printf " $1:"
   local package=`tar -tf "${workspace}/$repo.db.tar.gz" | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep '^'$1'-[0-9]$*'`
   local repopkgver=`echo $package | rev | cut -d'-' -f2 | rev`-`echo $package | rev | cut -d'-' -f1 | rev`
-  # if the package isn't on the repo set repopkgver to 0
-  [ "$repopkgver" = "-" ] && repopkgver=0-0
-  if `is_x_gt_y ${pkgsver[$INDEX]} $repopkgver` || [ "$FORCE" = "TRUE" ] || [ ${#is_dev} -gt "0" ]; then
-    if [ ! -f ${workspace}/$1-${pkgsver[$INDEX]}-*.pkg.tar.gz  -o "$NOBUILD" != "TRUE" ]; then
+  # if the package isn't on the repo set repopkgver to 0-0
+  [ "${#repopkgver}" -le "0" ] && repopkgver="0-0"
+
+  if `is_x_gt_y ${pkgsver[$INDEX]} $repopkgver` || [ "$FORCE" = "TRUE" ]; then
+    if [ ! -f ${workspace}/$1-${pkgsver[$INDEX]}-*.pkg.tar.gz -o "$NOBUILD" != "TRUE" ]; then
       cd "${workspace}/pkgs/$1"
       if [ "$VERBOSE" = "TRUE" ]; then
-        printf "\n"
         makepkg -f --noconfirm $ROOT_FLAG $NOCOLOR_FLAG || print_makepkg_error
+        printf "\n"
       else
         makepkg -f --noconfirm $ROOT_FLAG $NOCOLOR_FLAG &> /dev/null || print_makepkg_error
       fi
-      if [ ${#is_dev} -gt "0" ]; then
-        source ./PKGBUILD
-        pkgsver[$INDEX]=$pkgver-$pkgrel
-      fi
+
+      #this is needed for devel packages
+      source PKGBUILD || skip_pkg $1
+      pkgsver[$INDEX]=$pkgver-$pkgrel
+
       if [ -f ${workspace}/pkgs/$1/$1-${pkgsver[$INDEX]}-*.pkg.tar.gz ]; then
         cp ${workspace}/pkgs/$1/$1-${pkgsver[$INDEX]}-*.pkg.tar.gz ${workspace}/
-        printf "${LGRE}$(gettext "done")${DEFA}"
+        printf "${LGRE}${pkgsver[$INDEX]} $(gettext "done")${DEFA}"
         (( UPDATED ++ ))
       else
         skip_pkg $1
@@ -165,10 +151,10 @@ add_pkg(){
   printf "Adding $1 $2 to $repo...\n"
   if [ "$VERBOSE" = "TRUE" ]; then
     repo-add "${workspace}/$repo.db.tar.gz" ${workspace}/$1-$2-*.pkg.tar.gz || print_addpkg_error $1
+    printf "\n"
   else
     repo-add "${workspace}/$repo.db.tar.gz" ${workspace}/$1-$2-*.pkg.tar.gz &> /dev/null || print_addpkg_error $1
   fi
-  return 0
 }
 
 remove_pkg(){
@@ -294,7 +280,7 @@ check_args(){
             R) REMOVE="TRUE"; FLAG="(REMOVED) " ;;
             b) NOBUILD="TRUE" ;;
             c) NOCHANGELOG="TRUE" ;;
-            d) DEVEL="TRUE"; ADD="TRUE" ;;
+            d) DEVEL="TRUE"; ADD="TRUE"; FORCE="TRUE" ;;
             e) EDIT="TRUE" ;;
             f) FORCE="TRUE" ;;
             k) KEEP="TRUE" ;;
@@ -384,18 +370,19 @@ upload_file(){
     if [ "$VERBOSE" = "TRUE" ]; then
       #ncftpput -u $username -p $password $ftp_url /$ftp_dir "${workspace}/$1" || print_upload_error $1
       lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; put ${workspace}/$1; exit" || print_upload_error $1
+      printf "\n"
     else
       #ncftpput -u $username -p $password $ftp_url /$ftp_dir "${workspace}/$1" &> /dev/null || print_upload_error $1
       lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; put ${workspace}/$1; exit" &> /dev/null || print_upload_error $1
     fi
   fi
-  return 0
 }
 
 remove_from_ftp(){
   if [ "$VERBOSE" = "TRUE" ]; then
     #ncftpput -u $username -p $password $ftp_url /$ftp_dir -W "rm -f $1-*-*-*.pkg.tar.gz" || print_upload_error $1
     lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; glob rm -f $1-*-*-*.pkg.tar.gz; exit" || return 1
+    printf "\n"
   else
     #ncftpput -u $username -p $password $ftp_url /$ftp_dir -W "rm -f $1-*-*-*.pkg.tar.gz" &> /dev/null || print_upload_error $1
     lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; glob rm -f $1-*-*-*.pkg.tar.gz; exit" &> /dev/null || return 1
@@ -501,12 +488,6 @@ main(){
     fi
     printf "\n"
     
-    printf "${YELL}$(gettext "Getting packages version...")${DEFA}"
-    for pkg in ${pkgs[@]}; do
-      get_pkg_version $pkg
-    done
-    printf "\n"
-    
     printf "${YELL}$(gettext "Building: ")${DEFA}"
     UPDATED=0
     INDEX=0
@@ -531,7 +512,7 @@ main(){
   fi
   
   if [ "$NOCONFIRM" != "TRUE" ]; then
-    [ "$ADD" = "TRUE" ] && ask_remove    
+    [ "$ADD" = "TRUE" ] && ask_remove 
   fi
 }
 
