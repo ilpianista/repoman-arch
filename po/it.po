@@ -58,7 +58,7 @@ msgid "A tool to manage your personal Arch Linux repository\\n"
 msgstr "Uno strumento per gestire il vostro repository personale di Arch Linux\\n"
 
 msgid "Usage: repoman <action>|<flag> [OPTIONS] packages\\n"
-msgstr "Uso: repoman <azione> [<flag> [OPZIONI] pacchetti\\n"
+msgstr "Uso: repoman <azione>|<flag> [OPZIONI] pacchetti\\n"
 
 msgid "Action:\\n"
 msgstr "Azione:\\n"
