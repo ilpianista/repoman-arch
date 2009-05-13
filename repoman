@@ -255,7 +255,6 @@ check_args(){
   while [ "$#" -ne "0" ]; do
     OPTIND=0
     for EXTRA_FLAG in $@; do
-      echo $EXTRA_FLAG
       case $EXTRA_FLAG in
         -*) break ;;
          *) pkgs[${#pkgs[@]}]=${EXTRA_FLAG} ; shift ;;
@@ -345,15 +344,14 @@ get_pkgbuild(){
       else
         rsync -mrtv --no-motd --delete-after --delete-excluded rsync.archlinux.org::abs/`uname -m`/$pkg_repo/$1 "${workspace}/pkgs" &> /dev/null
       fi
-      printf "\n"
     elif [ "$pkg_repo" == "aur" ]; then
       get_pkg_from_aur $1
       extract_pkg $1
     fi
   elif [ -f "${workspace}/pkgs/$1/PKGBUILD" ]; then
-    printf "$(gettext "(keeping PKGBUILD)\n")${DEFA}"
+    printf "$(gettext "(keeping PKGBUILD)\n")"
   else
-    printf "$(gettext "PKGBUILD not found. Skip\n")${DEFA}"
+    printf "$(gettext "PKGBUILD not found. Skip\n")"
     skip_pkg $1
   fi
 }
@@ -506,11 +504,9 @@ main(){
 
   if [ "$ADD" = "TRUE" ]; then
     printf "${YELL}$(gettext "Getting PKGBUILDs: ")${DEFA}"
-    if [ "$KEEP" != "TRUE" ]; then
-      for pkg in ${pkgs[@]}; do
-        get_pkgbuild $pkg
-      done
-    fi
+    for pkg in ${pkgs[@]}; do
+      get_pkgbuild $pkg
+    done
     printf "\n"
     
     printf "${YELL}$(gettext "Building: ")${DEFA}"
