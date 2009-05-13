@@ -172,7 +172,7 @@ update(){
     rm -f /tmp/header "/tmp/$changelog"
     INDEX=0
     for pkg in ${pkgs[@]}; do
-      echo "* `date +\"%d-%m-%Y %R\"` `whoami` $FLAG$pkg ${pkgsver[$INDEX]}" >> /tmp/header
+      echo "* `date +\"%d-%m-%Y %R\"` `whoami` $FLAG $pkg ${pkgsver[$INDEX]}" >> /tmp/header
       (( INDEX++ ))
     done
     cat /tmp/header "${workspace}/$changelog" > "/tmp/$changelog"
@@ -255,15 +255,16 @@ check_args(){
   while [ "$#" -ne "0" ]; do
     OPTIND=0
     for EXTRA_FLAG in $@; do
+      echo $EXTRA_FLAG
       case $EXTRA_FLAG in
         -*) break ;;
          *) pkgs[${#pkgs[@]}]=${EXTRA_FLAG} ; shift ;;
       esac
     done
-    while getopts ":ARdbcefklouv:-:" ARGS; do
+    while getopts ":ARdbcefklouvv:-:" ARGS; do
       case $ARGS in
         A) ADD="TRUE" ;;
-        R) REMOVE="TRUE"; FLAG="(REMOVED) " ;;
+        R) REMOVE="TRUE"; FLAG="(REMOVED)" ;;
         b) NOBUILD="TRUE" ;;
         c) NOCHANGELOG="TRUE" ;;
         d) DEVEL="TRUE"; ADD="TRUE"; FORCE="TRUE" ;;
