@@ -1,28 +1,46 @@
 # Italian translation for Repoman.
 # Copyright (C) 2008 Andrea Scarpino <bash.lnx@gmail.com>
 # This file is distributed under the same license as the Repoman package.
-# Giovanni 'voidnull' Scafora <linuxmania@gmail.com>, 2008
+# Giovanni 'voidnull' Scafora <giovanni@archlinux.org>, 2008, 2009
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: Repoman SVN\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-10-04 18:03+0200\n"
+"POT-Creation-Date: 2009-03-04 02:03+0100\n"
 "PO-Revision-Date: 2008-10-04 19:00+0200\n"
-"Last-Translator: Giovanni Scafora <linuxmania@gmail.com>\n"
-"Language-Team: Arch Linux Italian Team <linuxmania@gmail.com>\n"
+"Last-Translator: Giovanni Scafora <giovanni@archlinux.org>\n"
+"Language-Team: Arch Linux Italian Team <giovanni@archlinux.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-msgid "Extraction failed. Skip.\\n"
+msgid "failed! Cannot add %s to repository."
+msgstr "Impossibile aggiungere %s al repository."
+
+msgid "Skip.\\n"
+msgstr "Ignoro.\\n"
+
+msgid "Cannot get %s. Skip."
+msgstr "Impossibile scaricare %s."
+
+msgid "\\nI cannot continue without the database repo file. Exit.\\n"
+msgstr "\\nNon posso continuare senza il database del repo.\\n "
+
+msgid "makepkg failed! Skip.\\n"
+msgstr "makepkg terminato con errore.\\n"
+
+msgid "failed! Cannot remove %s from repository."
+msgstr "Impossibile rimuovere %s dal repository."
+
+msgid "Extraction failed! Skip.\\n"
 msgstr "Estrazione non riuscita.\\n"
 
-msgid "Makepkg failed. Skip.\\n"
-msgstr "Makepkg terminato con errore.\\n"
+msgid "failed! Cannot upload %s.\\n"
+msgstr "Impossibile inviare %s.\\n"
 
-msgid "Cannot get %s. Exiting...\\n"
-msgstr "Impossibile scaricare %s.\\n"
+msgid "tarball not found. Skip\\n"
+msgstr "il tarball non è stato trovato.\\n"
 
 msgid "done"
 msgstr "fatto"
@@ -33,27 +51,14 @@ msgstr "fatto, già compilato"
 msgid "skip, already up-to-date"
 msgstr "già aggiornato"
 
-msgid "added!\\n"
-msgstr "aggiunto!\\n"
-
-msgid "Cannot add %s to repository."
-msgstr "Impossibile aggiungere %s al repository."
-
-msgid "Skip.\\n"
-msgstr "Ignoro.\\n"
-
 msgid "removed!\\n"
 msgstr "rimosso!\\n"
 
-msgid "Cannot remove %s from repository."
-msgstr "Impossibile rimuovere %s dal repository."
+msgid "A tool to manage your personal Arch Linux repository\\n"
+msgstr "Uno strumento per gestire il vostro repository personale di Arch Linux\\n"
 
-msgid "A tool to manage your personal ArchLinux repository\\n"
-msgstr ""
-"Uno strumento per gestire il vostro repository personale di Arch Linux\\n"
-
-msgid "Usage: repoman <action> [OPTIONS] packages\\n"
-msgstr "Uso: repoman <azione> [OPZIONI] pacchetti\\n"
+msgid "Usage: repoman <action>|<flag> [OPTIONS] packages\\n"
+msgstr "Uso: repoman <azione> [<flag> [OPZIONI] pacchetti\\n"
 
 msgid "Action:\\n"
 msgstr "Azione:\\n"
@@ -67,18 +72,21 @@ msgstr "  -R, --remove       rimuove i pacchetti dal repository\\n"
 msgid "      --create       create a new database, then add packages\\n"
 msgstr "      --create       crea un nuovo database e aggiunge i pacchetti\\n"
 
+msgid "Flag:\\n"
+msgstr "Flag:\\n"
+
 msgid "      --all          update the whole repository\\n"
 msgstr "      --all          aggiorna l'intero repository\\n"
+
+msgid "  -d, --devel        rebuild only devel packages on repository\\n"
+msgstr ""
+"  -d, --devel        ricompila solo i pacchetti di sviluppo del repository\\n"
 
 msgid "Options:\\n"
 msgstr "Opzioni:\\n"
 
 msgid "  -l, --local        use this for local (non-ftp) repository\\n"
 msgstr "  -l, --local        usa questo come repository locale (non ftp)\\n"
-
-msgid "  -d, --devel        rebuild only devel packages on repository\\n"
-msgstr ""
-"  -d, --devel        ricompila solo i pacchetti di sviluppo del repository\\n"
 
 msgid "  -f, --force        build packages if already up-to-date on repo\\n"
 msgstr ""
@@ -98,7 +106,10 @@ msgstr ""
 "pacchetti\\n"
 
 msgid "  -c, --nochangelog  do not use a changelog file\\n"
-msgstr "  -c, --nochangelog  non utilizza un file di changelog\\n"
+msgstr "  -c, --nochangelog  non utilizza un changelog\\n"
+
+msgid "  -o, --noconfirm    do not ask\\n"
+msgstr "  -o, --noconfirm    non chiede conferma\\n"
 
 msgid "  -e, --edit         ask to edit pkgbuild for each package\\n"
 msgstr ""
@@ -106,6 +117,9 @@ msgstr ""
 
 msgid "  -v, --verbose      more verbose, print commands output\\n"
 msgstr "  -v, --verbose      visualizza l'output dei comandi\\n"
+
+msgid "      --keepsrc      backup/restore for the local sources (src)\\n"
+msgstr "      --keepsrc      salva/ripristina i sorgenti locali (src)\\n"
 
 msgid "      --clean        remove any files from workspace dir\\n"
 msgstr "      --clean        rimuove tutti i file dalla directory di lavoro\\n"
@@ -125,29 +139,20 @@ msgstr "Vuoi editare il PKGBUILD di %s? (S/n):"
 msgid "n"
 msgstr "n"
 
-msgid "(%s found in pkgs/ dir)\\n"
-msgstr "(%s trovato nella directory pkgs/)\\n"
+msgid "(keeping PKGBUILD)\\n"
+msgstr "(sto mantenendo il PKGBUILD)\\n"
 
-msgid "Cannot get %s. Skip.\\n"
-msgstr "Impossibile scaricare %s.\\n"
+msgid "PKGBUILD not found. Skip\\n"
+msgstr "il PKGBUILD non è stato trovato.\\n"
 
-msgid "Do you want to remove packages build dir? (y/N): "
-msgstr "Vuoi rimuovere la directory di compilazione dei pacchetti? (s/N):"
+msgid "Do you want to clean packages build dirs? (y/N): "
+msgstr "Vuoi ripulire la directory di compilazione dei pacchetti? (s/N):"
 
 msgid "Any files in workspace directory have been removed!\\n"
 msgstr "Sono stati rimossi tutti i file presenti nella directory di lavoro!\\n"
 
-msgid "uploaded!\\n"
-msgstr "inviato!\\n"
-
-msgid "Upload of %s"
-msgstr "Invio di %s"
-
-msgid "failed.\\n"
-msgstr "Operazione non riuscita.\\n"
-
 msgid "All copy of %s have been removed from ftp!\\n"
-msgstr "Tutte le copie di %s sono state rimosse dal ftp!\\n"
+msgstr "Il pacchetto %s è stato rimosso dal ftp!\\n"
 
 msgid "This will update the whole repository!\\n"
 msgstr "Questa opzione aggiornerà l'intero repository!\\n"
@@ -158,17 +163,17 @@ msgstr "Scaricamento in corso: "
 msgid "Packages: "
 msgstr "Pacchetti: "
 
+msgid "None package.\\n\\n"
+msgstr "Nessun pacchetto.\\n\\n"
+
 msgid "What I must do with these packages?!\\n\\n"
 msgstr "Cosa devo fare con questi pacchetti?!\\n\\n"
 
-msgid "Downloading: "
-msgstr "Scaricamento in corso: "
+msgid "Getting PKGBUILDs: "
+msgstr "Sto scaricando i PKGBUILD: "
 
-msgid "extracting...\\n"
-msgstr "estrazione in corso...\\n"
-
-msgid "Getting all packages version..."
-msgstr "Sto scaricando tutte le versioni dei pacchetti..."
+msgid "Getting packages version..."
+msgstr "Sto scaricando le versioni dei pacchetti..."
 
 msgid "Building: "
 msgstr "Compilazione in corso: "
@@ -177,4 +182,4 @@ msgid "Updating: "
 msgstr "Aggiornamento in corso: "
 
 msgid "None packages added to repository\\n"
-msgstr "Nessun pacchetto aggiunto al repository\\n"
+msgstr "Nessun pacchetto è stato aggiunto al repository\\n"
