@@ -71,7 +71,7 @@ get_file(){
   printf "${LGRE}$1 ${DEFA}"
   mv "${workspace}/$1" "${workspace}/$1.old" &> /dev/null
   if [ "$LOCAL" != "TRUE" ]; then
-    if [ "$VERBOSE" = "TRUE" ]; then
+    if [ "$VERBOSE" == "TRUE" ]; then
       wget -P "${workspace}" "$url/$1" || print_cannotgetfile_error $1
     else
       wget -P "${workspace}" "$url/$1" &> /dev/null || print_cannotgetfile_error $1
@@ -83,7 +83,7 @@ get_file(){
 
 extract_pkg(){
   if [ -f "${workspace}/pkgs/$1.tar.gz" ]; then
-    if [ "$VERBOSE" = "TRUE" ]; then
+    if [ "$VERBOSE" == "TRUE" ]; then
       tar -xf "${workspace}/pkgs/$1.tar.gz" -C "${workspace}/pkgs" || print_tar_error $1
       printf "\n"
     else
@@ -97,7 +97,7 @@ extract_pkg(){
 
 skip_pkg(){
   for i in ${!pkgs[@]}; do
-    if [ "${pkgs[$i]}" = "$1" ]; then
+    if [ "${pkgs[$i]}" == "$1" ]; then
       pkgs[$i]=""
       pkgsver[$i]=""
     fi
@@ -105,7 +105,7 @@ skip_pkg(){
 }
 
 build_pkg(){
-  [ "$EDIT" = "TRUE" ] && edit_pkgbuild $1
+  [ "$EDIT" == "TRUE" ] && edit_pkgbuild $1
 
   cd ${workspace}/pkgs/$1 && source PKGBUILD || skip_pkg $1
   pkgsver[$INDEX]="$pkgver-$pkgrel"
@@ -116,10 +116,10 @@ build_pkg(){
   # if the package isn't on the repo set repopkgver to 0-0
   [ "${#repopkgver}" -le "0" ] && repopkgver="0-0"
 
-  if `is_x_gt_y ${pkgsver[$INDEX]} $repopkgver` || [ "$FORCE" = "TRUE" ]; then
+  if `is_x_gt_y ${pkgsver[$INDEX]} $repopkgver` || [ "$FORCE" == "TRUE" ]; then
     if [ ! -f ${workspace}/$1-${pkgsver[$INDEX]}-*.pkg.tar.gz -o "$NOBUILD" != "TRUE" ]; then
       cd "${workspace}/pkgs/$1"
-      if [ "$VERBOSE" = "TRUE" ]; then
+      if [ "$VERBOSE" == "TRUE" ]; then
         makepkg -f --noconfirm $ROOT_FLAG $NOCOLOR_FLAG || print_makepkg_error
         printf "\n"
       else
@@ -149,7 +149,7 @@ build_pkg(){
 
 add_pkg(){
   printf "Adding $1 $2 to $repo...\n"
-  if [ "$VERBOSE" = "TRUE" ]; then
+  if [ "$VERBOSE" == "TRUE" ]; then
     repo-add "${workspace}/$repo.db.tar.gz" ${workspace}/$1-$2-*.pkg.tar.gz || print_addpkg_error $1
     printf "\n"
   else
@@ -158,7 +158,7 @@ add_pkg(){
 }
 
 remove_pkg(){
-  if [ "$VERBOSE" = "TRUE" ]; then
+  if [ "$VERBOSE" == "TRUE" ]; then
     repo-remove "${workspace}/$repo.db.tar.gz" $1 || print_removepkg_error $1
     printf "\n"
   else
@@ -172,7 +172,7 @@ update(){
     rm -f /tmp/header "/tmp/$changelog"
     INDEX=0
     for pkg in ${pkgs[@]}; do
-      echo "* `date +\"%d-%m-%Y %R\"` `whoami` $FLAG $pkg ${pkgsver[$INDEX]}" >> /tmp/header
+      echo "* `date +\"%d-%m-%Y %R\"` `whoami` $FLAG$pkg ${pkgsver[$INDEX]}" >> /tmp/header
       (( INDEX++ ))
     done
     cat /tmp/header "${workspace}/$changelog" > "/tmp/$changelog"
@@ -180,13 +180,13 @@ update(){
   fi
     
   printf "$repo.db.tar.gz\n"
-  if [ "$ADD" = "TRUE" ]; then
+  if [ "$ADD" == "TRUE" ]; then
     INDEX=0
     for pkg in ${pkgs[@]}; do
       add_pkg $pkg ${pkgsver[$INDEX]} || print_addpkg_error $pkg
       (( INDEX++ ))
     done
-  elif [ "$REMOVE" = "TRUE" ]; then
+  elif [ "$REMOVE" == "TRUE" ]; then
     for pkg in ${pkgs[@]}; do
       remove_pkg $pkg || print_removepkg_error $pkg
       printf "$pkg ${LGRE}$(gettext "removed!\n")${DEFA}"
@@ -204,7 +204,7 @@ usage(){
   printf "$(gettext "      --create <pkg> create a new database, then add packages\n")"
   printf "$(gettext "Flag:\n")"
   printf "$(gettext "      --all          update the whole repository\n")"
-  printf "$(gettext "  -d, --devel        rebuild only devel packages on repository\n")"
+  printf "$(gettext "      --devel        rebuild only devel packages on repository\n")"
   printf "$(gettext "Options:\n")"
   printf "$(gettext "  -l, --local        use this for local (non-ftp) repository\n")"
   printf "$(gettext "  -f, --force        build packages if already up-to-date on repo\n")"
@@ -260,13 +260,12 @@ check_args(){
          *) pkgs[${#pkgs[@]}]=${EXTRA_FLAG} ; shift ;;
       esac
     done
-    while getopts ":ARdbcefklouvv:-:" ARGS; do
+    while getopts ":ARbcefklouvv:-:" ARGS; do
       case $ARGS in
         A) ADD="TRUE" ;;
-        R) REMOVE="TRUE"; FLAG="(REMOVED)" ;;
+        R) REMOVE="TRUE"; FLAG="(REMOVED) " ;;
         b) NOBUILD="TRUE" ;;
         c) NOCHANGELOG="TRUE" ;;
-        d) DEVEL="TRUE"; ADD="TRUE"; FORCE="TRUE" ;;
         e) EDIT="TRUE" ;;
         f) FORCE="TRUE" ;;
         k) KEEP="TRUE" ;;
@@ -281,7 +280,7 @@ check_args(){
           create) CREATE="TRUE"; ADD="TRUE" ;;
           all) ALL="TRUE"; ADD="TRUE" ;;
           local) LOCAL="TRUE"; NOUPLOAD="TRUE" ;;
-          devel) DEVEL="TRUE"; ADD="TRUE" ;;
+          devel) DEVEL="TRUE"; ADD="TRUE"; FORCE="TRUE" ;;
           force) FORCE="TRUE" ;;
           ignore) shift $(($OPTIND - 1))
             ignorepkg=`echo $1 | tr ',' ' '`
@@ -319,7 +318,7 @@ edit_pkgbuild(){
 }
 
 get_pkg_from_aur(){
-  if [ "$VERBOSE" = "TRUE" ]; then
+  if [ "$VERBOSE" == "TRUE" ]; then
     wget -P "${workspace}/pkgs" http://aur.archlinux.org/packages/$1/$1.tar.gz || print_cannotgetfile_error $1
     printf "\n"
   else
@@ -330,7 +329,7 @@ get_pkg_from_aur(){
 get_pkgbuild(){
   printf "${LGRE}$1 ${DEFA}"
   if [ "$KEEP" != "TRUE" ]; then
-    if [ "$KEEPSRC" = "TRUE" ]; then
+    if [ "$KEEPSRC" == "TRUE" ]; then
       rm -rf ${workspace}/pkgs/$1/{pkg/,${1}*} &> /dev/null
     else
       rm -rf ${workspace}/pkgs/$1{,.tar.gz} &> /dev/null
@@ -338,7 +337,7 @@ get_pkgbuild(){
     get_pkg_repo $1
     if [ "$pkg_repo" != "aur" ]; then
       [ "$pkg_repo" == "community" ] && pkg_repo=$pkg_repo/`get_community_category $1`
-      if [ "$VERBOSE" = "TRUE" ]; then
+      if [ "$VERBOSE" == "TRUE" ]; then
         rsync -mrtv --no-motd --delete-after --delete-excluded rsync.archlinux.org::abs/`uname -m`/$pkg_repo/$1 "${workspace}/pkgs"
         printf "\n"
       else
@@ -365,7 +364,7 @@ print_pkgs_list(){
 ask_remove(){
   printf "${BOLD}$(gettext "Do you want to clean packages build dirs? (y/N): ")${DEFA}"
   read DIR_REMOVE
-  if [ "$DIR_REMOVE" = "y" ]; then
+  if [ "$DIR_REMOVE" == "y" ]; then
     rm -rf ${workspace}/pkgs/*/{pkg,src,*.pkg.tar.gz}
   fi
 }
@@ -377,7 +376,7 @@ clean(){
 
 upload_file(){
   if [ -f "${workspace}/$1" ]; then
-    if [ "$VERBOSE" = "TRUE" ]; then
+    if [ "$VERBOSE" == "TRUE" ]; then
       #ncftpput -u $username -p $password $ftp_url /$ftp_dir "${workspace}/$1" || print_upload_error $1
       lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; put ${workspace}/$1; exit" || print_upload_error $1
       printf "\n"
@@ -389,7 +388,7 @@ upload_file(){
 }
 
 remove_from_ftp(){
-  if [ "$VERBOSE" = "TRUE" ]; then
+  if [ "$VERBOSE" == "TRUE" ]; then
     #ncftpput -u $username -p $password $ftp_url /$ftp_dir -W "rm -f $1-*-*-*.pkg.tar.gz" || print_upload_error $1
     lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; glob rm -f $1-*-*-*.pkg.tar.gz; exit"
     printf "\n"
@@ -411,7 +410,7 @@ upload(){
   printf "\n"
   
   remove_from_ftp $pkg
-  if [ "$ADD" = "TRUE" ]; then
+  if [ "$ADD" == "TRUE" ]; then
     INDEX=0
     for pkg in ${pkgs[@]}; do
       printf "Uploading $pkg ${pkgsver[$INDEX]}..."
@@ -419,7 +418,7 @@ upload(){
       printf "\n"
       (( INDEX++ ))
     done
-  elif [ "$REMOVE" = "TRUE" ]; then
+  elif [ "$REMOVE" == "TRUE" ]; then
     printf "$(gettext "All copy of %s have been removed from ftp!\n")" "$pkg"
   fi
 }
@@ -440,7 +439,7 @@ copy_files(){
 
 get_pkgs_list(){
   IGNORE="FALSE"
-  if [ "$DEVEL" = "TRUE" ]; then
+  if [ "$DEVEL" == "TRUE" ]; then
     for pkg in `tar -tf "${workspace}/$repo.db.tar.gz" | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep "\-\(svn\|cvs\|hg\|git\|bzr\|darcs\)"`; do
       for ipkg in ${ignorepkg[@]}; do
         pkgname=`echo $pkg | rev | cut -d'-' -f3- | rev`
@@ -486,7 +485,7 @@ main(){
     printf "\n"
   fi
 
-  [ "$ALL" = "TRUE" -o "$DEVEL" = "TRUE" ] && get_pkgs_list
+  [ "$ALL" == "TRUE" -o "$DEVEL" == "TRUE" ] && get_pkgs_list
 
   if [ "${#pkgs[@]}" -gt "0" ]; then
     printf "${YELL}$(gettext "Packages: ")"
@@ -502,7 +501,7 @@ main(){
     exit 0
   fi
 
-  if [ "$ADD" = "TRUE" ]; then
+  if [ "$ADD" == "TRUE" ]; then
     printf "${YELL}$(gettext "Getting PKGBUILDs: ")${DEFA}"
     for pkg in ${pkgs[@]}; do
       get_pkgbuild $pkg
@@ -519,12 +518,12 @@ main(){
     done
   fi
   
-  if [[ "$UPDATED" -ne "0" ]] || [ "$REMOVE" = "TRUE" ]; then
+  if [[ "$UPDATED" -ne "0" ]] || [ "$REMOVE" == "TRUE" ]; then
     printf "${YELL}$(gettext "Updating: ")${DEFA}"
     update
     if [ "$NOUPLOAD" != "TRUE" ]; then
       upload
-    elif [ "$LOCAL" = "TRUE" ]; then
+    elif [ "$LOCAL" == "TRUE" ]; then
       copy_files
     fi
   else
@@ -533,7 +532,7 @@ main(){
   fi
   
   if [ "$NOCONFIRM" != "TRUE" ]; then
-    [ "$ADD" = "TRUE" ] && ask_remove 
+    [ "$ADD" == "TRUE" ] && ask_remove 
   fi
 }
 

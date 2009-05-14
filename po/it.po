@@ -78,9 +78,9 @@ msgstr "Flag:\\n"
 msgid "      --all          update the whole repository\\n"
 msgstr "      --all          aggiorna l'intero repository\\n"
 
-msgid "  -d, --devel        rebuild only devel packages on repository\\n"
+msgid "      --devel        rebuild only devel packages on repository\\n"
 msgstr ""
-"  -d, --devel        ricompila solo i pacchetti di sviluppo del repository\\n"
+"      --devel        ricompila solo i pacchetti di sviluppo del repository\\n"
 
 msgid "Options:\\n"
 msgstr "Opzioni:\\n"

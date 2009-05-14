@@ -77,7 +77,7 @@ msgstr ""
 msgid "      --all          update the whole repository\\n"
 msgstr ""
 
-msgid "  -d, --devel        rebuild only devel packages on repository\\n"
+msgid "      --devel        rebuild only devel packages on repository\\n"
 msgstr ""
 
 msgid "Options:\\n"
