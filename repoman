@@ -79,10 +79,15 @@ extract_pkg(){
   fi
 }
 
-# $1 = package
-# $2 = array
-pkg_in_array(){
-  for pkg in ${2}; do
+pkg_is_in_ignore(){
+  for pkg in ${ignorepkgs[@]}; do
+    if [ "${1}" == "${pkg}" ]; then return 0; else return 1; fi
+  done
+  return 1
+}
+
+pkg_is_in_broken(){
+  for pkg in ${brokenpkgs[@]}; do
     if [ "${1}" == "${pkg}" ]; then return 0; else return 1; fi
   done
   return 1
@@ -157,7 +162,7 @@ update(){
     INDEX=0
     BROKEN="FALSE"
     for pkg in ${pkgs[@]}; do
-      if `pkg_in_array $pkg $pkgs`; then BROKEN="TRUE"; fi
+      if `pkg_is_in_broken $pkg`; then BROKEN="TRUE"; fi
       if [ "$BROKEN" != "TRUE" ]; then
         echo "* `date +\"%d-%m-%Y %R\"` `whoami` $FLAG$pkg ${pkgsver[$INDEX]}" >> /tmp/header
         (( INDEX++ ))
@@ -403,7 +408,7 @@ upload(){
     INDEX=0
     BROKEN="FALSE"
     for pkg in ${pkgs[@]}; do
-      if `pkg_in_array $pkg $pkgs`; then BROKEN="TRUE"; fi
+      if `pkg_is_in_broken $pkg`; then BROKEN="TRUE"; fi
       if [ "$BROKEN" != "TRUE" ]; then
         printf "Uploading $pkg ${pkgsver[$INDEX]}..."
         upload_file $pkg-${pkgsver[$INDEX]}-*.pkg.tar.gz || print_upload_error $pkg-${pkgsver[$INDEX]}
@@ -436,7 +441,7 @@ get_pkgs_list(){
   if [ "$DEVEL" == "TRUE" ]; then
     for pkg in `tar -tf "${workspace}/$repo.db.tar.gz" | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep "\-\(svn\|cvs\|hg\|git\|bzr\|darcs\)"`; do
       local pkgname=`echo $pkg | rev | cut -d'-' -f3- | rev`
-      if `pkg_in_array $pkgname $ignorepkgs`; then IGNORE="TRUE"; fi
+      if `pkg_is_in_ignore $pkgname`; then IGNORE="TRUE"; fi
       if [ "$IGNORE" != "TRUE" ]; then
         pkgs[${#pkgs[@]}]=$pkgname
         repopkgsver[${#repopkgsver[@]}]=`echo $pkg | rev | cut -d'-' -f2 | rev`
@@ -448,7 +453,7 @@ get_pkgs_list(){
     printf "${YELL}$(gettext "This will update the whole repository!\n")${DEFA}"
     for pkg in `tar -tf "${workspace}/$repo.db.tar.gz" | grep -vE 'desc$|depends$' | sed -e 's:\/$::g'`; do
       local pkgname=`echo $pkg | rev | cut -d'-' -f3- | rev`
-      if `pkg_in_array $pkgname $ignorepkgs`; then IGNORE="TRUE"; fi
+      if `pkg_is_in_ignore $pkgname`; then IGNORE="TRUE"; fi
       if [ "$IGNORE" != "TRUE" ]; then
         pkgs[${#pkgs[@]}]=$pkgname
         repopkgsver[${#repopkgsver[@]}]=`echo $pkg | rev | cut -d'-' -f2 | rev`
@@ -490,7 +495,9 @@ main(){
       cp "$url/${repo}.db.tar.gz" "${workspace}/" &> /dev/null
     fi
 
-    [ ! -f "${workspace}/${changelog}" ] && exit 1
+    if [ "$NOCHANGELOG" != "TRUE" ]; then
+      [ ! -f "${workspace}/${changelog}" ] && exit 1
+    fi
     [ ! -f "${workspace}/${repo}.db.tar.gz" ] && exit 1
   fi
 
@@ -522,7 +529,7 @@ main(){
     INDEX=0
     BROKEN="FALSE"
     for pkg in ${pkgs[@]}; do
-      if `pkg_in_array $pkg $pkgs`; then BROKEN="TRUE"; fi
+      if `pkg_is_in_broken $pkg`; then BROKEN="TRUE"; fi
       if [ "$BROKEN" != "TRUE" ]; then
         build_pkg $pkg
         (( INDEX++ ))
