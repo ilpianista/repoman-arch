@@ -83,7 +83,7 @@ extract_pkg(){
 # $2 = array
 pkg_in_array(){
   for pkg in ${2}; do
-    if [ "${1}" == "${pkgname}" ]; then return 0; else return 1; fi
+    if [ "${1}" == "${pkg}" ]; then return 0; else return 1; fi
   done
   return 1
 }
