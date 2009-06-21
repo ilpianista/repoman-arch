@@ -1,28 +1,42 @@
-# Czech translation for Repoman.
-# Copyright (C) 2008 Andrea Scarpino <bash.lnx@gmail.com>
+# LANGUAGE translation for Repoman.
+# Copyright (C) 2008-2009 Andrea Scarpino <bash.lnx@gmail.com>
 # This file is distributed under the same license as the Repoman package.
-# Jaroslav Lichtblau <dragonlord@seznam.cz>, 2008
+# Jaroslav Lichtblau <dragonlord@aur.archlinux.org>, 2008-2009.
 #
-msgid ""
-msgstr ""
-"Project-Id-Version: Repoman SVN\n"
-"Report-Msgid-Bugs-To: bash.lnx@gmail.com\n"
-"POT-Creation-Date: 2008-09-28 21:46+0200\n"
-"PO-Revision-Date: 2008-10-03 17:44+0100\n"
-"Last-Translator: Jaroslav Lichtblau <dragonlord@seznam.cz>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
-"Content-Transfer-Encoding: 8bit\n"
+msgid   ""
+msgstr  "Project-Id-Version: Repoman SVN\n"
+        "Report-Msgid-Bugs-To: \n"
+        "POT-Creation-Date: 2009-03-04 02:03+0100\n"
+        "PO-Revision-Date: 2009-06-21 16:19+2\n"
+        "Last-Translator: Jaroslav Lichtblau <dragonlord@aur.archlinux.org>\n"
+        "Language-Team: \n"
+        "MIME-Version: 1.0\n"
+        "Content-Type: text/plain; charset=utf-8\n"
+        "Content-Transfer-Encoding: 8bit\n"
 
-msgid "Extraction failed. Skip.\\n"
-msgstr "Rozbalení selhalo. Přeskakuji.\\n"
+msgid "failed! Cannot add %s to repository."
+msgstr "chyba! Nelze přidat %s do repozitáře."
 
-msgid "Makepkg failed. Skip.\\n"
-msgstr "Makepkg selhalo. Přeskakuji.\\n"
+msgid "Skip.\\n"
+msgstr "Přeskakuji.\\n"
 
-msgid "Cannot get %s. Exiting...\\n"
-msgstr "Nelze stáhnout %s. Končím...\\n"
+msgid "Cannot get %s. Skip."
+msgstr "Nelze stáhnout %s. Přeskakuji."
+
+msgid "makepkg failed! Skip.\\n"
+msgstr "makepkg selhal! Přeskakuji.\\n"
+
+msgid "failed! Cannot remove %s from repository."
+msgstr "chyba! Nelze odstranit %s z repozitáře."
+
+msgid "Extraction failed! Skip.\\n"
+msgstr "Rozbalení selhalo! Přeskakuji.\\n"
+
+msgid "failed! Cannot upload %s.\\n"
+msgstr "chyba! Nelze přenést %s.\\n"
+
+msgid "tarball not found. Skip\\n"
+msgstr "tarball nenalezen. Přeskakuji\\n"
 
 msgid "done"
 msgstr "hotovo"
@@ -33,26 +47,14 @@ msgstr "hotovo, je již sestaveno"
 msgid "skip, already up-to-date"
 msgstr "přeskakuji, již v poslední verzi"
 
-msgid "added!\\n"
-msgstr "přidán!\\n"
-
-msgid "Cannot add %s to repository."
-msgstr "Nelze přidat %s do repozitáře."
-
-msgid "Skip.\\n"
-msgstr "Přeskakuji.\\n"
-
 msgid "removed!\\n"
 msgstr "odstraněn!\\n"
 
-msgid "Cannot remove %s from repository."
-msgstr "Nelze odstranit %s z repozitáře."
+msgid "A tool to manage your personal Arch Linux repository\\n"
+msgstr "Nástroj pro správu vlastního repozitáře pro Arch Linux\\n"
 
-msgid "A tool to manage your personal ArchLinux repository\\n"
-msgstr "Nástroj pro správu vlastního repozitáře pro ArchLinux\\n"
-
-msgid "Usage: repoman <action> [OPTIONS] packages\\n"
-msgstr "Použití: repoman <akce> [VOLBY] balíčky\\n"
+msgid "Usage: repoman <action>|<flag> [OPTIONS] packages\\n"
+msgstr "Použití: repoman <akce>|<přepínač> [VOLBY] balíčky\\n"
 
 msgid "Action:\\n"
 msgstr "Akce:\\n"
@@ -66,8 +68,14 @@ msgstr "  -R, --remove       odstranit balíčky z repozitáře\\n"
 msgid "      --create       create a new database, then add packages\\n"
 msgstr "      --create       vytvořit novou databázi repozitáře, poté přidat balíčky\\n"
 
+msgid "Flag:\\n"
+msgstr "Přepínače:\\n"
+
 msgid "      --all          update the whole repository\\n"
 msgstr "      --all          aktualizovat celý repozitář\\n"
+
+msgid "      --devel        rebuild only devel packages on repository\\n"
+msgstr "      --devel        přeložit pouze vývojové balíčky v repozitáři\\n"
 
 msgid "Options:\\n"
 msgstr "Volby:\\n"
@@ -75,13 +83,11 @@ msgstr "Volby:\\n"
 msgid "  -l, --local        use this for local (non-ftp) repository\\n"
 msgstr "  -l, --local        použít pro lokální (ne-ftp) repozitář\\n"
 
-msgid "  -d, --devel        rebuild only devel packages on repository\\n"
-msgstr "  -d, --devel        přeložit pouze vývojové verze balíčků v repozitáři\\n"
-
 msgid "  -f, --force        build packages if already up-to-date on repo\\n"
 msgstr "  -f, --force        vynutit sestavení balíčků obsažených v repozitáři\\n"
 
-msgid "  -k, --keep         do not get tarballs from AUR, use local in pkgs/\\n"
+msgid ""
+"  -k, --keep         do not get tarballs from AUR, use local in pkgs/\\n"
 msgstr "  -k, --keep         nestahovat archivy z AURu, použít adresář pkgs/\\n"
 
 msgid "  -u, --noupload     do not upload any file to ftp\\n"
@@ -93,11 +99,17 @@ msgstr "  -b, --nobuild      nepřekládat balíčky, pokud jsou již sestavené
 msgid "  -c, --nochangelog  do not use a changelog file\\n"
 msgstr "  -c, --nochangelog  nepoužívat soubor changelog\\n"
 
+msgid "  -o, --noconfirm    do not ask\\n"
+msgstr "  -o, --noconfirm    neptat se\\n"
+
 msgid "  -e, --edit         ask to edit pkgbuild for each package\\n"
 msgstr "  -e, --edit         ptát se na úpravu PKGBUILDu každého balíčku\\n"
 
 msgid "  -v, --verbose      more verbose, print commands output\\n"
 msgstr "  -v, --verbose      více upovídaný výstup, vypsat výstup příkazů\\n"
+
+msgid "      --keepsrc      backup/restore for the local sources (src)\\n"
+msgstr "      --keepsrc      zálohovat/obnovit z lokálního zdroje (src)\\n"
 
 msgid "      --clean        remove any files from workspace dir\\n"
 msgstr "      --clean        odstranit všechny soubory z pracovního adresáře\\n"
@@ -117,26 +129,17 @@ msgstr "Přejete si upravit PKGBUILD pro %s? (A/n): "
 msgid "n"
 msgstr "n"
 
-msgid "(%s found in pkgs/ dir)\\n"
-msgstr "(%s nalezen v adresáři pkgs/)\\n"
+msgid "(keeping PKGBUILD)\\n"
+msgstr "(zachovávám PKGBUILD)\\n"
 
-msgid "Cannot get %s. Skip.\\n"
-msgstr "Nelze stáhnout %s. Přeskakuji.\\n"
+msgid "PKGBUILD not found. Skip\\n"
+msgstr "PKGBUILD nenalezen. Přeskakuji\\n"
 
-msgid "Do you want to remove packages build dir? (y/N): "
-msgstr "Přejete si odstranit sestavovací adresáře balíčků? (a/N): "
+msgid "Do you want to clean packages build dirs? (y/N): "
+msgstr "Přejete si vyčistit sestavovací adresáře balíčků? (a/N): "
 
 msgid "Any files in workspace directory have been removed!\\n"
 msgstr "Všechny soubory z pracovního adresáře byly odstraněny!\\n"
-
-msgid "uploaded!\\n"
-msgstr "přenesen!\\n"
-
-msgid "Upload of %s"
-msgstr "Přenesení balíčku %s"
-
-msgid "failed.\\n"
-msgstr "selhalo.\\n"
 
 msgid "All copy of %s have been removed from ftp!\\n"
 msgstr "Všechny kopie balíčku %s byly odstraněny z ftp!\\n"
@@ -150,17 +153,17 @@ msgstr "Přenáším: "
 msgid "Packages: "
 msgstr "Balíčky: "
 
+msgid "None package.\\n\\n"
+msgstr "Žádný balíček.\\n\\n"
+
 msgid "What I must do with these packages?!\\n\\n"
 msgstr "Co mám provést s těmito balíčky?!\\n\\n"
 
-msgid "Downloading: "
-msgstr "Stahuji: "
+msgid "Getting PKGBUILDs: "
+msgstr "Přenáším PKGBUILDy: "
 
-msgid "extracting...\\n"
-msgstr "rozbaluji...\\n"
-
-msgid "Getting all packages version..."
-msgstr "Získávám verze všech balíčků..."
+msgid "Getting packages version..."
+msgstr "Získávám verze balíčků..."
 
 msgid "Building: "
 msgstr "Překládám: "

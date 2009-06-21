@@ -364,7 +364,7 @@ ask_remove(){
 }
 
 clean(){
-  rm -rf "${workspace}/" /tmp/header "/tmp/$changelog"
+  rm -rf "${workspace}" /tmp/header /tmp/${changelog} &> /dev/null
   printf "${BOLD}$(gettext "Any files in workspace directory have been removed!\n")${DEFA}"
 }
 
@@ -480,18 +480,18 @@ main(){
     if [ "$LOCAL" != "TRUE" ]; then
       if [ "$VERBOSE" == "TRUE" ]; then
         [ "$NOCHANGELOG" != "TRUE" ] && wget -P "${workspace}" "$url/${changelog}" \
-          || printf "${LRED}$(gettext "Cannot get %s\n${DEFA}")" ${changelog}
+          || printf "${LRED}$(gettext "Cannot get %s\n")${DEFA}" ${changelog}
         wget -P "${workspace}" "$url/${repo}.db.tar.gz" \
-          || printf "${LRED}$(gettext "Cannot get %s\n${DEFA}")" ${repo}.db.tar.gz
+          || printf "${LRED}$(gettext "Cannot get %s\n")${DEFA}" ${repo}.db.tar.gz
         printf "\n"
       else
         [ "$NOCHANGELOG" != "TRUE" ] && wget -P "${workspace}" "$url/${changelog}" &> /dev/null \
-          || printf "${LRED}$(gettext "Cannot get %s\n${DEFA}")" ${changelog}
+          || printf "${LRED}$(gettext "Cannot get %s\n")${DEFA}" ${changelog}
         wget -P "${workspace}" "$url/${repo}.db.tar.gz" &> /dev/null \
-          || printf "${LRED}$(gettext "Cannot get %s\n${DEFA}")" ${repo}.db.tar.gz
+          || printf "${LRED}$(gettext "Cannot get %s\n")${DEFA}" ${repo}.db.tar.gz
       fi
     else
-      cp "$url/${changelog}" "${workspace}/" &> /dev/null
+      [ "$NOCHANGELOG" != "TRUE" ] && cp "$url/${changelog}" "${workspace}/" &> /dev/null
       cp "$url/${repo}.db.tar.gz" "${workspace}/" &> /dev/null
     fi
 

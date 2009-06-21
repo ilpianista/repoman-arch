@@ -24,9 +24,6 @@ msgstr "Ignoro.\\n"
 msgid "Cannot get %s. Skip."
 msgstr "Impossibile scaricare %s."
 
-msgid "\\nI cannot continue without the database repo file. Exit.\\n"
-msgstr "\\nNon posso continuare senza il database del repo.\\n "
-
 msgid "makepkg failed! Skip.\\n"
 msgstr "makepkg terminato con errore.\\n"
 
