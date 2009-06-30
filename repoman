@@ -234,7 +234,7 @@ check_args(){
   EDIT="FALSE"
   VERBOSE="FALSE"
   
-  if [ -f ~/.repomanrc ]; then
+  if [ -f $HOME/.repoman.conf ]; then
     configfile="$HOME/.repoman.conf"
   else
     configfile="/etc/repoman.conf"
