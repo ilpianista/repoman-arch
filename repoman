@@ -387,12 +387,10 @@ clean(){
 upload_file(){
   if [ -f "${workspace}/$1" ]; then
     if [ "$VERBOSE" == "TRUE" ]; then
-      #ncftpput -u $username -p $password $ftp_url /$ftp_dir "${workspace}/$1" || print_upload_error $1
-      lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; set ftp:passive-mode true; set net:max-retries 3; put ${workspace}/$1; exit" || print_upload_error $1
+      lftp -u "$username,$password" -e "${LFTP_CMDS}; put ${workspace}/$1; exit" "$ftp_url/$ftp_dir" || print_upload_error $1
       printf "\n"
     else
-      #ncftpput -u $username -p $password $ftp_url /$ftp_dir "${workspace}/$1" &> /dev/null || print_upload_error $1
-      lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; set ftp:passive-mode true; set net:max-retries 3; put ${workspace}/$1; exit" &> /dev/null || print_upload_error $1
+      lftp -u "$username,$password" -e "${LFTP_CMDS}; put ${workspace}/$1; exit" "$ftp_url/$ftp_dir" &> /dev/null || print_upload_error $1
     fi
   fi
 }
@@ -400,11 +398,11 @@ upload_file(){
 remove_from_ftp(){
   if [ "$VERBOSE" == "TRUE" ]; then
     #ncftpput -u $username -p $password $ftp_url /$ftp_dir -W "rm -f $1-*-*-*${PKGEXT}" || print_upload_error $1
-    lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; set ftp:passive-mode true; glob rm -f $1-*-*-*${PKGEXT}; exit"
+    lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "${LFTP_CMDS}; glob rm -f $1-*-*-*${PKGEXT}; exit"
     printf "\n"
   else
     #ncftpput -u $username -p $password $ftp_url /$ftp_dir -W "rm -f $1-*-*-*${PKGEXT}" &> /dev/null || print_upload_error $1
-    lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; set ftp:passive-mode true; glob rm -f $1-*-*-*${PKGEXT}; exit" &> /dev/null
+    lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "${LFTP_CMDS}; glob rm -f $1-*-*-*${PKGEXT}; exit" &> /dev/null
   fi
 }
 
