@@ -69,6 +69,19 @@ print_upload_error(){
   brokenpkgs[${#brokenpkgs[@]}]=$1
 }
 
+get_pkg_repo(){
+    pkg_repo=`LC_ALL=C /usr/bin/pacman -Si $1 2> /dev/null \
+        | grep -m1 Repository | awk -F": " '{print $2}'`
+    case $pkg_repo in
+        core) ;;
+        extra) ;;
+        testing) ;;
+        community) ;;
+        community-testing) ;;
+        *) pkg_repo="aur" ;;
+    esac
+}
+
 extract_pkg(){
   if [ -f "${workspace}/pkgs/$1.tar.gz" ]; then
     if [ "$VERBOSE" == "TRUE" ]; then
@@ -109,7 +122,7 @@ build_pkg(){
   # if the package isn't on the repo set repopkgver to 0-0
   [ "${#repopkgver}" -le "0" ] && repopkgver="0-0"
 
-  if `is_x_gt_y ${pkgsver[$INDEX]} $repopkgver` || [ "$FORCE" == "TRUE" ]; then
+  if `vercmp ${pkgsver[$INDEX]} $repopkgver` || [ "$FORCE" == "TRUE" ]; then
     if [ ! -f ${workspace}/$1-${pkgsver[$INDEX]}-*${PKGEXT} -o "$NOBUILD" != "TRUE" ]; then
       cd "${workspace}/pkgs/$1"
       if [ "$VERBOSE" == "TRUE" ]; then
@@ -467,8 +480,17 @@ get_pkgs_list(){
   fi
 }
 
+check_files(){
+	if [ ! -d "${workspace}/pkgs" ]; then
+		mkdir -p "${workspace}/pkgs" || exit 1
+	fi
+
+	if [ "$NOCHANGELOG" != "TRUE" -a ! -f "${workspace}/$changelog" ]; then
+		touch "${workspace}/$changelog"
+	fi
+}
+
 main(){
-  source /usr/lib/repoman/basicfunctions.sh || exit 1
   
   [ "$UID" -eq 0 ] && ROOT_FLAG=" --asroot"
 

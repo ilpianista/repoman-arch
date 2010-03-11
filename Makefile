@@ -1,6 +1,6 @@
 # Makefile for Repoman
 #
-# Copyright (C) 2008-2009 Andrea Scarpino <bash.lnx@gmail.com>
+# Copyright (C) 2008-2010 Andrea Scarpino <andrea@archlinux.org>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,7 +21,6 @@ MSGFMT = /usr/bin/msgfmt
 SED = /bin/sed
 DESTDIR =
 bindir = /usr/bin
-libdir = /usr/lib/repoman
 sysconfdir = /etc
 localedir = /usr/share/locale
 
@@ -33,7 +32,6 @@ install:
 	$(INSTALL) -d $(DESTDIR)$(sysconfdir)
 	$(INSTALL) -m755 repoman $(DESTDIR)$(bindir)
 	$(INSTALL) -m644 etc/repoman.conf $(DESTDIR)$(sysconfdir)
-	$(INSTALL) -m644 lib/basicfunctions.sh $(DESTDIR)$(libdir)
 	for file in po/*.po; \
 	do \
 	  lang=$$(echo $$file | $(SED) -e 's#.*/\([^/]\+\).po#\1#'); \
