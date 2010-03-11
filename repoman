@@ -397,12 +397,10 @@ upload_file(){
 
 remove_from_ftp(){
   if [ "$VERBOSE" == "TRUE" ]; then
-    #ncftpput -u $username -p $password $ftp_url /$ftp_dir -W "rm -f $1-*-*-*${PKGEXT}" || print_upload_error $1
-    lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "${LFTP_CMDS}; glob rm -f $1-*-*-*${PKGEXT}; exit"
+    lftp -u "$username,$password" -e "${LFTP_CMDS}; glob rm -f $1-*-*-*.pkg.tar.*; exit" "$ftp_url/$ftp_dir"
     printf "\n"
   else
-    #ncftpput -u $username -p $password $ftp_url /$ftp_dir -W "rm -f $1-*-*-*${PKGEXT}" &> /dev/null || print_upload_error $1
-    lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "${LFTP_CMDS}; glob rm -f $1-*-*-*${PKGEXT}; exit" &> /dev/null
+    lftp -u "$username,$password" -e "${LFTP_CMDS}; glob rm -f $1-*-*-*.pkg.tar.*; exit" &> /dev/null "$ftp_url/$ftp_dir"
   fi
 }
 
