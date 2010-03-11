@@ -60,6 +60,7 @@ get_pkg_repo(){
         extra) ;;
         testing) ;;
         community) ;;
+        community-testing) ;;
         *) pkg_repo="aur" ;;
     esac
 }
