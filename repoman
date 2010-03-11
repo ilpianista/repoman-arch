@@ -122,8 +122,8 @@ build_pkg(){
   # if the package isn't on the repo set repopkgver to 0-0
   [ "${#repopkgver}" -le "0" ] && repopkgver="0-0"
 
-  if `vercmp ${pkgsver[$INDEX]} $repopkgver` || [ "$FORCE" == "TRUE" ]; then
-    if [ ! -f ${workspace}/$1-${pkgsver[$INDEX]}-*${PKGEXT} -o "$NOBUILD" != "TRUE" ]; then
+  if vercmp ${pkgsver[$INDEX]} $repopkgver &> /dev/null || [ $FORCE ]; then
+    if [ ! -f ${workspace}/$1-${pkgsver[$INDEX]}-*${PKGEXT} -o $NOBUILD ]; then
       cd "${workspace}/pkgs/$1"
       if [ "$VERBOSE" == "TRUE" ]; then
         makepkg -f --noconfirm $ROOT_FLAG $NOCOLOR_FLAG || print_makepkg_error
@@ -388,11 +388,11 @@ upload_file(){
   if [ -f "${workspace}/$1" ]; then
     if [ "$VERBOSE" == "TRUE" ]; then
       #ncftpput -u $username -p $password $ftp_url /$ftp_dir "${workspace}/$1" || print_upload_error $1
-      lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; put ${workspace}/$1; exit" || print_upload_error $1
+      lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; set ftp:passive-mode true; set net:max-retries 3; put ${workspace}/$1; exit" || print_upload_error $1
       printf "\n"
     else
       #ncftpput -u $username -p $password $ftp_url /$ftp_dir "${workspace}/$1" &> /dev/null || print_upload_error $1
-      lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; put ${workspace}/$1; exit" &> /dev/null || print_upload_error $1
+      lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; set ftp:passive-mode true; set net:max-retries 3; put ${workspace}/$1; exit" &> /dev/null || print_upload_error $1
     fi
   fi
 }
@@ -400,11 +400,11 @@ upload_file(){
 remove_from_ftp(){
   if [ "$VERBOSE" == "TRUE" ]; then
     #ncftpput -u $username -p $password $ftp_url /$ftp_dir -W "rm -f $1-*-*-*${PKGEXT}" || print_upload_error $1
-    lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; glob rm -f $1-*-*-*${PKGEXT}; exit"
+    lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; set ftp:passive-mode true; glob rm -f $1-*-*-*${PKGEXT}; exit"
     printf "\n"
   else
     #ncftpput -u $username -p $password $ftp_url /$ftp_dir -W "rm -f $1-*-*-*${PKGEXT}" &> /dev/null || print_upload_error $1
-    lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; glob rm -f $1-*-*-*${PKGEXT}; exit" &> /dev/null
+    lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; set ftp:passive-mode true; glob rm -f $1-*-*-*${PKGEXT}; exit" &> /dev/null
   fi
 }
 
