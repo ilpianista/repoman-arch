@@ -45,13 +45,6 @@ is_x_gt_y(){
 	return 1
 }
 
-get_community_category(){
-	id=`wget -q -O - "http://aur.archlinux.org/rpc.php?type=info&arg=$1" \
-		| sed -e 's/^.*{"ID":"//' -e 's/",".*$//' | sed '/^$/d'`
-	category=`wget -q -O - "http://aur.archlinux.org/packages.php?ID=$id" \
-		| grep 'community ::' | sed 's|<[^<]*>||g' | awk '{print $3}'`
-}
-
 get_pkg_repo(){
     pkg_repo=`LC_ALL=C /usr/bin/pacman -Si $1 2> /dev/null \
         | grep -m1 Repository | awk -F": " '{print $2}'`
