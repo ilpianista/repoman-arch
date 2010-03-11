@@ -35,6 +35,11 @@ colors(){
   fi
 }
 
+print_error(){
+  printf "${LRED}$(gettext "error: ")${DEFA}${1}\n"
+  exit 1
+}
+
 print_addpkg_error(){
   printf "$(gettext "failed! Cannot add %s to repository.") ${LRED}$(gettext "Skip.\n")${DEFA}" "$1"
   brokenpkgs[${#brokenpkgs[@]}]=$1
@@ -473,31 +478,30 @@ main(){
   colors
 
   if [ "$CREATE" != "TRUE" ]; then
-    printf "${YELL}$(gettext "Getting: ")${LGRE}${changelog} ${repo}.db.tar.gz${DEFA}\n"
-    mv "${workspace}/${changelog}" "${workspace}/${changelog}.old" &> /dev/null
-    mv "${workspace}/${repo}.db.tar.gz" "${workspace}/${repo}.db.tar.gz.old" &> /dev/null
     if [ "$LOCAL" != "TRUE" ]; then
-      if [ "$VERBOSE" == "TRUE" ]; then
-        [ "$NOCHANGELOG" != "TRUE" ] && wget -P "${workspace}" "$url/${changelog}" \
-          || printf "${LRED}$(gettext "Cannot get %s\n")${DEFA}" ${changelog}
-        wget -P "${workspace}" "$url/${repo}.db.tar.gz" \
-          || printf "${LRED}$(gettext "Cannot get %s\n")${DEFA}" ${repo}.db.tar.gz
-        printf "\n"
-      else
-        [ "$NOCHANGELOG" != "TRUE" ] && wget -P "${workspace}" "$url/${changelog}" &> /dev/null \
-          || printf "${LRED}$(gettext "Cannot get %s\n")${DEFA}" ${changelog}
-        wget -P "${workspace}" "$url/${repo}.db.tar.gz" &> /dev/null \
-          || printf "${LRED}$(gettext "Cannot get %s\n")${DEFA}" ${repo}.db.tar.gz
+      if [ "$NOCHANGELOG" != "TRUE" ]; then
+        printf "${YELL}$(gettext "Downloading") ${DEFA}${changelog}\n"
+        mv "${workspace}/${changelog}" "${workspace}/${changelog}.old" &> /dev/null
+        if [ "$VERBOSE" == "TRUE" ]; then
+          wget -P "${workspace}" "$url/${changelog}" || print_error "$(gettext "unable to get %s") ${changelog}"
+        else
+          wget -P "${workspace}" "$url/${changelog}" &> /dev/null || print_error "$(gettext "unable to get %s") ${changelog}"
+        fi
       fi
-    else
-      [ "$NOCHANGELOG" != "TRUE" ] && cp "$url/${changelog}" "${workspace}/" &> /dev/null
-      cp "$url/${repo}.db.tar.gz" "${workspace}/" &> /dev/null
-    fi
 
-    if [ "$NOCHANGELOG" != "TRUE" ]; then
-      [ ! -f "${workspace}/${changelog}" ] && exit 1
+      printf "${YELL}$(gettext "Downloading") ${DEFA}${repo}.db.tar.gz\n"
+      mv "${workspace}/${repo}.db.tar.gz" "${workspace}/${repo}.db.tar.gz.old" &> /dev/null
+      if [ "$VERBOSE" == "TRUE" ]; then
+        wget -P "${workspace}" "$url/${repo}.db.tar.gz" || print_error "$(gettext "unable to get %s") ${repo}.db.tar.gz"
+      else
+        wget -P "${workspace}" "$url/${repo}.db.tar.gz" &> /dev/null || print_error "$(gettext "unable to get %s") ${repo}.db.tar.gz"
+      fi
+   else
+      if [ "$NOCHANGELOG" != "TRUE" ]; then
+        cp "$url/${changelog}" "${workspace}/" &> /dev/null || print_error "$(gettext "unable to get %s") ${changelog}"
+      fi
+      cp "$url/${repo}.db.tar.gz" "${workspace}/" &> /dev/null || print_error "$(gettext "unable to get %s") ${repo}.db.tar.gz"
     fi
-    [ ! -f "${workspace}/${repo}.db.tar.gz" ] && exit 1
   fi
 
   [ "$ALL" == "TRUE" -o "$DEVEL" == "TRUE" ] && get_pkgs_list
