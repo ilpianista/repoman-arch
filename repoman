@@ -106,7 +106,7 @@ build_pkg(){
   [ "${#repopkgver}" -le "0" ] && repopkgver="0-0"
 
   if `is_x_gt_y ${pkgsver[$INDEX]} $repopkgver` || [ "$FORCE" == "TRUE" ]; then
-    if [ ! -f ${workspace}/$1-${pkgsver[$INDEX]}-*.pkg.tar.gz -o "$NOBUILD" != "TRUE" ]; then
+    if [ ! -f ${workspace}/$1-${pkgsver[$INDEX]}-*${PKGEXT} -o "$NOBUILD" != "TRUE" ]; then
       cd "${workspace}/pkgs/$1"
       if [ "$VERBOSE" == "TRUE" ]; then
         makepkg -f --noconfirm $ROOT_FLAG $NOCOLOR_FLAG || print_makepkg_error
@@ -119,8 +119,8 @@ build_pkg(){
       source PKGBUILD || brokenpkgs[${#brokenpkgs[@]}]=$1
       pkgsver[$INDEX]="$pkgver-$pkgrel"
 
-      if [ -f ${workspace}/pkgs/$1/$1-${pkgsver[$INDEX]}-*.pkg.tar.gz ]; then
-        cp ${workspace}/pkgs/$1/$1-${pkgsver[$INDEX]}-*.pkg.tar.gz ${workspace}/
+      if [ -f ${workspace}/pkgs/$1/$1-${pkgsver[$INDEX]}-*${PKGEXT} ]; then
+        cp ${workspace}/pkgs/$1/$1-${pkgsver[$INDEX]}-*${PKGEXT} ${workspace}/
         printf "${LGRE}${pkgsver[$INDEX]} $(gettext "done")${DEFA}"
         (( UPDATED ++ ))
       else
@@ -139,10 +139,10 @@ build_pkg(){
 add_pkg(){
   printf "Adding $1 $2 to $repo...\n"
   if [ "$VERBOSE" == "TRUE" ]; then
-    repo-add "${workspace}/$repo.db.tar.gz" ${workspace}/$1-$2-*.pkg.tar.gz || print_addpkg_error $1
+    repo-add "${workspace}/$repo.db.tar.gz" ${workspace}/$1-$2-*${PKGEXT} || print_addpkg_error $1
     printf "\n"
   else
-    repo-add "${workspace}/$repo.db.tar.gz" ${workspace}/$1-$2-*.pkg.tar.gz &> /dev/null || print_addpkg_error $1
+    repo-add "${workspace}/$repo.db.tar.gz" ${workspace}/$1-$2-*${PKGEXT} &> /dev/null || print_addpkg_error $1
   fi
 }
 
@@ -359,7 +359,7 @@ ask_remove(){
   printf "${BOLD}$(gettext "Do you want to clean packages build dirs? (y/N): ")${DEFA}"
   read DIR_REMOVE
   if [ "$DIR_REMOVE" == "y" ]; then
-    rm -rf ${workspace}/pkgs/*/{pkg,src,*.pkg.tar.gz}
+    rm -rf ${workspace}/pkgs/*/{pkg,src,*.pkg.tar.*}
   fi
 }
 
@@ -383,12 +383,12 @@ upload_file(){
 
 remove_from_ftp(){
   if [ "$VERBOSE" == "TRUE" ]; then
-    #ncftpput -u $username -p $password $ftp_url /$ftp_dir -W "rm -f $1-*-*-*.pkg.tar.gz" || print_upload_error $1
-    lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; glob rm -f $1-*-*-*.pkg.tar.gz; exit"
+    #ncftpput -u $username -p $password $ftp_url /$ftp_dir -W "rm -f $1-*-*-*${PKGEXT}" || print_upload_error $1
+    lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; glob rm -f $1-*-*-*${PKGEXT}; exit"
     printf "\n"
   else
-    #ncftpput -u $username -p $password $ftp_url /$ftp_dir -W "rm -f $1-*-*-*.pkg.tar.gz" &> /dev/null || print_upload_error $1
-    lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; glob rm -f $1-*-*-*.pkg.tar.gz; exit" &> /dev/null
+    #ncftpput -u $username -p $password $ftp_url /$ftp_dir -W "rm -f $1-*-*-*${PKGEXT}" &> /dev/null || print_upload_error $1
+    lftp -u "$username,$password" "$ftp_url/$ftp_dir" -e "set ftp:ssl-protect-data true; glob rm -f $1-*-*-*${PKGEXT}; exit" &> /dev/null
   fi
 }
 
@@ -411,7 +411,7 @@ upload(){
       if `pkg_is_in_broken $pkg`; then BROKEN="TRUE"; fi
       if [ "$BROKEN" != "TRUE" ]; then
         printf "Uploading $pkg ${pkgsver[$INDEX]}..."
-        upload_file $pkg-${pkgsver[$INDEX]}-*.pkg.tar.gz || print_upload_error $pkg-${pkgsver[$INDEX]}
+        upload_file $pkg-${pkgsver[$INDEX]}-*${PKGEXT} || print_upload_error $pkg-${pkgsver[$INDEX]}
         printf "\n"
         (( INDEX++ ))
       fi
@@ -431,7 +431,7 @@ copy_files(){
   
   INDEX=0
   for pkg in ${pkgs[@]}; do
-    [ -f ${workspace}/$pkg-${pkgsver[$INDEX]}-*.pkg.tar.gz ] && cp ${workspace}/$pkg-${pkgsver[$INDEX]}-*.pkg.tar.gz "$url/"
+    [ -f ${workspace}/$pkg-${pkgsver[$INDEX]}-*${PKGEXT} ] && cp ${workspace}/$pkg-${pkgsver[$INDEX]}-*${PKGEXT} "$url/"
     (( INDEX++ ))
   done
 }
