@@ -123,7 +123,7 @@ build_pkg(){
   [ "${#repopkgver}" -le "0" ] && repopkgver="0-0"
 
   if vercmp ${pkgsver[$INDEX]} $repopkgver &> /dev/null || [ $FORCE ]; then
-    if [ ! -f ${workspace}/$1-${pkgsver[$INDEX]}-*${PKGEXT} -o $NOBUILD ]; then
+    if [ ! -f ${workspace}/$1-${pkgsver[$INDEX]}-*${PKGEXT} -o ! $NOBUILD ]; then
       cd "${workspace}/pkgs/$1"
       if [ "$VERBOSE" == "TRUE" ]; then
         makepkg -f --noconfirm $ROOT_FLAG $NOCOLOR_FLAG || print_makepkg_error
