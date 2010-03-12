@@ -120,12 +120,16 @@ update(){
   if [ "${NOCHANGELOG}" != "true" ]; then
     [ -f /tmp/${basename} ] && rm -rf /tmp/${basename}
     mkdir /tmp/${basename}
-    for pkg in ${built}; do
-      echo "* `date +\"%d-%m-%Y %R\"` `whoami` ${pkg}" >> /tmp/${basename}/header
-    done
-    for pkg in ${removed}; do
-      echo "* `date +\"%d-%m-%Y %R\"` `whoami` ${pkg} REMOVED" >> /tmp/${basename}/header
-    done
+    if [ "${ADD}" == "true" ]; then
+      for pkg in ${built}; do
+        echo "* `date +\"%d-%m-%Y %R\"` `whoami` ${pkg}" >> /tmp/${basename}/header
+      done
+    fi
+    if [ "${REMOVE}" == "true" ]; then
+      for pkg in ${packages}; do
+        echo "* `date +\"%d-%m-%Y %R\"` `whoami` ${pkg} REMOVED" >> /tmp/${basename}/header
+      done
+    fi
     cat /tmp/${basename}/header "${WORKSPACE}/${CHANGELOG}" > "/tmp/${basename}/${CHANGELOG}"
     mv "/tmp/${basename}/${CHANGELOG}" "${WORKSPACE}/${CHANGELOG}"
   fi
@@ -419,7 +423,7 @@ main(){
   if [ ! -z ${built} ] || [ "${REMOVE}" == "true" ]; then
     update
     [ "${NOUPLOAD}" != "true" ] && upload
-    remove_from_ftp
+    [ "${REMOVE}" == "true" ] && remove_from_ftp
 
     if [ ${NOCONFIRM} != "true" ]; then
       [ "${ADD}" == "true" ] && ask_remove
