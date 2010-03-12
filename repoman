@@ -149,11 +149,9 @@ usage(){
   printf "$(gettext "Action:\n")"
   printf "$(gettext "  -S, --add <pkg>    add or update packages on repository\n")"
   printf "$(gettext "  -R, --remove <pkg> remove packages from repository\n")"
-  printf "$(gettext "      --create <pkg> create a new database, then add packages\n")"
   printf "$(gettext "Flag:\n")"
   printf "$(gettext "      --all          update the whole repository\n")"
   printf "$(gettext "      --clean        remove any files from workspace dir\n")"
-  printf "$(gettext "      --devel        rebuild only devel packages on repository\n")"
   printf "$(gettext "Options:\n")"
   printf "$(gettext "  -e, --noextract    do not extract source files (use existing pkgs/src/ dir)\n")"
   printf "$(gettext "  -f, --force        build packages if already on repo\n")"
@@ -171,9 +169,7 @@ usage(){
 check_args(){
   ADD="false"
   REMOVE="false"
-  CREATE="false"
   ALL="false"
-  DEVEL="false"
   EDIT="true"
   FORCE="false"
   LOG="false"
@@ -222,9 +218,7 @@ check_args(){
         case $OPTARG in
           add) ADD="true" ;;
           remove) REMOVE="true";;
-          create) CREATE="true"; ADD="true" ;;
           all) ALL="true"; ADD="true" ;;
-          devel) DEVEL="true"; ADD="true"; FORCE="true" ;;
           force) FORCE="true" ;;
           log) MAKEPKG_OPTS="${MAKEPKG_OPTS} -L" ;;
           noedit) EDIT="false" ;;
@@ -339,6 +333,7 @@ upload(){
   if [ "${ADD}" == "true" ]; then
     for pkg in ${built}; do
       files="${files} ${pkg}"
+
     done
   fi
   pushd ${WORKSPACE} &> /dev/null
@@ -373,28 +368,26 @@ main(){
   colors
   check_files
 
-  if [ "${CREATE}" != "true" ]; then
-   if [ "${NOCHANGELOG}" != "true" ]; then
-      printf "Downloading ${BOLD}${CHANGELOG}${DEFA}\n"
-      mv "${WORKSPACE}/${CHANGELOG}" "${WORKSPACE}/${CHANGELOG}.old" &> /dev/null
-      if [ "${VERBOSE}" == "true" ]; then
-        wget -P "${WORKSPACE}" "${URL}/${CHANGELOG}" || print_error "unable to get ${CHANGELOG}"
-        print "\n"
-      else
-        wget -P "${WORKSPACE}" "${URL}/${CHANGELOG}" &> /dev/null || print_error "unable to get ${CHANGELOG}"
-      fi
-    fi
-    printf "Downloading ${BOLD}${REPO}.db.tar.gz${DEFA}\n"
-    mv "${WORKSPACE}/${REPO}.db.tar.gz" "${WORKSPACE}/${REPO}.db.tar.gz.old" &> /dev/null
+  if [ "${NOCHANGELOG}" != "true" ]; then
+    printf "Downloading ${BOLD}${CHANGELOG}${DEFA}\n"
+    mv "${WORKSPACE}/${CHANGELOG}" "${WORKSPACE}/${CHANGELOG}.old" &> /dev/null
     if [ "${VERBOSE}" == "true" ]; then
-      wget -P "${WORKSPACE}" "${URL}/${REPO}.db.tar.gz" || print_error "unable to get ${REPO}.db.tar.gz"
+      wget -P "${WORKSPACE}" "${URL}/${CHANGELOG}" || print_error "unable to get ${CHANGELOG}"
       print "\n"
     else
-      wget -P "${WORKSPACE}" "${URL}/${REPO}.db.tar.gz" &> /dev/null || print_error "unable to get ${REPO}.db.tar.gz"
+      wget -P "${WORKSPACE}" "${URL}/${CHANGELOG}" &> /dev/null || print_error "unable to get ${CHANGELOG}"
     fi
   fi
-
-  [ "${ALL}" == "true" -o "${DEVEL}" == "true" ] && get_pkgs_list
+  printf "Downloading ${BOLD}${REPO}.db.tar.gz${DEFA}\n"
+  mv "${WORKSPACE}/${REPO}.db.tar.gz" "${WORKSPACE}/${REPO}.db.tar.gz.old" &> /dev/null
+  if [ "${VERBOSE}" == "true" ]; then
+    wget -P "${WORKSPACE}" "${URL}/${REPO}.db.tar.gz" || print_error "unable to get ${REPO}.db.tar.gz"
+    print "\n"
+  else
+    wget -P "${WORKSPACE}" "${URL}/${REPO}.db.tar.gz" &> /dev/null || print_error "unable to get ${REPO}.db.tar.gz"
+  fi
+    
+  [ "${ALL}" == "true" ] && get_pkgs_list
 
   if [ ! -z ${#packages} ]; then
     printf "Packages:${BOLD}${packages}${DEFA}\n"
