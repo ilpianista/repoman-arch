@@ -67,8 +67,10 @@ build_pkg(){
   fi
   [ "${pkgvcs}" == "git" -o "${pkgvcs}" == "svn" -o "${pkgvcs}" == "cvs" -o "${pkgvcs}" == "hg" -o "${pkgvcs}" == "darcs" ] && FORCE="true";
 
-  [ ${EDIT} ] && edit_pkgbuild ${pkgname}
-
+  if [ ${NOCONFIRM} != "true" ]; then
+    [ ${EDIT} ] && edit_pkgbuild ${pkgname}
+  fi
+  
   cd ${WORKSPACE}/pkgs/${pkgname}
   source PKGBUILD
   packagever=${pkgver}-${pkgrel}
@@ -223,9 +225,9 @@ check_args(){
           create) CREATE="true"; ADD="true" ;;
           all) ALL="true"; ADD="true" ;;
           devel) DEVEL="true"; ADD="true"; FORCE="true" ;;
-          edit) EDIT="false" ;;
           force) FORCE="true" ;;
           log) MAKEPKG_OPTS="${MAKEPKG_OPTS} -L" ;;
+          noedit) EDIT="false" ;;
           noextract) MAKEPKG_OPTS="${MAKEPKG_OPTS} -e" ;;
           noupload) NOUPLOAD="true" ;;
           nobuild) NOBUILD="true" ;;
