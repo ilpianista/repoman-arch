@@ -68,7 +68,7 @@ build_pkg(){
   [ "${pkgvcs}" == "git" -o "${pkgvcs}" == "svn" -o "${pkgvcs}" == "cvs" -o "${pkgvcs}" == "hg" -o "${pkgvcs}" == "darcs" ] && FORCE="true";
 
   if [ ${NOCONFIRM} != "true" ]; then
-    [ ${EDIT} ] && edit_pkgbuild ${pkgname}
+    [ "${EDIT}" == "true" ] && edit_pkgbuild ${pkgname}
   fi
   
   cd ${WORKSPACE}/pkgs/${pkgname}
