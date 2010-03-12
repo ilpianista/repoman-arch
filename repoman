@@ -308,12 +308,19 @@ clean(){
   printf "${BOLD}$(gettext "Any files in workspace directory have been removed\n")${DEFA}"
 }
 
-remove_from_ftp(){
+cleanup_ftp(){
   files=""
-  for pkg in ${packages}; do
-    local packageinfo=`tar -tf "${WORKSPACE}/${REPO}.db.tar.gz.old" | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep '^'${pkg}'-[0-9]$*'`
-    files="${files} ${packageinfo}-*.pkg.tar.*"
-  done
+  if [ "${REMOVE}" == "true" ]; then
+    for pkg in ${packages}; do
+      local packageinfo=`tar -tf "${WORKSPACE}/${REPO}.db.tar.gz.old" | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep '^'${pkg}'-[0-9]$*'`
+      files="${files} ${packageinfo}-*.pkg.tar.*"
+    done
+  elif [ "${ADD}" == "true" ]; then
+    for pkg in ${built}; do
+      local packageinfo=`tar -tf "${WORKSPACE}/${REPO}.db.tar.gz.old" | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep '^'${pkg}'-[0-9]$*'`
+      files="${files} ${packageinfo}-*.pkg.tar.*"
+    done
+  fi
   if [ "${VERBOSE}" == "true" ]; then
     lftp -u "${USERNAME},${PASSWORD}" -e "${LFTP_CMDS}; glob rm -f ${files}; exit" "${FTP_URL}/${FTP_DIR}" || print_warning "cannot remove files from FTP"
     printf "\n"
@@ -416,7 +423,7 @@ main(){
     [ "${NOUPLOAD}" != "true" ] && upload
     
     printf "Cleanup ftp..."
-    [ "${REMOVE}" == "true" ] && remove_from_ftp
+    cleanup_ftp
 
     if [ ${NOCONFIRM} != "true" ]; then
       [ "${ADD}" == "true" ] && ask_remove
