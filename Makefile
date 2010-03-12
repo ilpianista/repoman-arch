@@ -17,24 +17,14 @@
 
 SHELL = /bin/bash
 INSTALL = /bin/install -c
-MSGFMT = /usr/bin/msgfmt
-SED = /bin/sed
 DESTDIR =
 bindir = /usr/bin
 sysconfdir = /etc
-localedir = /usr/share/locale
 
 
 PROGRAMS = repoman
 install: 
 	$(INSTALL) -d $(DESTDIR)$(bindir)
-	$(INSTALL) -d $(DESTDIR)$(libdir)
 	$(INSTALL) -d $(DESTDIR)$(sysconfdir)
 	$(INSTALL) -m755 repoman $(DESTDIR)$(bindir)
 	$(INSTALL) -m644 etc/repoman.conf $(DESTDIR)$(sysconfdir)
-	for file in po/*.po; \
-	do \
-	  lang=$$(echo $$file | $(SED) -e 's#.*/\([^/]\+\).po#\1#'); \
-	  $(INSTALL) -d $(DESTDIR)$(localedir)/$$lang/LC_MESSAGES; \
-	  $(MSGFMT) -o $(DESTDIR)$(localedir)/$$lang/LC_MESSAGES/repoman.mo $$file; \
-	done

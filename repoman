@@ -34,16 +34,14 @@ colors(){
 }
 
 print_error(){
-  printf "${LRED}$(gettext "error: ")${DEFA}${1}\n"
+  printf "${LRED}error: ${DEFA}${1}"
+  printf "\n"
   exit 1
 }
 
-print_makepkg_error(){
-  printf "${LRED}$(gettext "makepkg failed! Skip.\n")${DEFA}"
-}
-
-print_tar_error(){
-  printf "${LRED}$(gettext "Extraction failed! Skip.\n")${DEFA}"
+print_warning(){
+  printf "${YELL}warning: ${DEFA}${1}"
+  printf "\n"
 }
 
 get_pkg_repo(){
@@ -59,25 +57,11 @@ get_pkg_repo(){
     esac
 }
 
-extract_pkg(){
-  if [ -f "${WORKSPACE}/pkgs/$1.tar.gz" ]; then
-    if [ "${VERBOSE}" == "true" ]; then
-      tar -xf "${WORKSPACE}/pkgs/$1.tar.gz" -C "${WORKSPACE}/pkgs" || print_tar_error $1
-      printf "\n"
-    else
-      tar -xf "${WORKSPACE}/pkgs/$1.tar.gz" -C "${WORKSPACE}/pkgs" &> /dev/null || print_tar_error $1
-    fi
-  else
-    printf "$(gettext "tarball not found. Skip\n")"
-  fi
-}
-
 build_pkg(){
   local pkgname=${1}
   local packageinfo=`tar -tf "${WORKSPACE}/${REPO}.db.tar.gz" | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep '^'${pkgname}'-[0-9]$*'`
   [ ! -z ${packageinfo} ] && local repopkgver=$(echo ${packageinfo} | awk -F"-" '{print $(NF - 1)}')-$(echo ${packageinfo} | awk -F"-" '{print $NF}')
 
-  printf "${LGRE}${pkgname}${DEFA}\n"
   [ ${EDIT} ] && edit_pkgbuild ${pkgname}
 
   cd ${WORKSPACE}/pkgs/${pkgname}
@@ -91,32 +75,31 @@ build_pkg(){
       arch="${CARCH}"
     fi
     if [ ! -f ${WORKSPACE}/${pkgname}-${packagever}-${arch}${PKGEXT} -o "$NOBUILD" != "true" ]; then
+      [ ${UID} -eq 0 ] && MAKEPKG_OPTS="${MAKEPKG_OPTS} --asroot"
       if [ "${VERBOSE}" == "true" ]; then
-        makepkg -f --noconfirm $ROOT_FLAG $NOCOLOR_FLAG || print_error "makepkg failed"
+        makepkg ${MAKEPKG_OPTS} || print_warning "makepkg failed!"
         printf "\n"
       else
-        makepkg -f --noconfirm $ROOT_FLAG $NOCOLOR_FLAG &> /dev/null || print_error "makepkg failed"
+        makepkg ${MAKEPKG_OPTS} &> /dev/null || print_warning "makepkg failed!"
       fi
 
       source PKGBUILD
       packagever=${pkgver}-${pkgrel}
       if [ -f ${WORKSPACE}/pkgs/${pkgname}/${pkgname}-${packagever}-${arch}${PKGEXT} ]; then
-        cp ${WORKSPACE}/pkgs/${pkgname}/${pkgname}-${packagever}-${arch}${PKGEXT} ${WORKSPACE}/
+        cp ${WORKSPACE}/pkgs/${pkgname}/${pkgname}-${packagever}-${arch}${PKGEXT} ${WORKSPACE}/ &> /dev/null
+        printf "${LGRE}done${DEFA}\n"
         built="${built} ${pkgname}-${packagever}-${arch}${PKGEXT}"
-      else
-       print_error "error"
       fi
     else
-      printf "${LGRE}$(gettext "done, already built")${DEFA}\n"
+      printf "${LGRE}done${DEFA}, already built\n"
       built="${built} ${pkgname}-${packagever}-${arch}${PKGEXT}"
     fi
   else
-    printf "${YELL}$(gettext "skip, already up-to-date")${DEFA}\n"
+    printf "already up-to-date\n"
   fi
 }
 
 update(){
-  printf "$(gettext "Updating changelog...\n")"
   if [ "${NOCHANGELOG}" != "true" ]; then
     [ -f /tmp/${basename} ] && rm -rf /tmp/${basename}
     mkdir /tmp/${basename}
@@ -135,7 +118,6 @@ update(){
   fi
     
   if [ "${ADD}" == "true" ]; then
-    printf "$(gettext "Adding packages to repository...\n")"
     pushd "${WORKSPACE}" &> /dev/null
     if [ "${VERBOSE}" == "true" ]; then
        repo-add "${REPO}.db.tar.gz" ${built} || print_error "repo-add error"
@@ -144,7 +126,6 @@ update(){
     fi
     popd &> /dev/null
   elif [ "${REMOVE}" == "true" ]; then
-    printf "$(gettext "Removing packages from repository...\n")"
      if [ "${VERBOSE}" == "true" ]; then
       repo-remove "${WORKSPACE}/${REPO}.db.tar.gz" ${packages} || print_error "repo-remove error"
     else
@@ -163,17 +144,17 @@ usage(){
   printf "$(gettext "      --create <pkg> create a new database, then add packages\n")"
   printf "$(gettext "Flag:\n")"
   printf "$(gettext "      --all          update the whole repository\n")"
+  printf "$(gettext "      --clean        remove any files from workspace dir\n")"
   printf "$(gettext "      --devel        rebuild only devel packages on repository\n")"
   printf "$(gettext "Options:\n")"
-  printf "$(gettext "  -f, --force        build packages if already up-to-date on repo\n")"
-  printf "$(gettext "  -k, --keep         do not get tarballs from AUR, use local in pkgs/\n")"
+  printf "$(gettext "  -e, --noextract    do not extract source files (use existing pkgs/src/ dir)\n")"
+  printf "$(gettext "  -f, --force        build packages if already on repo\n")"
+  printf "$(gettext "  -l, --log          enable makepkg to log package build process\n")"
   printf "$(gettext "  -u, --noupload     do not upload any file to ftp\n")"
   printf "$(gettext "  -b, --nobuild      do not build packages if exist in workspace dir\n")"
   printf "$(gettext "      --nochangelog  do not use a changelog file\n")"
   printf "$(gettext "      --noconfirm    do not ask\n")"
   printf "$(gettext "      --noedit       do not ask to edit pkgbuild for each package\n")"
-  printf "$(gettext "      --keepsrc      backup/restore for the local sources (src)\n")"
-  printf "$(gettext "      --clean        remove any files from workspace dir\n")"
   printf "$(gettext "      --nocolor      do not use any color\n")"
   printf "$(gettext "  -v, --verbose      more verbose, print commands output\n")"
   printf "$(gettext "      --help         display this help and exit\n")"
@@ -185,16 +166,18 @@ check_args(){
   CREATE="false"
   ALL="false"
   DEVEL="false"
+  EDIT="true"
   FORCE="false"
-  KEEP="false"
-  KEEPSRC="false"
+  LOG="false"
+  NOEXTRACT="false"
   NOUPLOAD="false"
   NOBUILD="false"
   NOCHANGELOG="false"
   NOCOLOR="false"
   NOCONFIRM="false"
-  EDIT="true"
   VERBOSE="false"
+  
+  MAKEPKG_OPTS="-f --noconfirm"
   
   if [ -f ${HOME}/.repoman.conf ]; then
     source "${HOME}/.repoman.conf"
@@ -217,13 +200,14 @@ check_args(){
          *) packages="${packages} ${EXTRA_FLAG}"; shift ;;
       esac
     done
-    while getopts ":RSbfkuvv:-:" ARGS; do
+    while getopts ":RSbefluvv:-:" ARGS; do
       case $ARGS in
         R) REMOVE="true";;
         S) ADD="true" ;;
         b) NOBUILD="true" ;;
+        e) MAKEPKG_OPTS="${MAKEPKG_OPTS} -e" ;;
         f) FORCE="true" ;;
-        k) KEEP="true" ;;
+        l) MAKEPKG_OPTS="${MAKEPKG_OPTS} -L" ;;
         u) NOUPLOAD="true" ;;
         v) VERBOSE="true" ;;
         -) 
@@ -233,15 +217,15 @@ check_args(){
           create) CREATE="true"; ADD="true" ;;
           all) ALL="true"; ADD="true" ;;
           devel) DEVEL="true"; ADD="true"; FORCE="true" ;;
+          edit) EDIT="false" ;;
           force) FORCE="true" ;;
-          keep) KEEP="true" ;;
-          keepsrc) KEEPSRC="true" ;;
+          log) MAKEPKG_OPTS="${MAKEPKG_OPTS} -L" ;;
+          noextract) MAKEPKG_OPTS="${MAKEPKG_OPTS} -e" ;;
           noupload) NOUPLOAD="true" ;;
           nobuild) NOBUILD="true" ;;
           nochangelog) NOCHANGELOG="true" ;;
-          nocolor) NOCOLOR="true" ;;
+          nocolor) NOCOLOR="true"; MAKEPKG_OPTS="${MAKEPKG_OPTS} --nocolor" ;;
           noconfirm) NOCONFIRM="true" ;;
-          edit) EDIT="false" ;;
           verbose) VERBOSE="true" ;;
           clean) clean; exit 0 ;;
           help) usage; exit 0 ;;
@@ -255,66 +239,70 @@ check_args(){
 }
 
 edit_pkgbuild(){
-  if [ -f "${WORKSPACE}/pkgs/$1/PKGBUILD" ]; then
-    printf "${BOLD}$(gettext "Do you want to edit %s PKGBUILD? (Y/n): ")${DEFA}" "$1"
+  local pkgname=${1}
+  if [ -f "${WORKSPACE}/pkgs/${pkgname}/PKGBUILD" ]; then
+    printf "${BOLD}edit PKGBUILD? (Y/n): "
     read EDIT_ANSWER
     if [ "$EDIT_ANSWER" != "$(gettext "n")" ]; then
       [ -z "$EDITOR" ] && EDITOR="nano"
-      $EDITOR "${WORKSPACE}/pkgs/$1/PKGBUILD"
+      $EDITOR "${WORKSPACE}/pkgs/${pkgname}/PKGBUILD"
     fi
   fi
 }
 
 get_pkg_from_aur(){
+  local pkgname=${1}
   if [ "${VERBOSE}" == "true" ]; then
-    wget -P "${WORKSPACE}/pkgs" http://aur.archlinux.org/packages/$1/$1.tar.gz || print_error "$(gettext "cannot download %s") $1"
+    wget -P "${WORKSPACE}/pkgs" http://aur.archlinux.org/packages/${pkgname}/${pkgname}.tar.gz || print_warning "not found in AUR"
     printf "\n"
   else
-    wget -P "${WORKSPACE}/pkgs" http://aur.archlinux.org/packages/$1/$1.tar.gz &> /dev/null || print_error "$(gettext "cannot download %s") $1"
+    wget -P "${WORKSPACE}/pkgs" http://aur.archlinux.org/packages/${pkgname}/${pkgname}.tar.gz &> /dev/null || print_warning "not found in AUR"
+  fi
+}
+
+extract_pkg(){
+  local pkgname=${1}
+  if [ "${VERBOSE}" == "true" ]; then
+    tar -xf "${WORKSPACE}/pkgs/${pkgname}.tar.gz" -C "${WORKSPACE}/pkgs" || print_warning "source-only tarball not found"
+    printf "\n"
+  else
+    tar -xf "${WORKSPACE}/pkgs/${pkgname}.tar.gz" -C "${WORKSPACE}/pkgs" &> /dev/null || print_warning "source-only tarball not found"
   fi
 }
 
 get_pkgbuild(){
-  if [ "${KEEP}" != "true" ]; then
-    if [ "${KEEPSRC}" == "true" ]; then
-      rm -rf ${WORKSPACE}/pkgs/$1/{pkg/,${1}*} &> /dev/null
-    else
-      rm -rf ${WORKSPACE}/pkgs/$1{,.tar.gz} &> /dev/null
-    fi
-    get_pkg_repo $1
+  local pkgname=${1}
+  if [ ! -f ${WORKSPACE}/pkgs/${pkgname}/PKGBUILD ]; then
+    get_pkg_repo ${pkgname}
     if [ "${pkgrepo}" != "aur" ]; then
       if [ "${VERBOSE}" == "true" ]; then
-        rsync -mrtv --no-motd --delete-after --delete-excluded rsync.archlinux.org::abs/`uname -m`/${pkgrepo}/$1 "${WORKSPACE}/pkgs"
+        rsync -mrtv --no-motd --delete-after --delete-excluded rsync.archlinux.org::abs/{${CARCH},any}/${pkgrepo}/${pkgname} "${WORKSPACE}/pkgs" || print_warning "rsync error"
         printf "\n"
       else
-        rsync -mrtv --no-motd --delete-after --delete-excluded rsync.archlinux.org::abs/`uname -m`/${pkgrepo}/$1 "${WORKSPACE}/pkgs" &> /dev/null
+        rsync -mrtv --no-motd --delete-after --delete-excluded rsync.archlinux.org::abs/{${CARCH},any}/${pkgrepo}/${pkgname} "${WORKSPACE}/pkgs" &> /dev/null || print_warning "rsync error"
       fi
     elif [ "${pkgrepo}" == "aur" ]; then
-      get_pkg_from_aur $1
-      extract_pkg $1
+      get_pkg_from_aur ${pkgname}
+      extract_pkg ${pkgname}
     fi
-  elif [ -f "${WORKSPACE}/pkgs/$1/PKGBUILD" ]; then
-    printf "$(gettext "(keep PKGBUILD)\n")"
-  else
-    printf "$(gettext "PKGBUILD not found. Skip\n")"
   fi
+  printf "${LGRE}done${DEFA}\n"
 }
 
 ask_remove(){
   printf "${BOLD}$(gettext "Do you want to clean packages build dirs? (y/N): ")${DEFA}"
   read DIR_REMOVE
   if [ "$DIR_REMOVE" == "y" ]; then
-    rm -rf ${WORKSPACE}/pkgs/*/{pkg,src,*.pkg.tar.*}
+    rm -rf ${WORKSPACE}/pkgs/*/{pkg/,src/,*.pkg.tar.*}
   fi
 }
 
 clean(){
   rm -rf "${WORKSPACE}" /tmp/${basename} &> /dev/null
-  printf "${BOLD}$(gettext "Any files in workspace directory have been removed!\n")${DEFA}"
+  printf "${BOLD}$(gettext "Any files in workspace directory have been removed\n")${DEFA}"
 }
 
 remove_from_ftp(){
-  printf "Cleanup ftp..."
   files=""
   for pkg in ${packages}; do
     local packageinfo=`tar -tf "${WORKSPACE}/${REPO}.db.tar.gz.old" | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep '^'${pkg}'-[0-9]$*'`
@@ -326,11 +314,10 @@ remove_from_ftp(){
   else
     lftp -u "${USERNAME},${PASSWORD}" -e "${LFTP_CMDS}; glob rm -f ${files}; exit" &> /dev/null "${FTP_URL}/${FTP_DIR}"
   fi
+  printf "${LGRE}done${DEFA}\n"
 }
 
 upload(){
-  printf "Uploading files..."
-  
   files="${REPO}.db.tar.gz"
   [ ! ${NOCHANGELOG} ] && files="${files} ${CHANGELOG}"
     
@@ -341,9 +328,9 @@ upload(){
   fi
   pushd ${WORKSPACE} &> /dev/null
   if [ "${VERBOSE}" == "true" ]; then
-    lftp -u ${USERNAME},"${PASSWORD}" -e "${LFTP_CMDS}; put ${files}; exit" "${FTP_URL}/${FTP_DIR}" || print_error "$(gettext "upload failed")"
+    lftp -u ${USERNAME},"${PASSWORD}" -e "${LFTP_CMDS}; put ${files}; exit" "${FTP_URL}/${FTP_DIR}" || print_error "upload failed"
   else
-    lftp -u ${USERNAME},"${PASSWORD}" -e "${LFTP_CMDS}; put ${files}; exit" "${FTP_URL}/${FTP_DIR}" &> /dev/null || print_error "$(gettext "upload failed")"
+    lftp -u ${USERNAME},"${PASSWORD}" -e "${LFTP_CMDS}; put ${files}; exit" "${FTP_URL}/${FTP_DIR}" &> /dev/null || print_error "upload failed"
   fi
   popd &> /dev/null
   printf "${LGRE}done${DEFA}\n"
@@ -359,70 +346,71 @@ get_pkgs_list(){
 
 check_files(){
   if [ ! -d "${WORKSPACE}/pkgs" ]; then
-    mkdir -p "${WORKSPACE}/pkgs" || exit 1
+    mkdir -p "${WORKSPACE}/pkgs" || print_error "cannot create ${WORKSPACE}/pkgs"
   fi
   if [ "${NOCHANGELOG}" != "true" -a ! -f "${WORKSPACE}/${CHANGELOG}" ]; then
-    touch "${WORKSPACE}/${CHANGELOG}" || exit 1
+    touch "${WORKSPACE}/${CHANGELOG}" || print_error "cannot create ${CHANGELOG}"
   fi
 }
 
 main(){
-  
-  [ "$UID" -eq 0 ] && ROOT_FLAG=" --asroot"
-
   check_args $@
-  check_files
   colors
+  check_files
 
   if [ "${CREATE}" != "true" ]; then
    if [ "${NOCHANGELOG}" != "true" ]; then
-      printf "${YELL}$(gettext "Downloading") ${DEFA}${CHANGELOG}\n"
+      printf "Downloading ${BOLD}${CHANGELOG}${DEFA}\n"
       mv "${WORKSPACE}/${CHANGELOG}" "${WORKSPACE}/${CHANGELOG}.old" &> /dev/null
       if [ "${VERBOSE}" == "true" ]; then
-        wget -P "${WORKSPACE}" "${URL}/${CHANGELOG}" || print_error "$(gettext "unable to get %s") ${CHANGELOG}"
+        wget -P "${WORKSPACE}" "${URL}/${CHANGELOG}" || print_error "unable to get ${CHANGELOG}"
+        print "\n"
       else
-        wget -P "${WORKSPACE}" "${URL}/${CHANGELOG}" &> /dev/null || print_error "$(gettext "unable to get %s") ${CHANGELOG}"
+        wget -P "${WORKSPACE}" "${URL}/${CHANGELOG}" &> /dev/null || print_error "unable to get ${CHANGELOG}"
       fi
     fi
-    printf "${YELL}$(gettext "Downloading") ${DEFA}${REPO}.db.tar.gz\n"
+    printf "Downloading ${BOLD}${REPO}.db.tar.gz${DEFA}\n"
     mv "${WORKSPACE}/${REPO}.db.tar.gz" "${WORKSPACE}/${REPO}.db.tar.gz.old" &> /dev/null
     if [ "${VERBOSE}" == "true" ]; then
-      wget -P "${WORKSPACE}" "${URL}/${REPO}.db.tar.gz" || print_error "$(gettext "unable to get %s") ${REPO}.db.tar.gz"
+      wget -P "${WORKSPACE}" "${URL}/${REPO}.db.tar.gz" || print_error "unable to get ${REPO}.db.tar.gz"
+      print "\n"
     else
-      wget -P "${WORKSPACE}" "${URL}/${REPO}.db.tar.gz" &> /dev/null || print_error "$(gettext "unable to get %s") ${REPO}.db.tar.gz"
+      wget -P "${WORKSPACE}" "${URL}/${REPO}.db.tar.gz" &> /dev/null || print_error "unable to get ${REPO}.db.tar.gz"
     fi
+    printf "\n"
   fi
 
   [ "${ALL}" == "true" -o "${DEVEL}" == "true" ] && get_pkgs_list
 
-  if [ ! -z ${packages} ]; then
-    printf "${YELL}$(gettext "Packages: %s")${packages}${DEFA}\n"
+  if [ ! -z ${#packages} ]; then
+    printf "Packages:${BOLD}${packages}${DEFA}\n"
   else
-    printf "$(gettext "None package.\n\n")"
+    printf "None package\n\n"
     exit 0
   fi
 
   if [ "${ADD}" != "true" -a "${REMOVE}" != "true" ]; then
-    printf "$(gettext "What I must do with these packages?!\n\n")"
+    printf "${YELL}What I must do with these packages?!${DEFA}\n\n"
     exit 0
   fi
 
   if [ "${ADD}" == "true" ]; then
-    printf "${YELL}$(gettext "Getting PKGBUILDs...")${DEFA}"
     for pkg in ${packages}; do
+      printf "Getting ${BOLD}${pkg}${DEFA} PKGBUILD..."
       get_pkgbuild ${pkg}
-    done
-    printf "\n"
-    
-    printf "${YELL}$(gettext "Building: ")${DEFA}"
-    for pkg in ${packages}; do
-        build_pkg ${pkg}
+      printf "Building ${BOLD}${pkg}${DEFA}..."
+      build_pkg ${pkg}
     done
   fi
   
-  if [ ! -z ${built} ] || [ "${REMOVE}" == "true" ]; then
+  if [ ${#built} -gt 0 ] || [ "${REMOVE}" == "true" ]; then
+    printf "Updating ${BOLD}${CHANGELOG}${DEFA} and ${BOLD}${REPO}.db.tar.gz${DEFA}..."
     update
+    
+    printf "Uploading files..."
     [ "${NOUPLOAD}" != "true" ] && upload
+    
+    printf "Cleanup ftp..."
     [ "${REMOVE}" == "true" ] && remove_from_ftp
 
     if [ ${NOCONFIRM} != "true" ]; then
