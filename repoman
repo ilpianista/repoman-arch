@@ -348,9 +348,8 @@ upload(){
 
 get_pkgs_list(){
   for package in `tar -tf "${WORKSPACE}/${REPO}.db.tar.gz" | grep -vE 'desc$|depends$' | sed -e 's:\/$::g'`; do
-    local pkgname=$(echo ${package} | awk -F"-" '{for (i=1; i<NF - 2; i++) printf "%s-", $i; printf "$(NF - 2)\n" }')
-    local pkgver=$(echo ${package} | awk -F"-" '{print $(NF - 1)}')
-    local pkgrel=$(echo ${package} | awk -F"-" '{print $NF}')
+    local pkgname=$(echo ${package} | awk -F"-" '{for (i=1; i<NF - 2; i++) printf "%s-", $i; printf $(NF - 2)"\n" }')
+    packages="${packages} ${pkgname}"
   done
 }
 
