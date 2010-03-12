@@ -137,6 +137,7 @@ update(){
       repo-remove "${WORKSPACE}/${REPO}.db.tar.gz" ${packages} &> /dev/null || print_error "repo-remove error"
     fi
   fi
+  printf "${LGRE}done${DEFA}\n"
 }
 
 usage(){
@@ -314,10 +315,10 @@ remove_from_ftp(){
     files="${files} ${packageinfo}-*.pkg.tar.*"
   done
   if [ "${VERBOSE}" == "true" ]; then
-    lftp -u "${USERNAME},${PASSWORD}" -e "${LFTP_CMDS}; glob rm -f ${files}; exit" "${FTP_URL}/${FTP_DIR}"
+    lftp -u "${USERNAME},${PASSWORD}" -e "${LFTP_CMDS}; glob rm -f ${files}; exit" "${FTP_URL}/${FTP_DIR}" || print_warning "cannot remove files from FTP"
     printf "\n"
   else
-    lftp -u "${USERNAME},${PASSWORD}" -e "${LFTP_CMDS}; glob rm -f ${files}; exit" &> /dev/null "${FTP_URL}/${FTP_DIR}"
+    lftp -u "${USERNAME},${PASSWORD}" -e "${LFTP_CMDS}; glob rm -f ${files}; exit" &> /dev/null "${FTP_URL}/${FTP_DIR}" || print_warning "cannot remove files from FTP"
   fi
   printf "${LGRE}done${DEFA}\n"
 }
@@ -382,7 +383,6 @@ main(){
     else
       wget -P "${WORKSPACE}" "${URL}/${REPO}.db.tar.gz" &> /dev/null || print_error "unable to get ${REPO}.db.tar.gz"
     fi
-    printf "\n"
   fi
 
   [ "${ALL}" == "true" -o "${DEVEL}" == "true" ] && get_pkgs_list
