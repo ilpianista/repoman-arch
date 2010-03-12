@@ -60,7 +60,12 @@ get_pkg_repo(){
 build_pkg(){
   local pkgname=${1}
   local packageinfo=`tar -tf "${WORKSPACE}/${REPO}.db.tar.gz" | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep '^'${pkgname}'-[0-9]$*'`
-  [ ! -z ${packageinfo} ] && local repopkgver=$(echo ${packageinfo} | awk -F"-" '{print $(NF - 1)}')-$(echo ${packageinfo} | awk -F"-" '{print $NF}')
+  local repopkgver="0-0"
+  if [ ! -z ${packageinfo} ]; then
+    repopkgver=$(echo ${packageinfo} | awk -F"-" '{print $(NF - 1)}')-$(echo ${packageinfo} | awk -F"-" '{print $NF}')
+    local pkgvcs=$(echo ${packageinfo} | awk -F"-" '{print $(NF - 2)}')
+  fi
+  [ "${pkgvcs}" == "git" -o "${pkgvcs}" == "svn" -o "${pkgvcs}" == "cvs" -o "${pkgvcs}" == "hg" -o "${pkgvcs}" == "darcs" ] && FORCE="true";
 
   [ ${EDIT} ] && edit_pkgbuild ${pkgname}
 
