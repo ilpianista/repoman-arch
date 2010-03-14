@@ -208,7 +208,7 @@ check_args(){
          *) packages="${packages} ${EXTRA_FLAG}"; shift ;;
       esac
     done
-    while getopts ":RSbefluv:-:" ARGS; do
+    while getopts ":RSbefluvv:-:" ARGS; do
       case ${ARGS} in
         R) REMOVE="true";;
         S) ADD="true" ;;
@@ -322,10 +322,10 @@ cleanup_ftp(){
     done
   fi
   if [ "${VERBOSE}" == "true" ]; then
-    lftp -u "${USERNAME},${PASSWORD}" -e "${LFTP_CMDS}; glob rm -f ${files}; exit" "${FTP_URL}/${FTP_DIR}" || print_warning "cannot remove files from FTP"
+    lftp -u "${USERNAME},${PASSWORD}" -e "${LFTP_CMDS}; mrm ${files}; exit" "${FTP_URL}/${FTP_DIR}" || print_warning "cannot remove files from FTP"
     printf "\n"
   else
-    lftp -u "${USERNAME},${PASSWORD}" -e "${LFTP_CMDS}; glob rm -f ${files}; exit" &>/dev/null "${FTP_URL}/${FTP_DIR}" || print_warning "cannot remove files from FTP"
+    lftp -u "${USERNAME},${PASSWORD}" -e "${LFTP_CMDS}; mrm ${files}; exit" &>/dev/null "${FTP_URL}/${FTP_DIR}" || print_warning "cannot remove files from FTP"
   fi
   printf "${LGRE}done${DEFA}\n"
 }
@@ -340,13 +340,12 @@ upload(){
 
     done
   fi
-  pushd ${WORKSPACE} &>/dev/null
+  cd ${WORKSPACE}
   if [ "${VERBOSE}" == "true" ]; then
     lftp -u ${USERNAME},"${PASSWORD}" -e "${LFTP_CMDS}; put ${files}; exit" "${FTP_URL}/${FTP_DIR}" || print_error "upload failed"
   else
     lftp -u ${USERNAME},"${PASSWORD}" -e "${LFTP_CMDS}; put ${files}; exit" "${FTP_URL}/${FTP_DIR}" &>/dev/null || print_error "upload failed"
   fi
-  popd &>/dev/null
   printf "${LGRE}done${DEFA}\n"
 }
 
@@ -376,7 +375,7 @@ main(){
     mv "${WORKSPACE}/${CHANGELOG}" "${WORKSPACE}/${CHANGELOG}.old" &>/dev/null
     if [ "${VERBOSE}" == "true" ]; then
       wget -P "${WORKSPACE}" "${URL}/${CHANGELOG}" || print_error "unable to get ${CHANGELOG}"
-      print "\n"
+      printf "\n"
     else  
       wget -P "${WORKSPACE}" "${URL}/${CHANGELOG}" &>/dev/null || print_error "unable to get ${CHANGELOG}"
     fi
@@ -385,7 +384,7 @@ main(){
   mv "${WORKSPACE}/${REPO}.db.tar.gz" "${WORKSPACE}/${REPO}.db.tar.gz.old" &>/dev/null
   if [ "${VERBOSE}" == "true" ]; then
     wget -P "${WORKSPACE}" "${URL}/${REPO}.db.tar.gz" || print_error "unable to get ${REPO}.db.tar.gz"
-    print "\n"
+    printf "\n"
   else
     wget -P "${WORKSPACE}" "${URL}/${REPO}.db.tar.gz" &>/dev/null || print_error "unable to get ${REPO}.db.tar.gz"
   fi
@@ -413,8 +412,10 @@ main(){
     done
   fi
 
-  if [ ${#built} -gt 0 ] || [ "${REMOVE}" == "true" ]; then
-    printf "Updating ${BOLD}${CHANGELOG}${DEFA} and ${BOLD}${REPO}.db.tar.gz${DEFA}..."
+  if [ ${#built} -gt 0 -o "${REMOVE}" == "true" ]; then
+    printf "Updating "
+    [ "${NOCHANGELOG}" != "true" ] && printf "${BOLD}${CHANGELOG}${DEFA} and "
+    printf "${BOLD}${REPO}.db.tar.gz${DEFA}..."
     update
 
     printf "Uploading files..."
