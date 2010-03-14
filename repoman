@@ -360,7 +360,6 @@ get_pkgs_list(){
 check_files(){
   if [ ! -d "${WORKSPACE}/pkgs" ]; then
     mkdir -p "${WORKSPACE}/pkgs" || print_error "cannot create ${WORKSPACE}/pkgs/"
-    mkdir -p "${WORKSPACE}/arch/{any,i686,x86_64}" || print_error "cannot create ${WORKSPACE}/arch/"
   fi
   if [ "${NOCHANGELOG}" != "true" ]; then
     touch "${WORKSPACE}/${CHANGELOG}" || print_error "cannot create ${CHANGELOG}"
@@ -374,22 +373,20 @@ main(){
 
   if [ "${NOCHANGELOG}" != "true" ]; then
     printf "Downloading ${BOLD}${CHANGELOG}${DEFA}\n"
+    mv "${WORKSPACE}/${CHANGELOG}" "${WORKSPACE}/${CHANGELOG}.old" &>/dev/null
     if [ "${VERBOSE}" == "true" ]; then
-      mv "${WORKSPACE}/${CHANGELOG}" "${WORKSPACE}/${CHANGELOG}.old" &>/dev/null
       wget -P "${WORKSPACE}" "${URL}/${CHANGELOG}" || print_error "unable to get ${CHANGELOG}"
       print "\n"
-    else
-      mv "${WORKSPACE}/${CHANGELOG}" "${WORKSPACE}/${CHANGELOG}.old" &>/dev/null
+    else  
       wget -P "${WORKSPACE}" "${URL}/${CHANGELOG}" &>/dev/null || print_error "unable to get ${CHANGELOG}"
     fi
   fi
   printf "Downloading ${BOLD}${REPO}.db.tar.gz${DEFA}\n"
+  mv "${WORKSPACE}/${REPO}.db.tar.gz" "${WORKSPACE}/${REPO}.db.tar.gz.old" &>/dev/null
   if [ "${VERBOSE}" == "true" ]; then
-    mv "${WORKSPACE}/${REPO}.db.tar.gz" "${WORKSPACE}/${REPO}.db.tar.gz.old" &>/dev/null
     wget -P "${WORKSPACE}" "${URL}/${REPO}.db.tar.gz" || print_error "unable to get ${REPO}.db.tar.gz"
     print "\n"
   else
-    mv "${WORKSPACE}/${REPO}.db.tar.gz" "${WORKSPACE}/${REPO}.db.tar.gz.old" &>/dev/null
     wget -P "${WORKSPACE}" "${URL}/${REPO}.db.tar.gz" &>/dev/null || print_error "unable to get ${REPO}.db.tar.gz"
   fi
 
