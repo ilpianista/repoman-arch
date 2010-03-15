@@ -313,19 +313,21 @@ cleanup_ftp(){
   if [ "${REMOVE}" == "true" ]; then
     for pkg in ${packages}; do
       local packageinfo=`tar -tf "${WORKSPACE}/${REPO}.db.tar.gz.old" | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep '^'${pkg}'-[0-9]$*'`
-      files="${files} ${packageinfo}-*.pkg.tar.*"
+      [ ! -z ${packageinfo} ] && files="${files} ${packageinfo}-*.pkg.tar.*"
     done
   elif [ "${ADD}" == "true" ]; then
     for pkg in ${built}; do
       local packageinfo=`tar -tf "${WORKSPACE}/${REPO}.db.tar.gz.old" | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep '^'${pkg}'-[0-9]$*'`
-      files="${files} ${packageinfo}-*.pkg.tar.*"
+      [ ! -z ${packageinfo} ] && files="${files} ${packageinfo}-*.pkg.tar.*"
     done
   fi
-  if [ "${VERBOSE}" == "true" ]; then
-    lftp -u "${USERNAME},${PASSWORD}" -e "${LFTP_CMDS}; mrm ${files}; exit" "${FTP_URL}/${FTP_DIR}" || print_warning "cannot remove files from FTP"
-    printf "\n"
-  else
-    lftp -u "${USERNAME},${PASSWORD}" -e "${LFTP_CMDS}; mrm ${files}; exit" "${FTP_URL}/${FTP_DIR}" &>/dev/null || print_warning "cannot remove files from FTP"
+  if [ ! -z ${files} ]; then
+    if [ "${VERBOSE}" == "true" ]; then
+      lftp -u "${USERNAME},${PASSWORD}" -e "${LFTP_CMDS}; mrm ${files}; exit" "${FTP_URL}/${FTP_DIR}" || print_warning "cannot remove files from FTP"
+      printf "\n"
+    else
+      lftp -u "${USERNAME},${PASSWORD}" -e "${LFTP_CMDS}; mrm ${files}; exit" "${FTP_URL}/${FTP_DIR}" &>/dev/null || print_warning "cannot remove files from FTP"
+    fi
   fi
   printf "${LGRE}done${DEFA}\n"
 }
@@ -414,7 +416,7 @@ main(){
 
   if [ ${#built} -gt 0 -o "${REMOVE}" == "true" ]; then
     printf "Updating "
-    [ "${NOCHANGELOG}" == "true" ] && printf "${BOLD}${CHANGELOG}${DEFA} and "
+    [ "${NOCHANGELOG}" != "true" ] && printf "${BOLD}${CHANGELOG}${DEFA} and "
     printf "${BOLD}${REPO}.db.tar.gz${DEFA}..."
     update
 
