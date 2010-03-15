@@ -414,7 +414,7 @@ main(){
 
   if [ ${#built} -gt 0 -o "${REMOVE}" == "true" ]; then
     printf "Updating "
-    [ "${NOCHANGELOG}" != "true" ] && printf "${BOLD}${CHANGELOG}${DEFA} and "
+    [ "${NOCHANGELOG}" == "true" ] && printf "${BOLD}${CHANGELOG}${DEFA} and "
     printf "${BOLD}${REPO}.db.tar.gz${DEFA}..."
     update
 
