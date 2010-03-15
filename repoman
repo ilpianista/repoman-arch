@@ -325,7 +325,7 @@ cleanup_ftp(){
     lftp -u "${USERNAME},${PASSWORD}" -e "${LFTP_CMDS}; mrm ${files}; exit" "${FTP_URL}/${FTP_DIR}" || print_warning "cannot remove files from FTP"
     printf "\n"
   else
-    lftp -u "${USERNAME},${PASSWORD}" -e "${LFTP_CMDS}; mrm ${files}; exit" &>/dev/null "${FTP_URL}/${FTP_DIR}" || print_warning "cannot remove files from FTP"
+    lftp -u "${USERNAME},${PASSWORD}" -e "${LFTP_CMDS}; mrm ${files}; exit" "${FTP_URL}/${FTP_DIR}" &>/dev/null || print_warning "cannot remove files from FTP"
   fi
   printf "${LGRE}done${DEFA}\n"
 }
