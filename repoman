@@ -148,20 +148,19 @@ update(){
 
 usage(){
   printf "A tool to manage your personal Arch Linux repository\n"
-  printf "Usage: ${basename} <action>|<flag> [OPTIONS] packages\n"
+  printf "Usage: ${basename} <operation> [OPTIONS] <package(s)>\n"
   printf "\n"
-  printf "Action:\n"
+  printf "Operations:\n"
   printf "  -S, --add <pkg>    add or update packages on repository\n"
   printf "  -R, --remove <pkg> remove packages from repository\n"
-  printf "Flag:\n"
-  printf "      --all          update the whole repository\n"
   printf "      --clean        remove any files from workspace dir\n"
+  printf "      --update       update the whole repository\n"
   printf "Options:\n"
   printf "  -b, --nobuild      do not build packages if exist in workspace dir\n"
   printf "  -e, --noextract    do not extract source files (use existing pkgs/src/ dir)\n"
   printf "  -f, --force        build packages if already on repo\n"
   printf "  -l, --log          enable makepkg to log package build process\n"
-  printf "  -u, --noupload     do not upload any file to ftp\n"
+  printf "      --noupload     do not upload any file to ftp\n"
   printf "      --nochangelog  do not use a changelog file\n"
   printf "      --noconfirm    do not ask\n"
   printf "      --noedit       do not ask to edit pkgbuild for each package\n"
@@ -173,7 +172,7 @@ usage(){
 check_args(){
   ADD="false"
   REMOVE="false"
-  ALL="false"
+  UPDATE="false"
   EDIT="true"
   FORCE="false"
   LOG="false"
@@ -208,7 +207,7 @@ check_args(){
          *) packages="${packages} ${EXTRA_FLAG}"; shift ;;
       esac
     done
-    while getopts ":RSbefluvv:-:" ARGS; do
+    while getopts ":RSbeflvv:-:" ARGS; do
       case ${ARGS} in
         R) REMOVE="true";;
         S) ADD="true" ;;
@@ -216,13 +215,12 @@ check_args(){
         e) MAKEPKG_OPTS="${MAKEPKG_OPTS} -e" ;;
         f) FORCE="true" ;;
         l) MAKEPKG_OPTS="${MAKEPKG_OPTS} -L" ;;
-        u) NOUPLOAD="true" ;;
         v) VERBOSE="true" ;;
         -) 
         case ${OPTARG} in
           add) ADD="true" ;;
           remove) REMOVE="true";;
-          all) ALL="true"; ADD="true" ;;
+          update) UPDATE="true"; ADD="true" ;;
           force) FORCE="true" ;;
           log) MAKEPKG_OPTS="${MAKEPKG_OPTS} -L" ;;
           noedit) EDIT="false" ;;
@@ -391,7 +389,7 @@ main(){
     wget -P "${WORKSPACE}" "${URL}/${REPO}.db.tar.gz" &>/dev/null || print_error "unable to get ${REPO}.db.tar.gz"
   fi
 
-  [ "${ALL}" == "true" ] && get_pkgs_list
+  [ "${UPDATE}" == "true" ] && get_pkgs_list
 
   if [ ! -z ${#packages} ]; then
     printf "Packages:${BOLD}${packages}${DEFA}\n"
