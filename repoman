@@ -131,19 +131,18 @@ update(){
   if [ "${ADD}" == "true" ]; then
     pushd "${WORKSPACE}" &>/dev/null
     if [ "${VERBOSE}" == "true" ]; then
-       repo-add "${REPO}.db.tar.gz" ${built} || print_error "repo-add error"
+      repo-add "${REPO}.db.tar.gz" ${built} || print_error "repo-add error"
     else
       repo-add "${REPO}.db.tar.gz" ${built} &>/dev/null || print_error "repo-add error"
     fi
     popd &>/dev/null
   elif [ "${REMOVE}" == "true" ]; then
-     if [ "${VERBOSE}" == "true" ]; then
+    if [ "${VERBOSE}" == "true" ]; then
       repo-remove "${WORKSPACE}/${REPO}.db.tar.gz" ${packages} || print_error "repo-remove error"
     else
       repo-remove "${WORKSPACE}/${REPO}.db.tar.gz" ${packages} &>/dev/null || print_error "repo-remove error"
     fi
   fi
-  printf "${LGRE}done${DEFA}\n"
 }
 
 usage(){
@@ -293,14 +292,6 @@ get_pkgbuild(){
   printf "${LGRE}done${DEFA}\n"
 }
 
-ask_remove(){
-  printf "${BOLD}Do you want to clean packages build dirs? (y/N): ${DEFA}"
-  read DIR_REMOVE
-  if [ "$DIR_REMOVE" == "y" ]; then
-    rm -rf ${WORKSPACE}/pkgs/*/{pkg/,src/,*.pkg.tar.*}
-  fi
-}
-
 clean(){
   rm -rf "${WORKSPACE}" /tmp/${basename} &>/dev/null
   printf "${BOLD}Any files in workspace directory have been removed\n${DEFA}"
@@ -385,10 +376,7 @@ main(){
   colors
   check_files
 
-  if [ "${NOCHANGELOG}" != "true" ]; then
-    get_file "ChangeLog"
-  fi
-  get_file "${REPO}.db.tar.gz"
+  get_file "${REPO}.db.tar.gz" &>/dev/null
 
   [ "${UPDATE}" == "true" ] && get_pkgs_list
 
@@ -414,6 +402,9 @@ main(){
   fi
 
   if [ ${#built} -gt 0 -o "${REMOVE}" == "true" ]; then
+    [ "${NOCHANGELOG}" != "true" ] && get_file "ChangeLog"
+    get_file "${REPO}.db.tar.gz"
+    
     printf "Updating "
     [ "${NOCHANGELOG}" != "true" ] && printf "${BOLD}ChangeLog${DEFA} and "
     printf "${BOLD}${REPO}.db.tar.gz${DEFA}..."
@@ -426,7 +417,11 @@ main(){
     cleanup_ftp
 
     if [ ${NOCONFIRM} != "true" ]; then
-      [ "${ADD}" == "true" ] && ask_remove
+      if [ "${ADD}" == "true" ]; then
+        printf "${BOLD}Do you want to clean packages build dirs? (y/N): ${DEFA}"
+        read DIR_REMOVE
+        [ "$DIR_REMOVE" == "y" ] && rm -rf ${WORKSPACE}/pkgs/*/{pkg/,src/,*.pkg.tar.*}
+      fi
     fi
   fi
 }

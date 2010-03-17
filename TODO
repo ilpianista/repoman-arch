@@ -3,4 +3,4 @@ TODO List
 * more info about makepkg error
 
 * If repoman see a dependence on AUR which isn't on own repository ask
-to pull that dependence on your own repository.
+to pull that dependence on your own repository
