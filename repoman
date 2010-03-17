@@ -356,6 +356,17 @@ get_pkgs_list(){
   done
 }
 
+get_file(){
+  printf "Downloading ${BOLD}${1}${DEFA}\n"
+  mv "${WORKSPACE}/${1}" "${WORKSPACE}/${1}.old" &>/dev/null
+  if [ "${VERBOSE}" == "true" ]; then
+    wget -P "${WORKSPACE}" "${URL}/${1}" || print_error "unable to get ${1}"
+    printf "\n"
+  else  
+    wget -P "${WORKSPACE}" "${URL}/${1}" &>/dev/null || print_error "unable to get ${1}"
+  fi
+}
+
 check_files(){
   [ -z ${WORKSPACE} ] && print_error "Workspace dir is not set"
   [ -z ${URL} ] && print_error "Repo URL is not set"
@@ -375,23 +386,9 @@ main(){
   check_files
 
   if [ "${NOCHANGELOG}" != "true" ]; then
-    printf "Downloading ${BOLD}ChangeLog${DEFA}\n"
-    mv "${WORKSPACE}/ChangeLog" "${WORKSPACE}/ChangeLog.old" &>/dev/null
-    if [ "${VERBOSE}" == "true" ]; then
-      wget -P "${WORKSPACE}" "${URL}/ChangeLog" || print_error "unable to get ChangeLog"
-      printf "\n"
-    else  
-      wget -P "${WORKSPACE}" "${URL}/ChangeLog" &>/dev/null || print_error "unable to get ChangeLog"
-    fi
+    get_file "ChangeLog"
   fi
-  printf "Downloading ${BOLD}${REPO}.db.tar.gz${DEFA}\n"
-  mv "${WORKSPACE}/${REPO}.db.tar.gz" "${WORKSPACE}/${REPO}.db.tar.gz.old" &>/dev/null
-  if [ "${VERBOSE}" == "true" ]; then
-    wget -P "${WORKSPACE}" "${URL}/${REPO}.db.tar.gz" || print_error "unable to get ${REPO}.db.tar.gz"
-    printf "\n"
-  else
-    wget -P "${WORKSPACE}" "${URL}/${REPO}.db.tar.gz" &>/dev/null || print_error "unable to get ${REPO}.db.tar.gz"
-  fi
+  get_file "${REPO}.db.tar.gz"
 
   [ "${UPDATE}" == "true" ] && get_pkgs_list
 
