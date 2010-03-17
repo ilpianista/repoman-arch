@@ -124,8 +124,8 @@ update(){
         echo "* `date +\"%d-%m-%Y %R\"` `whoami` ${pkg} REMOVED" >> /tmp/${basename}/header
       done
     fi
-    cat /tmp/${basename}/header "${WORKSPACE}/${CHANGELOG}" > "/tmp/${basename}/${CHANGELOG}"
-    mv "/tmp/${basename}/${CHANGELOG}" "${WORKSPACE}/${CHANGELOG}"
+    cat /tmp/${basename}/header "${WORKSPACE}/ChangeLog" > "/tmp/${basename}/ChangeLog"
+    mv "/tmp/${basename}/ChangeLog" "${WORKSPACE}/ChangeLog"
   fi
     
   if [ "${ADD}" == "true" ]; then
@@ -332,7 +332,7 @@ cleanup_ftp(){
 
 upload(){
   files="${REPO}.db.tar.gz"
-  [ ! ${NOCHANGELOG} ] && files="${files} ${CHANGELOG}"
+  [ ! ${NOCHANGELOG} ] && files="${files} ChangeLog"
     
   if [ "${ADD}" == "true" ]; then
     for pkg in ${built}; do
@@ -357,11 +357,15 @@ get_pkgs_list(){
 }
 
 check_files(){
+  [ -z ${WORKSPACE} ] && print_error "Workspace dir is not set"
+  [ -z ${URL} ] && print_error "Repo URL is not set"
+  [ -z ${REPO} ] && print_error "Repo name is not set"
+  
   if [ ! -d "${WORKSPACE}/pkgs" ]; then
     mkdir -p "${WORKSPACE}/pkgs" || print_error "cannot create ${WORKSPACE}/pkgs/"
   fi
   if [ "${NOCHANGELOG}" != "true" ]; then
-    touch "${WORKSPACE}/${CHANGELOG}" || print_error "cannot create ${CHANGELOG}"
+    touch "${WORKSPACE}/ChangeLog" || print_error "cannot create ChangeLog"
   fi
 }
 
@@ -371,13 +375,13 @@ main(){
   check_files
 
   if [ "${NOCHANGELOG}" != "true" ]; then
-    printf "Downloading ${BOLD}${CHANGELOG}${DEFA}\n"
-    mv "${WORKSPACE}/${CHANGELOG}" "${WORKSPACE}/${CHANGELOG}.old" &>/dev/null
+    printf "Downloading ${BOLD}ChangeLog${DEFA}\n"
+    mv "${WORKSPACE}/ChangeLog" "${WORKSPACE}/ChangeLog.old" &>/dev/null
     if [ "${VERBOSE}" == "true" ]; then
-      wget -P "${WORKSPACE}" "${URL}/${CHANGELOG}" || print_error "unable to get ${CHANGELOG}"
+      wget -P "${WORKSPACE}" "${URL}/ChangeLog" || print_error "unable to get ChangeLog"
       printf "\n"
     else  
-      wget -P "${WORKSPACE}" "${URL}/${CHANGELOG}" &>/dev/null || print_error "unable to get ${CHANGELOG}"
+      wget -P "${WORKSPACE}" "${URL}/ChangeLog" &>/dev/null || print_error "unable to get ChangeLog"
     fi
   fi
   printf "Downloading ${BOLD}${REPO}.db.tar.gz${DEFA}\n"
@@ -414,7 +418,7 @@ main(){
 
   if [ ${#built} -gt 0 -o "${REMOVE}" == "true" ]; then
     printf "Updating "
-    [ "${NOCHANGELOG}" != "true" ] && printf "${BOLD}${CHANGELOG}${DEFA} and "
+    [ "${NOCHANGELOG}" != "true" ] && printf "${BOLD}ChangeLog${DEFA} and "
     printf "${BOLD}${REPO}.db.tar.gz${DEFA}..."
     update
 
