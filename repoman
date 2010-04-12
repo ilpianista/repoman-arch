@@ -45,16 +45,16 @@ print_warning(){
 }
 
 get_pkg_repo(){
-    pkgrepo=`LC_ALL=C pacman -Si ${1} 2> /dev/null \
-        | grep -m1 Repository | awk -F": " '{print $2}'`
-    case ${pkgrepo} in
-        core) ;;
-        extra) ;;
-        testing) ;;
-        community) ;;
-        community-testing) ;;
-        *) pkgrepo="aur" ;;
-    esac
+  pkgrepo=`LC_ALL=C pacman -Si ${1} 2> /dev/null \
+    | grep -m1 Repository | awk -F": " '{print $2}'`
+  case ${pkgrepo} in
+    core) ;;
+    extra) ;;
+    testing) ;;
+    community) ;;
+    community-testing) ;;
+    *) pkgrepo="aur" ;;
+  esac
 }
 
 build_pkg(){
@@ -113,7 +113,7 @@ build_pkg(){
 update(){
   if [ "${NOCHANGELOG}" != "true" ]; then
     [ -f /tmp/${basename} ] && rm -rf /tmp/${basename}
-    mkdir /tmp/${basename}
+    mkdir /tmp/${basename} &>/dev/null
     if [ "${ADD}" == "true" ]; then
       for pkg in ${built}; do
         echo "* `date +\"%d-%m-%Y %R\"` `whoami` ${pkg}" >> /tmp/${basename}/header
@@ -256,20 +256,27 @@ edit_pkgbuild(){
 get_pkg_from_aur(){
   local pkgname=${1}
   if [ "${VERBOSE}" == "true" ]; then
-    wget -P "${WORKSPACE}/pkgs" http://aur.archlinux.org/packages/${pkgname}/${pkgname}.tar.gz || print_warning "not found in AUR"
+    wget -P "${WORKSPACE}/pkgs" http://aur.archlinux.org/packages/${pkgname}/${pkgname}.tar.gz
     printf "\n"
   else
-    wget -P "${WORKSPACE}/pkgs" http://aur.archlinux.org/packages/${pkgname}/${pkgname}.tar.gz &>/dev/null || print_warning "not found in AUR"
+    wget -P "${WORKSPACE}/pkgs" http://aur.archlinux.org/packages/${pkgname}/${pkgname}.tar.gz &>/dev/null
+  fi
+  if [ ! -f "${WORKSPACE}/pkgs/${pkgname}.tar.gz" ]; then
+    print_warning "not found in AUR"
   fi
 }
 
 extract_pkg(){
   local pkgname=${1}
-  if [ "${VERBOSE}" == "true" ]; then
-    tar -xf "${WORKSPACE}/pkgs/${pkgname}.tar.gz" -C "${WORKSPACE}/pkgs" || print_warning "source-only tarball not found"
-    printf "\n"
+  if [ -f "${WORKSPACE}/pkgs/${pkgname}.tar.gz" ]; then
+    if [ "${VERBOSE}" == "true" ]; then
+      tar -xf "${WORKSPACE}/pkgs/${pkgname}.tar.gz" -C "${WORKSPACE}/pkgs"
+      printf "\n"
+    else
+      tar -xf "${WORKSPACE}/pkgs/${pkgname}.tar.gz" -C "${WORKSPACE}/pkgs" &>/dev/null
+    fi
   else
-    tar -xf "${WORKSPACE}/pkgs/${pkgname}.tar.gz" -C "${WORKSPACE}/pkgs" &>/dev/null || print_warning "source-only tarball not found"
+    print_warning "source-only tarball not found"
   fi
 }
 
@@ -279,17 +286,21 @@ get_pkgbuild(){
     get_pkg_repo ${pkgname}
     if [ "${pkgrepo}" != "aur" ]; then
       if [ "${VERBOSE}" == "true" ]; then
-        rsync -mrtv --no-motd --delete-after --delete-excluded rsync.archlinux.org::abs/{${CARCH},any}/${pkgrepo}/${pkgname} "${WORKSPACE}/pkgs" || print_warning "rsync error"
+        rsync -mrtv --no-motd --delete-after --delete-excluded rsync.archlinux.org::abs/{${CARCH},any}/${pkgrepo}/${pkgname} "${WORKSPACE}/pkgs"
         printf "\n"
       else
-        rsync -mrtv --no-motd --delete-after --delete-excluded rsync.archlinux.org::abs/{${CARCH},any}/${pkgrepo}/${pkgname} "${WORKSPACE}/pkgs" &>/dev/null || print_warning "rsync error"
+        rsync -mrtv --no-motd --delete-after --delete-excluded rsync.archlinux.org::abs/{${CARCH},any}/${pkgrepo}/${pkgname} "${WORKSPACE}/pkgs" &>/dev/null
       fi
     elif [ "${pkgrepo}" == "aur" ]; then
       get_pkg_from_aur ${pkgname}
       extract_pkg ${pkgname}
     fi
   fi
-  printf "${LGRE}done${DEFA}\n"
+  if [ -f ${WORKSPACE}/pkgs/${pkgname}/PKGBUILD ]; then
+    printf "${LGRE}done${DEFA}\n"
+  else
+    print_warning "PKGBUILD not found"
+  fi
 }
 
 clean(){
@@ -306,7 +317,8 @@ cleanup_ftp(){
     done
   elif [ "${ADD}" == "true" ]; then
     for pkg in ${built}; do
-      local packageinfo=`tar -tf "${WORKSPACE}/${REPO}.db.tar.gz.old" | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep '^'${pkg}'-[0-9]$*'`
+      package=`echo ${pkg} | awk -F"-" '{for (i=1; i<NF - 2; i++) printf "%s-", $i; printf $(NF - 2)"\n" }'
+      local packageinfo=`tar -tf "${WORKSPACE}/${REPO}.db.tar.gz.old" | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep '^'${package}'-[0-9]$*'`
       [ ! -z ${packageinfo} ] && files="${files} ${packageinfo}-*.pkg.tar.*"
     done
   fi
