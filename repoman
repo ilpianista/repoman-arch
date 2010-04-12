@@ -299,7 +299,7 @@ get_pkgbuild(){
   if [ -f ${WORKSPACE}/pkgs/${pkgname}/PKGBUILD ]; then
     printf "${LGRE}done${DEFA}\n"
   else
-    print_warning "PKGBUILD not found"
+    print_error "PKGBUILD not found"
   fi
 }
 
@@ -317,7 +317,7 @@ cleanup_ftp(){
     done
   elif [ "${ADD}" == "true" ]; then
     for pkg in ${built}; do
-      package=`echo ${pkg} | awk -F"-" '{for (i=1; i<NF - 2; i++) printf "%s-", $i; printf $(NF - 2)"\n" }'
+      package=`echo ${pkg} | awk -F"-" '{for (i=1; i<NF - 2; i++) printf "%s-", $i; printf $(NF - 2)"\n" }'`
       local packageinfo=`tar -tf "${WORKSPACE}/${REPO}.db.tar.gz.old" | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep '^'${package}'-[0-9]$*'`
       [ ! -z ${packageinfo} ] && files="${files} ${packageinfo}-*.pkg.tar.*"
     done
