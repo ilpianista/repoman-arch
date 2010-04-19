@@ -81,13 +81,15 @@ build_pkg(){
     else
       arch="${CARCH}"
     fi
-    if [ ! -f ${WORKSPACE}/${pkgname}-${packagever}-${arch}${PKGEXT} -o "$NOBUILD" != "true" ]; then
-      [ ${UID} -eq 0 ] && MAKEPKG_OPTS="${MAKEPKG_OPTS} --asroot"
+    if [ -f ${DEST}/${pkgname}-${packagever}-${arch}${PKGEXT} ]; then
+      printf "${LGRE}done${DEFA}, found in ${WORKSPACE}\n"
+      built="${built} ${pkgname}-${packagever}-${arch}${PKGEXT}"
+    else
       if [ "${VERBOSE}" == "true" ]; then
-        makepkg ${MAKEPKG_OPTS} || print_warning "makepkg failed!"
+        PKGDEST=${DEST} makepkg ${MAKEPKG_OPTS} || print_warning "makepkg failed!"
         printf "\n"
       else
-        makepkg ${MAKEPKG_OPTS} &>/dev/null || print_warning "makepkg failed!"
+        PKGDEST=${DEST} makepkg ${MAKEPKG_OPTS} &>/dev/null || print_warning "makepkg failed!"
       fi
 
       # read the new pkgver for VCS packages
@@ -96,14 +98,12 @@ build_pkg(){
         packagever=${pkgver}-${pkgrel}
       fi
       
-      if [ -f ${WORKSPACE}/pkgs/${pkgname}/${pkgname}-${packagever}-${arch}${PKGEXT} ]; then
-        cp ${WORKSPACE}/pkgs/${pkgname}/${pkgname}-${packagever}-${arch}${PKGEXT} ${WORKSPACE}/ &>/dev/null
+      if [ -f ${DEST}/${pkgname}-${packagever}-${arch}${PKGEXT} ]; then
         printf "${LGRE}done${DEFA}\n"
         built="${built} ${pkgname}-${packagever}-${arch}${PKGEXT}"
+      else
+	print_warning "build failed"
       fi
-    else
-      printf "${LGRE}done${DEFA}, found in ${WORKSPACE}\n"
-      built="${built} ${pkgname}-${packagever}-${arch}${PKGEXT}"
     fi
   else
     printf "already up-to-date\n"
@@ -155,7 +155,7 @@ usage(){
   printf "      --clean        remove any files from workspace dir\n"
   printf "      --update       update the whole repository\n"
   printf "Options:\n"
-  printf "  -b, --nobuild      do not build packages if exist in workspace dir\n"
+  printf "  -b, --build        build packages if they exist in workspace dir\n"
   printf "  -e, --noextract    do not extract source files (use existing pkgs/src/ dir)\n"
   printf "  -f, --force        build packages if already on repo\n"
   printf "  -l, --log          enable makepkg to log package build process\n"
@@ -177,13 +177,13 @@ check_args(){
   LOG="false"
   NOEXTRACT="false"
   NOUPLOAD="false"
-  NOBUILD="false"
   NOCHANGELOG="false"
   NOCOLOR="false"
   NOCONFIRM="false"
   VERBOSE="false"
   
-  MAKEPKG_OPTS="-f --noconfirm"
+  MAKEPKG_OPTS="--noconfirm"
+  [ ${UID} -eq 0 ] && MAKEPKG_OPTS="${MAKEPKG_OPTS} --asroot"
   
   if [ -f ${HOME}/.repoman.conf ]; then
     source "${HOME}/.repoman.conf"
@@ -192,6 +192,9 @@ check_args(){
   fi
   source /etc/makepkg.conf
   [ -f ${HOME}/.makepkg.conf ] && source ${HOME}/.makepkg.conf
+  
+  DEST="${PKGDEST}"
+  [ -z ${DEST} ] && DEST="${WORKSPACE}"
   
   if [ "$#" -eq "0" ]; then
     usage
@@ -210,7 +213,7 @@ check_args(){
       case ${ARGS} in
         R) REMOVE="true";;
         S) ADD="true" ;;
-        b) NOBUILD="true" ;;
+        b) MAKEPKG_OPTS="${MAKEPKG_OPTS} -f" ;;
         e) MAKEPKG_OPTS="${MAKEPKG_OPTS} -e" ;;
         f) FORCE="true" ;;
         l) MAKEPKG_OPTS="${MAKEPKG_OPTS} -L" ;;
@@ -220,12 +223,12 @@ check_args(){
           add) ADD="true" ;;
           remove) REMOVE="true";;
           update) UPDATE="true"; ADD="true" ;;
+          build) MAKEPKG_OPTS="${MAKEPKG_OPTS} -f" ;;
           force) FORCE="true" ;;
           log) MAKEPKG_OPTS="${MAKEPKG_OPTS} -L" ;;
           noedit) EDIT="false" ;;
           noextract) MAKEPKG_OPTS="${MAKEPKG_OPTS} -e" ;;
           noupload) NOUPLOAD="true" ;;
-          nobuild) NOBUILD="true" ;;
           nochangelog) NOCHANGELOG="true" ;;
           nocolor) NOCOLOR="true"; MAKEPKG_OPTS="${MAKEPKG_OPTS} --nocolor" ;;
           noconfirm) NOCONFIRM="true" ;;
@@ -339,8 +342,7 @@ upload(){
     
   if [ "${ADD}" == "true" ]; then
     for pkg in ${built}; do
-      files="${files} ${pkg}"
-
+      files="${files} ${DEST}/${pkg}"
     done
   fi
   cd ${WORKSPACE}
@@ -376,10 +378,10 @@ check_files(){
   [ -z ${REPO} ] && print_error "Repo name is not set"
   
   if [ ! -d "${WORKSPACE}/pkgs" ]; then
-    mkdir -p "${WORKSPACE}/pkgs" || print_error "cannot create ${WORKSPACE}/pkgs/"
+    mkdir -p "${WORKSPACE}/pkgs" &>/dev/null || print_error "cannot create ${WORKSPACE}/pkgs/"
   fi
   if [ "${NOCHANGELOG}" != "true" ]; then
-    touch "${WORKSPACE}/ChangeLog" || print_error "cannot create ChangeLog"
+    touch "${WORKSPACE}/ChangeLog" &>/dev/null || print_error "cannot create ChangeLog"
   fi
 }
 
@@ -419,7 +421,7 @@ main(){
     
     printf "Updating "
     [ "${NOCHANGELOG}" != "true" ] && printf "${BOLD}ChangeLog${DEFA} and "
-    printf "${BOLD}${REPO}.db.tar.gz${DEFA}..."
+    printf "${BOLD}${REPO}.db.tar.gz${DEFA}...\n"
     update
 
     printf "Uploading files..."
@@ -432,7 +434,7 @@ main(){
       if [ "${ADD}" == "true" ]; then
         printf "${BOLD}Do you want to clean packages build dirs? (y/N): ${DEFA}"
         read DIR_REMOVE
-        [ "$DIR_REMOVE" == "y" ] && rm -rf ${WORKSPACE}/pkgs/*/{pkg/,src/,*.pkg.tar.*}
+        [ "$DIR_REMOVE" == "y" ] && rm -rf ${WORKSPACE}/pkgs/*/{pkg/,src/,*.pkg.tar.*} &>/dev/null
       fi
     fi
   fi
