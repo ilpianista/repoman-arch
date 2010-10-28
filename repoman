@@ -191,7 +191,7 @@ check_args(){
   NOCONFIRM="false"
   VERBOSE="false"
   
-  MAKEPKG_OPTS="--noconfirm"
+  MAKEPKG_OPTS="${MAKEPKG_EXTRA_OPTS} --noconfirm"
   [ ${UID} -eq 0 ] && MAKEPKG_OPTS="${MAKEPKG_OPTS} --asroot"
   
   if [ -f "${HOME}"/.repoman.conf ]; then
