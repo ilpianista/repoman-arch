@@ -61,7 +61,7 @@ build_pkg(){
   local pkgname=${1}
 
   if [ "${NEW}" != "true" ]; then
-    local packageinfo=`tar -tf "${WORKSPACE}/${REPO}.db.tar.gz" | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep '^'${pkgname}'-[0-9]$*'`
+    local packageinfo=`tar -tf "${WORKSPACE}"/${REPO}.db.tar.gz | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep '^'${pkgname}'-[0-9]$*'`
   fi
 
   local repopkgver="0-0"
@@ -71,15 +71,15 @@ build_pkg(){
   fi
   [ "${pkgvcs}" == "git" -o "${pkgvcs}" == "svn" -o "${pkgvcs}" == "cvs" -o "${pkgvcs}" == "hg" -o "${pkgvcs}" == "darcs" ] && FORCE="true";
 
-  if [ ${NOCONFIRM} != "true" ]; then
+  if [ "${NOCONFIRM}" != "true" ]; then
     [ "${EDIT}" == "true" ] && edit_pkgbuild ${pkgname}
   fi
   
-  cd ${WORKSPACE}/pkgs/${pkgname}
+  cd "${WORKSPACE}"/pkgs/${pkgname}
   source PKGBUILD
-  packagever=${pkgver}-${pkgrel}
+  local packagever=${pkgver}-${pkgrel}
 
-  if [ $(vercmp ${packagever} ${repopkgver}) -gt 0 -o "$FORCE" == "true" ]; then
+  if [ $(vercmp ${packagever} ${repopkgver}) -gt 0 -o "${FORCE}" == "true" ]; then
     if [ "${arch[0]}" == "any" ]; then
       arch="any"
     else
@@ -128,23 +128,23 @@ update(){
         echo "* `date +\"%d-%m-%Y %R\"` `whoami` ${pkg} REMOVED" >> /tmp/${basename}/header
       done
     fi
-    cat /tmp/${basename}/header "${WORKSPACE}/ChangeLog" > "/tmp/${basename}/ChangeLog"
-    mv "/tmp/${basename}/ChangeLog" "${WORKSPACE}/ChangeLog"
+    cat /tmp/${basename}/header "${WORKSPACE}"/ChangeLog > /tmp/${basename}/ChangeLog
+    mv /tmp/${basename}/ChangeLog "${WORKSPACE}"/ChangeLog
   fi
     
   if [ "${ADD}" == "true" ]; then
     pushd "${WORKSPACE}" &>/dev/null
     if [ "${VERBOSE}" == "true" ]; then
-      repo-add "${REPO}.db.tar.gz" ${built} || print_error "repo-add error"
+      repo-add ${REPO}.db.tar.gz ${built} || print_error "repo-add error"
     else
-      repo-add "${REPO}.db.tar.gz" ${built} &>/dev/null || print_error "repo-add error"
+      repo-add ${REPO}.db.tar.gz ${built} &>/dev/null || print_error "repo-add error"
     fi
     popd &>/dev/null
   elif [ "${REMOVE}" == "true" ]; then
     if [ "${VERBOSE}" == "true" ]; then
-      repo-remove "${WORKSPACE}/${REPO}.db.tar.gz" ${packages} || print_error "repo-remove error"
+      repo-remove "${WORKSPACE}"/${REPO}.db.tar.gz "${packages}" || print_error "repo-remove error"
     else
-      repo-remove "${WORKSPACE}/${REPO}.db.tar.gz" ${packages} &>/dev/null || print_error "repo-remove error"
+      repo-remove "${WORKSPACE}"/${REPO}.db.tar.gz "${packages}" &>/dev/null || print_error "repo-remove error"
     fi
   fi
 }
@@ -191,16 +191,16 @@ check_args(){
   MAKEPKG_OPTS="--noconfirm"
   [ ${UID} -eq 0 ] && MAKEPKG_OPTS="${MAKEPKG_OPTS} --asroot"
   
-  if [ -f ${HOME}/.repoman.conf ]; then
-    source "${HOME}/.repoman.conf"
+  if [ -f "${HOME}"/.repoman.conf ]; then
+    source "${HOME}"/.repoman.conf
   else
-    source "/etc/repoman.conf"
+    source /etc/repoman.conf
   fi
   source /etc/makepkg.conf
-  [ -f ${HOME}/.makepkg.conf ] && source ${HOME}/.makepkg.conf
+  [ -f "${HOME}"/.makepkg.conf ] && source "${HOME}"/.makepkg.conf
   
   DEST="${PKGDEST}"
-  [ -z ${DEST} ] && DEST="${WORKSPACE}"
+  [ -z "${DEST}" ] && DEST="${WORKSPACE}"
   
   if [ "$#" -eq "0" ]; then
     usage
@@ -253,12 +253,12 @@ check_args(){
 
 edit_pkgbuild(){
   local pkgname=${1}
-  if [ -f "${WORKSPACE}/pkgs/${pkgname}/PKGBUILD" ]; then
+  if [ -f "${WORKSPACE}"/pkgs/${pkgname}/PKGBUILD ]; then
     printf "${BOLD}edit PKGBUILD? (Y/n): ${DEFA}"
     read EDIT_ANSWER
-    if [ "$EDIT_ANSWER" != "n" ]; then
-      [ -z "$EDITOR" ] && EDITOR="nano"
-      $EDITOR "${WORKSPACE}/pkgs/${pkgname}/PKGBUILD"
+    if [ "${EDIT_ANSWER}" != "n" ]; then
+      [ -z "${EDITOR}" ] && EDITOR="nano"
+      ${EDITOR} "${WORKSPACE}"/pkgs/${pkgname}/PKGBUILD
     fi
   fi
 }
@@ -266,24 +266,24 @@ edit_pkgbuild(){
 get_pkg_from_aur(){
   local pkgname=${1}
   if [ "${VERBOSE}" == "true" ]; then
-    wget -P "${WORKSPACE}/pkgs" https://aur.archlinux.org/packages/${pkgname}/${pkgname}.tar.gz
+    wget -P "${WORKSPACE}"/pkgs https://aur.archlinux.org/packages/${pkgname}/${pkgname}.tar.gz
     printf "\n"
   else
-    wget -P "${WORKSPACE}/pkgs" https://aur.archlinux.org/packages/${pkgname}/${pkgname}.tar.gz &>/dev/null
+    wget -P "${WORKSPACE}"/pkgs https://aur.archlinux.org/packages/${pkgname}/${pkgname}.tar.gz &>/dev/null
   fi
-  if [ ! -f "${WORKSPACE}/pkgs/${pkgname}.tar.gz" ]; then
+  if [ ! -f "${WORKSPACE}"/pkgs/${pkgname}.tar.gz ]; then
     print_warning "not found in AUR"
   fi
 }
 
 extract_pkg(){
   local pkgname=${1}
-  if [ -f "${WORKSPACE}/pkgs/${pkgname}.tar.gz" ]; then
+  if [ -f "${WORKSPACE}"/pkgs/${pkgname}.tar.gz ]; then
     if [ "${VERBOSE}" == "true" ]; then
-      tar -xf "${WORKSPACE}/pkgs/${pkgname}.tar.gz" -C "${WORKSPACE}/pkgs"
+      tar -xf "${WORKSPACE}"/pkgs/${pkgname}.tar.gz -C "${WORKSPACE}"/pkgs
       printf "\n"
     else
-      tar -xf "${WORKSPACE}/pkgs/${pkgname}.tar.gz" -C "${WORKSPACE}/pkgs" &>/dev/null
+      tar -xf "${WORKSPACE}"/pkgs/${pkgname}.tar.gz -C "${WORKSPACE}"/pkgs &>/dev/null
     fi
   else
     print_warning "source-only tarball not found"
@@ -292,21 +292,21 @@ extract_pkg(){
 
 get_pkgbuild(){
   local pkgname=${1}
-  if [ ! -f ${WORKSPACE}/pkgs/${pkgname}/PKGBUILD ]; then
+  if [ ! -f "${WORKSPACE}"/pkgs/${pkgname}/PKGBUILD ]; then
     get_pkg_repo ${pkgname}
     if [ "${pkgrepo}" != "aur" ]; then
       if [ "${VERBOSE}" == "true" ]; then
-        rsync -mrtv --no-motd --delete-after --delete-excluded rsync.archlinux.org::abs/{${CARCH},any}/${pkgrepo}/${pkgname} "${WORKSPACE}/pkgs"
+        rsync -mrtv --no-motd --delete-after --delete-excluded rsync.archlinux.org::abs/{${CARCH},any}/${pkgrepo}/${pkgname} "${WORKSPACE}"/pkgs
         printf "\n"
       else
-        rsync -mrtv --no-motd --delete-after --delete-excluded rsync.archlinux.org::abs/{${CARCH},any}/${pkgrepo}/${pkgname} "${WORKSPACE}/pkgs" &>/dev/null
+        rsync -mrtv --no-motd --delete-after --delete-excluded rsync.archlinux.org::abs/{${CARCH},any}/${pkgrepo}/${pkgname} "${WORKSPACE}"/pkgs &>/dev/null
       fi
     elif [ "${pkgrepo}" == "aur" ]; then
       get_pkg_from_aur ${pkgname}
       extract_pkg ${pkgname}
     fi
   fi
-  if [ -f ${WORKSPACE}/pkgs/${pkgname}/PKGBUILD ]; then
+  if [ -f "${WORKSPACE}"/pkgs/${pkgname}/PKGBUILD ]; then
     printf "${LGRE}done${DEFA}\n"
   else
     print_error "PKGBUILD not found"
@@ -322,22 +322,22 @@ cleanup_ftp(){
   files=""
   if [ "${REMOVE}" == "true" ]; then
     for pkg in ${packages}; do
-      local packageinfo=`tar -tf "${WORKSPACE}/${REPO}.db.tar.gz.old" | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep '^'${pkg}'-[0-9]$*'`
+      local packageinfo=`tar -tf "${WORKSPACE}"/${REPO}.db.tar.gz.old | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep '^'${pkg}'-[0-9]$*'`
       [ ! -z ${packageinfo} ] && files="${files} ${packageinfo}-*.pkg.tar.*"
     done
   elif [ "${ADD}" == "true" ]; then
     for pkg in ${built}; do
       package=`echo ${pkg} | awk -F"-" '{for (i=1; i<NF - 2; i++) printf "%s-", $i; printf $(NF - 2)"\n" }'`
-      local packageinfo=`tar -tf "${WORKSPACE}/${REPO}.db.tar.gz.old" | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep '^'${package}'-[0-9]$*'`
+      local packageinfo=`tar -tf "${WORKSPACE}"/${REPO}.db.tar.gz.old | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep '^'${package}'-[0-9]$*'`
       [ ! -z ${packageinfo} ] && files="${files} ${packageinfo}-*.pkg.tar.*"
     done
   fi
   if [ ! -z ${files} ]; then
     if [ "${VERBOSE}" == "true" ]; then
-      lftp -u "${USERNAME},${PASSWORD}" -e "${LFTP_CMDS}; mrm ${files}; exit" "${FTP_URL}/${FTP_DIR}" || print_warning "cannot remove files from FTP"
+      lftp -u "${USERNAME}","${PASSWORD}" -e "${LFTP_CMDS}; mrm ${files}; exit" "${FTP_URL}/${FTP_DIR}" || print_warning "cannot remove files from FTP"
       printf "\n"
     else
-      lftp -u "${USERNAME},${PASSWORD}" -e "${LFTP_CMDS}; mrm ${files}; exit" "${FTP_URL}/${FTP_DIR}" &>/dev/null || print_warning "cannot remove files from FTP"
+      lftp -u "${USERNAME}","${PASSWORD}" -e "${LFTP_CMDS}; mrm ${files}; exit" "${FTP_URL}/${FTP_DIR}" &>/dev/null || print_warning "cannot remove files from FTP"
     fi
   fi
   printf "${LGRE}done${DEFA}\n"
@@ -345,24 +345,24 @@ cleanup_ftp(){
 
 upload(){
   files="${REPO}.db.tar.gz"
-  [ ! ${NOCHANGELOG} ] && files="${files} ChangeLog"
+  [ "${NOCHANGELOG}" != "true"] && files="${files} ChangeLog"
     
   if [ "${ADD}" == "true" ]; then
     for pkg in ${built}; do
       files="${files} ${DEST}/${pkg}"
     done
   fi
-  cd ${WORKSPACE}
+  cd "${WORKSPACE}"
   if [ "${VERBOSE}" == "true" ]; then
-    lftp -u ${USERNAME},"${PASSWORD}" -e "${LFTP_CMDS}; put ${files}; exit" "${FTP_URL}/${FTP_DIR}" || print_error "upload failed"
+    lftp -u "${USERNAME}","${PASSWORD}" -e "${LFTP_CMDS}; put ${files}; exit" "${FTP_URL}/${FTP_DIR}" || print_error "upload failed"
   else
-    lftp -u ${USERNAME},"${PASSWORD}" -e "${LFTP_CMDS}; put ${files}; exit" "${FTP_URL}/${FTP_DIR}" &>/dev/null || print_error "upload failed"
+    lftp -u "${USERNAME}","${PASSWORD}" -e "${LFTP_CMDS}; put ${files}; exit" "${FTP_URL}/${FTP_DIR}" &>/dev/null || print_error "upload failed"
   fi
   printf "${LGRE}done${DEFA}\n"
 }
 
 get_pkgs_list(){
-  for package in `tar -tf "${WORKSPACE}/${REPO}.db.tar.gz" | grep -vE 'desc$|depends$' | sed -e 's:\/$::g'`; do
+  for package in `tar -tf "${WORKSPACE}"/${REPO}.db.tar.gz | grep -vE 'desc$|depends$' | sed -e 's:\/$::g'`; do
     local pkgname=$(echo ${package} | awk -F"-" '{for (i=1; i<NF - 2; i++) printf "%s-", $i; printf $(NF - 2)"\n" }')
     packages="${packages} ${pkgname}"
   done
@@ -370,7 +370,7 @@ get_pkgs_list(){
 
 get_file(){
   printf "Downloading ${BOLD}${1}${DEFA}\n"
-  mv "${WORKSPACE}/${1}" "${WORKSPACE}/${1}.old" &>/dev/null
+  mv "${WORKSPACE}"/${1} "${WORKSPACE}"/${1}.old &>/dev/null
   if [ "${VERBOSE}" == "true" ]; then
     wget -P "${WORKSPACE}" "${URL}/${1}" || print_error "unable to get ${1}"
     printf "\n"
@@ -380,15 +380,15 @@ get_file(){
 }
 
 check_files(){
-  [ -z ${WORKSPACE} ] && print_error "Workspace dir is not set"
+  [ -z "${WORKSPACE}" ] && print_error "Workspace dir is not set"
   [ -z ${URL} ] && print_error "Repo URL is not set"
   [ -z ${REPO} ] && print_error "Repo name is not set"
   
-  if [ ! -d "${WORKSPACE}/pkgs" ]; then
-    mkdir -p "${WORKSPACE}/pkgs" &>/dev/null || print_error "cannot create ${WORKSPACE}/pkgs/"
+  if [ ! -d "${WORKSPACE}"/pkgs ]; then
+    mkdir -p "${WORKSPACE}"/pkgs &>/dev/null || print_error "cannot create ${WORKSPACE}/pkgs/"
   fi
   if [ "${NOCHANGELOG}" != "true" ]; then
-    touch "${WORKSPACE}/ChangeLog" &>/dev/null || print_error "cannot create ChangeLog"
+    touch "${WORKSPACE}"/ChangeLog &>/dev/null || print_error "cannot create ChangeLog"
   fi
 }
 
@@ -441,11 +441,11 @@ main(){
     printf "Cleanup ftp..."
     cleanup_ftp
 
-    if [ ${NOCONFIRM} != "true" ]; then
+    if [ "${NOCONFIRM}" != "true" ]; then
       if [ "${ADD}" == "true" ]; then
         printf "${BOLD}Do you want to clean packages build dirs? (y/N): ${DEFA}"
         read DIR_REMOVE
-        [ "$DIR_REMOVE" == "y" ] && rm -rf ${WORKSPACE}/pkgs/*/{pkg/,src/,*.pkg.tar.*} &>/dev/null
+        [ "${DIR_REMOVE}" == "y" ] && rm -rf "${WORKSPACE}"/pkgs/*/{pkg/,src/,*.pkg.tar.*} &>/dev/null
       fi
     fi
   fi
