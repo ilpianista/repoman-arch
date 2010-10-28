@@ -59,7 +59,11 @@ get_pkg_repo(){
 
 build_pkg(){
   local pkgname=${1}
-  local packageinfo=`tar -tf "${WORKSPACE}/${REPO}.db.tar.gz" | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep '^'${pkgname}'-[0-9]$*'`
+
+  if [ "${NEW}" != "true" ]; then
+    local packageinfo=`tar -tf "${WORKSPACE}/${REPO}.db.tar.gz" | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep '^'${pkgname}'-[0-9]$*'`
+  fi
+
   local repopkgver="0-0"
   if [ ! -z ${packageinfo} ]; then
     repopkgver=$(echo ${packageinfo} | awk -F"-" '{print $(NF - 1)}')-$(echo ${packageinfo} | awk -F"-" '{print $NF}')
@@ -159,6 +163,7 @@ usage(){
   printf "  -e, --noextract    do not extract source files (use existing pkgs/src/ dir)\n"
   printf "  -f, --force        build packages if already on repo\n"
   printf "  -l, --log          enable makepkg to log package build process\n"
+  printf "      --new          create a new repository\'s database\n"
   printf "      --noupload     do not upload any file to ftp\n"
   printf "      --nochangelog  do not use a changelog file\n"
   printf "      --noconfirm    do not ask\n"
@@ -175,6 +180,7 @@ check_args(){
   EDIT="true"
   FORCE="false"
   LOG="false"
+  NEW="false"
   NOEXTRACT="false"
   NOUPLOAD="false"
   NOCHANGELOG="false"
@@ -226,6 +232,7 @@ check_args(){
           build) MAKEPKG_OPTS="${MAKEPKG_OPTS} -f" ;;
           force) FORCE="true" ;;
           log) MAKEPKG_OPTS="${MAKEPKG_OPTS} -L" ;;
+          new) NEW="true" ;;
           noedit) EDIT="false" ;;
           noextract) MAKEPKG_OPTS="${MAKEPKG_OPTS} -e" ;;
           noupload) NOUPLOAD="true" ;;
@@ -247,7 +254,7 @@ check_args(){
 edit_pkgbuild(){
   local pkgname=${1}
   if [ -f "${WORKSPACE}/pkgs/${pkgname}/PKGBUILD" ]; then
-    printf "${BOLD}edit PKGBUILD? (Y/n): "
+    printf "${BOLD}edit PKGBUILD? (Y/n): ${DEFA}"
     read EDIT_ANSWER
     if [ "$EDIT_ANSWER" != "n" ]; then
       [ -z "$EDITOR" ] && EDITOR="nano"
@@ -259,10 +266,10 @@ edit_pkgbuild(){
 get_pkg_from_aur(){
   local pkgname=${1}
   if [ "${VERBOSE}" == "true" ]; then
-    wget -P "${WORKSPACE}/pkgs" http://aur.archlinux.org/packages/${pkgname}/${pkgname}.tar.gz
+    wget -P "${WORKSPACE}/pkgs" https://aur.archlinux.org/packages/${pkgname}/${pkgname}.tar.gz
     printf "\n"
   else
-    wget -P "${WORKSPACE}/pkgs" http://aur.archlinux.org/packages/${pkgname}/${pkgname}.tar.gz &>/dev/null
+    wget -P "${WORKSPACE}/pkgs" https://aur.archlinux.org/packages/${pkgname}/${pkgname}.tar.gz &>/dev/null
   fi
   if [ ! -f "${WORKSPACE}/pkgs/${pkgname}.tar.gz" ]; then
     print_warning "not found in AUR"
@@ -390,7 +397,9 @@ main(){
   colors
   check_files
 
-  get_file "${REPO}.db.tar.gz" &>/dev/null
+  if [ "${NEW}" != "true" ]; then
+    get_file "${REPO}.db.tar.gz"
+  fi
 
   [ "${UPDATE}" == "true" ] && get_pkgs_list
 
@@ -416,8 +425,10 @@ main(){
   fi
 
   if [ ${#built} -gt 0 -o "${REMOVE}" == "true" ]; then
-    [ "${NOCHANGELOG}" != "true" ] && get_file "ChangeLog"
-    get_file "${REPO}.db.tar.gz"
+    if [ "${NEW}" != "true" ]; then
+      [ "${NOCHANGELOG}" != "true" ] && get_file "ChangeLog"
+      get_file "${REPO}.db.tar.gz"
+    fi
     
     printf "Updating "
     [ "${NOCHANGELOG}" != "true" ] && printf "${BOLD}ChangeLog${DEFA} and "
