@@ -85,7 +85,7 @@ build_pkg(){
     else
       arch="${CARCH}"
     fi
-    if [ -f ${DEST}/${pkgname}-${packagever}-${arch}${PKGEXT} ]; then
+    if [ -f "${DEST}"/${pkgname}-${packagever}-${arch}${PKGEXT} -a "${BUILD}" != "true" ]; then
       printf "${LGRE}done${DEFA}, found in ${WORKSPACE}\n"
       built="${built} ${pkgname}-${packagever}-${arch}${PKGEXT}"
     else
@@ -163,6 +163,7 @@ usage(){
   printf "  -e, --noextract    do not extract source files (use existing pkgs/src/ dir)\n"
   printf "  -f, --force        build packages if already on repo\n"
   printf "  -l, --log          enable makepkg to log package build process\n"
+  printf "  -p. --pkgbuild     use an alternative PKGBUILD"
   printf "      --new          create a new repository\'s database\n"
   printf "      --noupload     do not upload any file to ftp\n"
   printf "      --nochangelog  do not use a changelog file\n"
@@ -177,10 +178,12 @@ check_args(){
   ADD="false"
   REMOVE="false"
   UPDATE="false"
+  BUILD="false"
   EDIT="true"
   FORCE="false"
   LOG="false"
   NEW="false"
+  PKGBUILD="false"
   NOEXTRACT="false"
   NOUPLOAD="false"
   NOCHANGELOG="false"
@@ -215,24 +218,26 @@ check_args(){
          *) packages="${packages} ${EXTRA_FLAG}"; shift ;;
       esac
     done
-    while getopts ":RSbeflvv:-:" ARGS; do
+    while getopts ":RSbeflpvv:-:" ARGS; do
       case ${ARGS} in
         R) REMOVE="true";;
         S) ADD="true" ;;
-        b) MAKEPKG_OPTS="${MAKEPKG_OPTS} -f" ;;
+        b) MAKEPKG_OPTS="${MAKEPKG_OPTS} -f" ; BUILD="true" ;;
         e) MAKEPKG_OPTS="${MAKEPKG_OPTS} -e" ;;
         f) FORCE="true" ;;
         l) MAKEPKG_OPTS="${MAKEPKG_OPTS} -L" ;;
+        p) PKGBUILD="true" ;;
         v) VERBOSE="true" ;;
         -) 
         case ${OPTARG} in
           add) ADD="true" ;;
           remove) REMOVE="true";;
           update) UPDATE="true"; ADD="true" ;;
-          build) MAKEPKG_OPTS="${MAKEPKG_OPTS} -f" ;;
+          build) MAKEPKG_OPTS="${MAKEPKG_OPTS} -f"; BUILD="true" ;;
           force) FORCE="true" ;;
           log) MAKEPKG_OPTS="${MAKEPKG_OPTS} -L" ;;
           new) NEW="true" ;;
+          pkgbuild) PKGBUILD="true" ;;
           noedit) EDIT="false" ;;
           noextract) MAKEPKG_OPTS="${MAKEPKG_OPTS} -e" ;;
           noupload) NOUPLOAD="true" ;;
@@ -345,7 +350,7 @@ cleanup_ftp(){
 
 upload(){
   files="${REPO}.db.tar.gz"
-  [ "${NOCHANGELOG}" != "true"] && files="${files} ChangeLog"
+  [ "${NOCHANGELOG}" != "true" ] && files="${files} ChangeLog"
     
   if [ "${ADD}" == "true" ]; then
     for pkg in ${built}; do
@@ -403,7 +408,7 @@ main(){
 
   [ "${UPDATE}" == "true" ] && get_pkgs_list
 
-  if [ ! -z ${#packages} ]; then
+  if [ ${#packages} -gt 0 ]; then
     printf "Packages:${BOLD}${packages}${DEFA}\n"
   else
     printf "None package\n\n"
@@ -417,8 +422,10 @@ main(){
 
   if [ "${ADD}" == "true" ]; then
     for pkg in ${packages}; do
-      printf "Getting ${BOLD}${pkg}${DEFA} PKGBUILD..."
-      get_pkgbuild ${pkg}
+      if [ "${PKGBUILD}" != "true" ]; then
+        printf "Getting ${BOLD}${pkg}${DEFA} PKGBUILD..."
+        get_pkgbuild ${pkg}
+      fi
       printf "Building ${BOLD}${pkg}${DEFA}..."
       build_pkg ${pkg}
     done
