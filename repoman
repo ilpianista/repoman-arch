@@ -163,7 +163,7 @@ usage(){
   printf "  -e, --noextract    do not extract source files (use existing pkgs/src/ dir)\n"
   printf "  -f, --force        build packages if already on repo\n"
   printf "  -l, --log          enable makepkg to log package build process\n"
-  printf "  -p. --pkgbuild     use an alternative PKGBUILD"
+  printf "  -p. --pkgbuild     use an alternative PKGBUILD\n"
   printf "      --new          create a new repository\'s database\n"
   printf "      --noupload     do not upload any file to ftp\n"
   printf "      --nochangelog  do not use a changelog file\n"
@@ -337,7 +337,7 @@ cleanup_ftp(){
       [ ! -z ${packageinfo} ] && files="${files} ${packageinfo}-*.pkg.tar.*"
     done
   fi
-  if [ ! -z ${files} ]; then
+  if [ ! -z "${files}" ]; then
     if [ "${VERBOSE}" == "true" ]; then
       lftp -u "${USERNAME}","${PASSWORD}" -e "${LFTP_CMDS}; mrm ${files}; exit" "${FTP_URL}/${FTP_DIR}" || print_warning "cannot remove files from FTP"
       printf "\n"
