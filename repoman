@@ -442,11 +442,12 @@ main(){
     printf "${BOLD}${REPO}.db.tar.gz${DEFA}...\n"
     update
 
-    printf "Uploading files..."
-    [ "${NOUPLOAD}" != "true" ] && upload
-
-    printf "Cleanup ftp..."
-    cleanup_ftp
+    if [ "${NOUPLOAD}" != "true" ]; then
+      printf "Uploading files..."
+      upload
+      printf "Cleanup ftp..."
+      cleanup_ftp
+    fi
 
     if [ "${NOCONFIRM}" != "true" ]; then
       if [ "${ADD}" == "true" ]; then
