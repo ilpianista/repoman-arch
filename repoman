@@ -116,20 +116,20 @@ build_pkg(){
 
 update(){
   if [ "${NOCHANGELOG}" != "true" ]; then
-    [ -f /tmp/${basename} ] && rm -rf /tmp/${basename}
-    mkdir /tmp/${basename} &>/dev/null
+    [ -f /tmp/$(basename $0) ] && rm -rf /tmp/$(basename $0)
+    mkdir /tmp/$(basename $0) &>/dev/null
     if [ "${ADD}" == "true" ]; then
       for pkg in ${built}; do
-        echo "* `date +\"%d-%m-%Y %R\"` `whoami` ${pkg}" >> /tmp/${basename}/header
+        echo "* `date +\"%d-%m-%Y %R\"` `whoami` ${pkg}" >> /tmp/$(basename $0)/header
       done
     fi
     if [ "${REMOVE}" == "true" ]; then
       for pkg in ${packages}; do
-        echo "* `date +\"%d-%m-%Y %R\"` `whoami` ${pkg} REMOVED" >> /tmp/${basename}/header
+        echo "* `date +\"%d-%m-%Y %R\"` `whoami` ${pkg} REMOVED" >> /tmp/$(basename $0)/header
       done
     fi
-    cat /tmp/${basename}/header "${WORKSPACE}"/ChangeLog > /tmp/${basename}/ChangeLog
-    mv /tmp/${basename}/ChangeLog "${WORKSPACE}"/ChangeLog
+    cat /tmp/$(basename $0)/header "${WORKSPACE}"/ChangeLog > /tmp/$(basename $0)/ChangeLog
+    mv /tmp/$(basename $0)/ChangeLog "${WORKSPACE}"/ChangeLog
   fi
     
   if [ "${ADD}" == "true" ]; then
@@ -151,7 +151,7 @@ update(){
 
 usage(){
   printf "A tool to manage your personal Arch Linux repository\n"
-  printf "Usage: ${basename} <operation> [OPTIONS] <package(s)>\n"
+  printf "Usage: $(basename $0) <operation> [OPTIONS] <package(s)>\n"
   printf "\n"
   printf "Operations:\n"
   printf "  -S, --add <pkg>    add or update packages on repository\n"
@@ -319,7 +319,7 @@ get_pkgbuild(){
 }
 
 clean(){
-  rm -rf "${WORKSPACE}" /tmp/${basename} &>/dev/null
+  rm -rf "${WORKSPACE}" /tmp/$(basename $0) &>/dev/null
   printf "${BOLD}Any files in workspace directory have been removed\n${DEFA}"
 }
 
