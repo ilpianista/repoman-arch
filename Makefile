@@ -21,9 +21,9 @@ DESTDIR =
 bindir = /usr/bin
 sysconfdir = /etc
 
+all:
 
-PROGRAMS = repoman
-install: 
+install: all
 	$(INSTALL) -d $(DESTDIR)$(bindir)
 	$(INSTALL) -d $(DESTDIR)$(sysconfdir)
 	$(INSTALL) -m755 repoman $(DESTDIR)$(bindir)
