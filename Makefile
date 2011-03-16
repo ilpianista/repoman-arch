@@ -1,6 +1,6 @@
 # Makefile for Repoman
 #
-# Copyright (C) 2008-2010 Andrea Scarpino <andrea@archlinux.org>
+# Copyright (C) 2008-2011 Andrea Scarpino <andrea@archlinux.org>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
