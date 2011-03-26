@@ -328,13 +328,13 @@ cleanup_ftp(){
   if [ "${REMOVE}" == "true" ]; then
     for pkg in ${packages}; do
       local packageinfo=`tar -tf "${WORKSPACE}"/${REPO}.db.tar.gz.old | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep '^'${pkg}'-[0-9]$*'`
-      [ ! -z ${packageinfo} ] && files="${files} ${packageinfo}-*.pkg.tar.*"
+      [ ! -z ${packageinfo} ] && files="${files} ${packageinfo}-*.pkg.tar.?z"
     done
   elif [ "${ADD}" == "true" ]; then
     for pkg in ${built}; do
       package=`echo ${pkg} | awk -F"-" '{for (i=1; i<NF - 2; i++) printf "%s-", $i; printf $(NF - 2)"\n" }'`
       local packageinfo=`tar -tf "${WORKSPACE}"/${REPO}.db.tar.gz.old | grep -vE 'desc$|depends$' | sed -e 's:\/$::g' | grep '^'${package}'-[0-9]$*'`
-      [ ! -z ${packageinfo} ] && files="${files} ${packageinfo}-*.pkg.tar.*"
+      [ ! -z ${packageinfo} ] && files="${files} ${packageinfo}-*.pkg.tar.?z"
     done
   fi
   if [ ! -z "${files}" ]; then
@@ -453,7 +453,7 @@ main(){
       if [ "${ADD}" == "true" ]; then
         printf "${BOLD}Do you want to clean packages build dirs? (y/N): ${DEFA}"
         read DIR_REMOVE
-        [ "${DIR_REMOVE}" == "y" ] && rm -rf "${WORKSPACE}"/pkgs/*/{pkg/,src/,*.pkg.tar.*} &>/dev/null
+        [ "${DIR_REMOVE}" == "y" ] && rm -rf "${WORKSPACE}"/pkgs/*/{pkg/,src/,*.pkg.tar.?z} &>/dev/null
       fi
     fi
   fi
